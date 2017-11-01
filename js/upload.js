@@ -1,3 +1,4 @@
+//
 function ExportToTable() {  
      var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xlsx|.xls)$/;  
      /*Checks whether the file is a valid excel file*/  
