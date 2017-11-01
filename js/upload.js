@@ -83,9 +83,39 @@ function ExportToTable() {
      $(tableid).append(headerTr$);  
      return columnSet;  
  }
- 	var rowCount = $('#exceltable tr').length;
- 	for(var i=0;i<rowCount;i++){
- 		 console.log($(`#exceltable tr:eq(${i}) td:eq(4)`).text());
- 		 console.log($(`#exceltable tr:eq(${i}) td:eq(4)`).text());
- 		 console.log($(`#exceltable tr:eq(${i}) td:eq(4)`).text());
- 	}
+    var rowCount = $('#exceltable tr').length;
+    for(var i=0;i<rowCount;i++){
+         console.log($(`#exceltable tr:eq(${i}) td:eq(4)`).text());
+         console.log($(`#exceltable tr:eq(${i}) td:eq(4)`).text());
+         console.log($(`#exceltable tr:eq(${i}) td:eq(4)`).text());
+    }
+
+    var siteUrl = 'http://win-kqb8o4aijpr/sites/Hcmunre/';  
+  
+    function createListItem() {    
+        var clientContext = new SP.ClientContext(siteUrl);  
+        var oList = clientContext.get_web().get_lists().getByTitle('Monhoc');
+        var itemCreateInfo = new SP.ListItemCreationInformation();  
+        this.oListItem = oList.addItem(itemCreateInfo); 
+        var rowCount = $('#exceltable tr').length;
+        for(var i=0;i<rowCount;i++){
+        oListItem.set_item('Title', ($(`#exceltable tr:eq(${i}) td:eq(4)`).text()));  
+        oListItem.set_item('Mamonhoc', ($(`#exceltable tr:eq(${i}) td:eq(3)`).text()));  
+        oListItem.set_item('Sotinchi', ($(`#exceltable tr:eq(${i}) td:eq(5)`).text()));  
+        }    
+        oListItem.update();  
+        clientContext.load(oListItem);  
+        clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));  
+    }  
+  
+    function onQuerySucceeded() {  
+  
+        alert('Item created Successfully !!!!');       
+    }  
+  
+    function onQueryFailed(sender, args) {  
+  
+        alert('Request failed. ' + args.get_message() + '\n' + args.get_stackTrace());  
+    }  
+    function ClearFields() {  
+    } 
