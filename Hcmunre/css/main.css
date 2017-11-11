@@ -1,6 +1,133 @@
 ﻿*{margin:0;
 padding: 0;}
-.modal-dialog {
-    width: auto;
-    margin: 30px;
+.modal-body {
+    height: 315px;
+    }
+#tb_showsinhvien{
+	width:92%;
+}
+div#s4-workspace {
+    width: 100%!important;
+    overflow-x: hidden;
+}
+
+div#searchInputBox {
+    margin-top: 24px;
+    margin-right: 10px;
+}
+div#contentBox {
+    min-width: 0;
+    /* margin: 0; */
+}
+#s4-bodyContainer{
+	padding-bottom: 0;
+}
+#contentRow{
+	padding-top: 0;
+}
+
+.ms-siteicon-img {
+    max-width: 309px;
+    max-height: 64px;
+}
+
+.ms-tableRow .navbar{
+	margin-bottom: 0 !important;
+	border:none;
+	border-radius: 0;
+	padding:13px 0px;
+	border-bottom: 2px solid #9a9a9c;
+}
+#titleAreaBox{
+	margin: auto;
+	width: 100%;
+}
+#siteIcon{
+	height: auto;
+	max-height: 64px;
+	line-height: inherit;
+	padding: 10px 0;
+	margin-left: 99px;
+}
+.ms-siteicon-a,
+.ms-siteicon-img{
+	max-width: 330px;
+}
+.ms-core-listMenu-horizontalBox li.static > .ms-core-listMenu-item{
+	font-size: 15px;
+	text-transform: uppercase;
+	font-family: "NotoSans", Sans-Serif;
+	color: #828b93;
+}
+.ms-core-listMenu-horizontalBox li.static > .ms-core-listMenu-item:hover,
+.ms-core-listMenu-horizontalBox li.static > .ms-core-listMenu-item.selected{
+	color: #2882f1;
+}
+#s4-titlerow{
+	padding: 0px;
+	height:90px;
+}
+#titleAreaRow> .ms-breadcrumb-box{
+	text-align: right;
+	vertical-align: middle;
+	height: auto;
+	max-height: 64px;
+}
+.navbar .ms-srch-sb > .ms-srch-sb-searchLink{
+	height: 33px;
+	width: 33px;
+	text-align: center;
+}
+.navbar .ms-srch-sb > .ms-srch-sb-searchLink:before{
+	content: "\f2f5";
+    color: #48a3f0;
+    display: inline-block;
+    font-family: "Ionicons";
+    font-size: 24px;
+}
+.navbar .ms-srch-sb > .ms-srch-sb-searchLink img{
+	display: none;
+}
+/* Hidden edit link*/
+.ms-core-listMenu-horizontalBox >li.static > a,
+.ms-core-listMenu-horizontalBox > .ms-core-listMenu-root > .ms-listMenu-editLink,
+.ms-core-pageTitle{
+	display: none!important;
+}
+#titleAreaRow .navbar-toggle{
+	border: 2px solid #0484cf;
+	min-width: auto;
+}
+#titleAreaRow .navbar-toggle .icon-bar{
+	background: #0484cf;}
+section#footer {
+    padding: 20px;
+    background: url(../imgs/bg02.png);
+    width: 100%;
+}
+i.fa.fa-facebook{
+    background: #3C5B9B;
+}
+i.fa.fa-twitter{
+    background: #359BED;
+}
+i.fa.fa-google-plus{
+    background: #E33729;
+}
+i.fa.fa-linkedin{
+    background: #2e8cc2;
+}
+.xa_hoi i.fa{
+    font-size: 18px;
+    border-radius: 3px;
+    line-height: 35px;
+    display: inline-block;
+    width: 35px;
+    height: 35px;
+    color: #fff;
+    text-align: center;
+    padding: 0;
+}
+.xa_hoi a{
+    text-decoration: none;
 }

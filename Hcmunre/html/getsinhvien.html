@@ -1,0 +1,81 @@
+<script type="text/javascript" src="/sites/Hcmunre/SiteAssets/Hcmunre/js/getsinhvien.js" ></script>
+<div class="row">
+	<div class="col-sm-12 text-center">
+		<h1>Danh sách sinh viên</h1> 
+	</div>
+</div>
+<div ng-app="SharePointAngApp" class="row">  
+    <div ng-controller="spsinhvienController"  
+        class="span10">  
+        <div>  
+            Sort by:  
+            <select ng-model="sortExpression">  
+				<option value="Title">Sinh viên</option>  
+				<option value="Masinvien">Mã sinh viên</option>  
+				<option value="Lop">Lớp</option>
+				<option value="Tinhtrang">Tình trạng</option>  
+			</select>  
+        </div>  
+        <br/> Search By Any:  
+        	<input type="text" ng-model="search.$" />  
+        <br/>  
+        <br/>  
+        <table id="tb_showsinhvien"class="table table-condensed table-hover">  
+            <tr> 
+            	<th>ID</th>  
+                <th>Tên sinh viên</th>  
+                <th>Mã sinh viên</th>  
+                <th>Lớp</th>
+                <th>Tình trạng</th>  
+  				<th>Edit</th>
+            </tr>  
+            <tr ng-repeat="sinhvien in sinhvien | orderBy:mySortFunction | filter:search">  
+                <td>{{sinhvien.ID}}</td>
+                <td>{{sinhvien.Title}}</td>  
+                <td>{{sinhvien.Masinhvien}}</td>  
+                <td>{{sinhvien.Lop}}</td>
+                <td>{{sinhvien.Tinhtrang}}</td>  
+                <td>
+	                <a href=""id="editsinhvien" data-toggle="modal" data-target="#myModal" ng-readonly='!($index == eEditable)' data-ng-click="getByDataID(sinhvien.ID)" class="fa fa-pencil"></a>
+					<div class="modal fade" id="myModal" role="dialog">
+						<div class="modal-dialog">
+						<!-- Modal content-->
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+									<h4 class="modal-title">Chỉnh sửa thông tin sinh viên</h4>
+								</div>
+								<div class="modal-body">
+									<div class="col-sm-12">
+										<div class="form-group">
+											<label>Họ và tên</label>
+											<input id="txtid" class="form-control required"  ng-model="sinhvien.Id" type="hidden">
+											<input id="txthoten" class="form-control required"  ng-model="sinhvien.Title" type="text">
+										</div>
+										<div class="form-group">
+											<label>Mã sinh viên</label>
+											<input id="txma" class="form-control required"type="text" ng-model="sinhvien.Masinhvien">
+										</div>
+										<div class="form-group">
+											<label>Lớp</label>
+											<input id="lop" class="form-control required"type="text" ng-model="sinhvien.Lop">
+										</div>
+										<div class="form-group">
+											<label>Tình trạng</label>
+											<input id="txtinhtrang" class="form-control required"type="text" ng-model="sinhvien.Tinhtrang">
+										</div>
+								    </div>
+								</div>
+								<div class="modal-footer">
+									<input type="submit" class="btn btn-success" value="Update" id="btnupdateval" data-ng-click="Update(sinhvien.ID)"/>
+									<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<a href=""id="Delete"  data-ng-click="Delete(sinhvien.ID)"class="fa fa-trash-o"></a>
+				</td>
+             </tr>  
+        </table>  
+    </div>  
+</div>  
