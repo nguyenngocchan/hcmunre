@@ -1,6 +1,12 @@
-﻿function selectValue() {
-d = document.getElementById("select_id").value;
-return d;}
+jQuery(document).ready(function(){
+    try{
+        getLop();
+    }   
+    catch(error){
+    
+    }
+
+});
 function getLop() {
     // Getting our list items
     $.ajax({
@@ -9,7 +15,7 @@ function getLop() {
         headers: { "Accept": "application/json; odata=verbose" },
         success: function (data) {
             var items = [];
-            
+            var item=[];
             for (var i in data.d.results) {
                 var lop = (data.d.results[i].Lop)?data.d.results[i].Lop:'';
                 var arrlop={LOP:lop};
@@ -24,34 +30,32 @@ function getLop() {
                 if(!existed){
                     items.push(arrlop);
                 }
-                for(var idx = 0; idx < items.length; idx++) {
-                    var s=items[idx].LOP;
-                    var html=('<option value="'+s+'">'+s+'</option>')
-                    items.push(html);
-                }
-                jQuery('#select_id').append(items.join(''));
             }
+            for(var idx = 0; idx < items.length; idx++) {
+                var tenlop = items[idx].LOP;
+                var html=('<option value="'+tenlop+'">'+tenlop+'</option>');
+                item.push(html); 
+            }
+            jQuery('#select_id').append(item.join(''));
         },
         error: function (data) {
             
         }
-        });
-    }
-
-
-
-
-
-
-
-$(document).ready(function () {
-    var listName = "Duyệt công tác";
+    });
+}
+//function selectValue() {
+//  d = document.getElementById("select_id").value;
+//  return d;
+//}
+function showChart() {
+    var tenlop=document.getElementById("select_id").value;
+    var listName = "Sinhvien";
     /*https://social.technet.microsoft.com/wiki/contents/articles/35796.sharepoint-2013-using-rest-api-for-selecting-filtering-sorting-and-pagination-in-sharepoint-list.aspx*/
-	var query = "?$select=Tr_x1ea1_ng_x0020_th_x00e1_i";
+    var query = "?$select=Tinhtrang&$filter=Lop eq '"+tenlop+"'";
       
  var t5spjq = new $.t5_sp_jq({ url: _spPageContextInfo.webServerRelativeUrl });
     var arrChart = [];
-    var arrFn = [t5spjq.getValuesOfChoice(listName, 'Tr_x1ea1_ng_x0020_th_x00e1_i'),
+    var arrFn = [t5spjq.getValuesOfChoice(listName, 'Tinhtrang'),
         t5spjq.getListItems(listName, query)
     ];
     $.when.apply($, arrFn).then(function () {
@@ -66,7 +70,7 @@ $(document).ready(function () {
             $.each(itms, function (idx, itm) {
                 var n = arrChart.length;
                 for (var i = 0; i < n; i++) {
-                    if (arrChart[i].name == itm.Tr_x1ea1_ng_x0020_th_x00e1_i) {
+                    if (arrChart[i].name == itm.Tinhtrang) {
                         arrChart[i].y = arrChart[i].y + 1;
                         break;
                     }
@@ -79,8 +83,8 @@ $(document).ready(function () {
         console.log(mess);
 
     });
-	function bar_char(data) {
-	Highcharts.chart('container', {
+    function bar_char(data) {
+    Highcharts.chart('showchart', {
             chart: {
             plotBackgroundColor: null,
             plotBorderWidth: null,
@@ -110,4 +114,4 @@ $(document).ready(function () {
         }]
         });
 }
-});
+};
