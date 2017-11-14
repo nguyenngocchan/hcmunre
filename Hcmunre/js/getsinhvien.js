@@ -72,7 +72,9 @@ myAngApp.controller('spSinhvienController', function($scope, $http) {
                 },
                 "Title": $scope.sinhvien.Title,
                 "Masinhvien": $scope.sinhvien.Masinhvien,
-                "Lop": $scope.sinhvien.Lop
+                "Lop": $scope.sinhvien.Lop,
+                "Tinhtrang": $scope.sinhvien.Tinhtrang
+
             }),
             headers: {
                 "Accept": "application/json;odata=verbose",
