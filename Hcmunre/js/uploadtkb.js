@@ -86,10 +86,10 @@ function createGuid()
 var guid = createGuid();
 function importThoiKhoaBieu(jsonData) 
 {   
-    var stringStartDate ="2017-11-17T03:00:00Z";
-    var stringEndDate ="2017-12-01T11:00:00Z";
+    //var stringStartDate ="2017-11-17T03:00:00Z";
+    //var stringEndDate ="2017-12-01T11:00:00Z";
     var columns = GetSheetColumns(jsonData);          
-    for(var i = 0; i < jsonData.length; i++){
+    for(var i = 0; i < 2; i++){
         var day=jsonData[i][columns[7]];
         var resultday;
         if(day==2){
@@ -107,6 +107,32 @@ function importThoiKhoaBieu(jsonData)
         if(day==6){
             resultday="fr";
         }
+        var tiethoc=jsonData[i][columns[8]];
+        var gettiet=tiethoc.replace(/[^0-9]/g,'');
+        var resultStartTime;
+        var resultEndTime;
+        if(gettiet==="123"){
+            resultStartTime="06:30am";
+            resultEndTime="09:00am";
+        }
+        if(gettiet==="456"){
+            resultStartTime="09:05am";
+            resultEndTime="11:35am";
+        }
+        if(gettiet==="789"){
+            resultStartTime="12:30pm";
+            resultEndTime="03:00pm";
+        }
+        if(gettiet==="012"){
+            resultStartTime="03:05pm";
+            resultEndTime="05:35pm";
+        }
+        var getDate=jsonData[i][columns[10]];
+        moment('17/11/2017 10:00pm','DD/MM/YYYY h:mma').utc().format('YYYY-MM-DD[T]HH:mm:ss[Z]')
+"2017-11-17T15:00:00Z"
+ngay.split(" - ")
+        var resultStartDate;
+        var resultEndDate;
         var ngay= `<recurrence><rule><firstDayOfWeek>su</firstDayOfWeek><repeat><weekly ${resultday}='TRUE' weekFrequency='1' /></repeat><repeatForever>FALSE</repeatForever></rule></recurrence>`;            
         var data = {
             '__metadata': {
