@@ -86,45 +86,65 @@ function createGuid()
 var guid = createGuid();
 function importThoiKhoaBieu(jsonData) 
 {   
-    var columns = GetSheetColumns(jsonData);
     var stringStartDate ="2017-11-17T03:00:00Z";
     var stringEndDate ="2017-12-01T11:00:00Z";
-    var reccurenceString = "<recurrence><rule><firstDayOfWeek>su</firstDayOfWeek><repeat><weekly we='TRUE' weekFrequency='1' /></repeat><repeatForever>FALSE</repeatForever></rule></recurrence>";
-    for(var i = 0; i <jsonData.length; i++){
-    var data = {
-        '__metadata': {
-            'type': 'SP.Data.TKListItem'
-        },
-        'Title':jsonData[i][columns[1]],
-        'EventDate': stringStartDate,
-        'EndDate': stringEndDate,
-        'Location': 'Seattle',
-        'Description': 'Daily 5',
-        'fRecurrence': true,
-        'fAllDayEvent': false,
-        'RecurrenceData': reccurenceString,
-        'UID': guid,
-        'EventType': 1
-    };
-    //create a string that has the events
-    var recReq =
-            {
-        url: _spPageContextInfo.webAbsoluteUrl+"/_api/web/lists/GetByTitle('TK')/items",
-        type: "POST",
-        data: JSON.stringify(data),
-        headers: {
-            "accept": "application/json;odata=verbose",
-            "content-type": "application/json;odata=verbose",
-            "X-RequestDigest": $("#__REQUESTDIGEST").val()
-        },
-        success :function () {
-            alert("Event data saved.");             
-        },
-        error:function (err) {
-            alert("Error occurred while saving question data.");
-            console.log("ERROR", err);
+    var columns = GetSheetColumns(jsonData);          
+    for(var i = 0; i < jsonData.length; i++){
+        var day=jsonData[i][columns[7]];
+        var resultday;
+        if(day==2){
+            resultday="mo";
         }
-    };
-
-    jQuery.ajax(recReq);};
+        if(day==3){
+            resultday="tu";
+        }
+        if(day==4){
+            resultday="we";
+        }
+        if(day==5){
+            resultday="th";
+        }
+        if(day==6){
+            resultday="fr";
+        }
+        var ngay= `<recurrence><rule><firstDayOfWeek>su</firstDayOfWeek><repeat><weekly ${resultday}='TRUE' weekFrequency='1' /></repeat><repeatForever>FALSE</repeatForever></rule></recurrence>`;            
+        var data = {
+            '__metadata': {
+                'type': 'SP.Data.TKListItem'
+            },
+            'Title':jsonData[i][columns[1]],
+            'Tengiangvien':jsonData[i][columns[2]],
+            'Lop':jsonData[i][columns[1]],
+            'EventDate': stringStartDate,
+            'EndDate': stringEndDate,
+            'Location': 'Seattle',
+            'Description': 'Daily 5',
+            'fRecurrence': true,
+            'fAllDayEvent': false,
+            'RecurrenceData': ngay,
+            'UID': guid,
+            'EventType': 1
+        };
+        //create a string that has the events
+        var recReq =
+                {
+            url: _spPageContextInfo.webAbsoluteUrl+"/_api/web/lists/GetByTitle('TK')/items",
+            type: "POST",
+            data: JSON.stringify(data),
+            headers: {
+                "accept": "application/json;odata=verbose",
+                "content-type": "application/json;odata=verbose",
+                "X-RequestDigest": $("#__REQUESTDIGEST").val()
+            }
+        };
+    
+        jQuery.ajax(recReq)
+    }
+    function success(){
+            alert("Event data saved.");             
+        }
+    function error(err) {
+        alert("Error occurred while saving question data.");
+        console.log("ERROR", err);
+    }
 }
