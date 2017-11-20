@@ -128,11 +128,11 @@ function importThoiKhoaBieu(jsonData)
             resultEndTime="05:35pm";
         }
         var getDate=jsonData[i][columns[10]];
-        moment('17/11/2017 10:00pm','DD/MM/YYYY h:mma').utc().format('YYYY-MM-DD[T]HH:mm:ss[Z]')
-"2017-11-17T15:00:00Z"
-ngay.split(" - ")
-        var resultStartDate;
-        var resultEndDate;
+        var splitGetDate=getDate.split(" - ");
+        var resultStartDate=splitGetDate[0];
+        var resultEndDate=splitGetDate[1];
+        var stringStartDate=moment(`${resultStartDate} ${resultStartTime}`,'DD/MM/YYYY h:mma').utc().format('YYYY-MM-DD[T]HH:mm:ss[Z]');
+        var stringEndDate=moment(`${resultEndDate} ${resultEndTime}`,'DD/MM/YYYY h:mma').utc().format('YYYY-MM-DD[T]HH:mm:ss[Z]');
         var ngay= `<recurrence><rule><firstDayOfWeek>su</firstDayOfWeek><repeat><weekly ${resultday}='TRUE' weekFrequency='1' /></repeat><repeatForever>FALSE</repeatForever></rule></recurrence>`;            
         var data = {
             '__metadata': {
@@ -140,11 +140,14 @@ ngay.split(" - ")
             },
             'Title':jsonData[i][columns[1]],
             'Tengiangvien':jsonData[i][columns[2]],
-            'Lop':jsonData[i][columns[1]],
+            'Tenmonhoc':jsonData[i][columns[4]],
+            'Sotinchi':jsonData[i][columns[5]],
+            'Mamonhoc':jsonData[i][columns[3]],
+            'Siso':jsonData[i][columns[6]],
+            'Phong':jsonData[i][columns[9]],
+            'Buoi':jsonData[i][columns[11]],
             'EventDate': stringStartDate,
             'EndDate': stringEndDate,
-            'Location': 'Seattle',
-            'Description': 'Daily 5',
             'fRecurrence': true,
             'fAllDayEvent': false,
             'RecurrenceData': ngay,
