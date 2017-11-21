@@ -56,9 +56,9 @@ function ExportToTable() {
  function ImportData(jsonData)
  {
     var log = $("#log");
-    log.append("<div>Start to import...</div>");
+    log.append("<div>Đang cập nhật...</div>");
     importThoiKhoaBieu(jsonData);
-    log.append("<div>Importing to TKB</div>");
+    log.append("<div>Cập nhật danh sách thời khóa biểu</div>");
     
  }
  
@@ -89,7 +89,7 @@ function importThoiKhoaBieu(jsonData)
     //var stringStartDate ="2017-11-17T03:00:00Z";
     //var stringEndDate ="2017-12-01T11:00:00Z";
     var columns = GetSheetColumns(jsonData);          
-    for(var i = 0; i < 2; i++){
+    for(var i = 0; i < jsonData.length; i++){
         var day=jsonData[i][columns[7]];
         var resultday;
         if(day==2){
@@ -157,7 +157,7 @@ function importThoiKhoaBieu(jsonData)
         //create a string that has the events
         var recReq =
                 {
-            url: _spPageContextInfo.webAbsoluteUrl+"/_api/web/lists/GetByTitle('TK')/items",
+            url: _spPageContextInfo.webAbsoluteUrl+"/_api/web/lists/GetByTitle('Thời khóa biểu')/items",
             type: "POST",
             data: JSON.stringify(data),
             headers: {
