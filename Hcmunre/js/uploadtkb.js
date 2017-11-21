@@ -57,7 +57,10 @@ function ExportToTable() {
  {
     var log = $("#log");
     log.append("<div>Đang cập nhật...</div>");
-    importThoiKhoaBieu(jsonData);
+    getUser().done(function(lstUsers){
+        importThoiKhoaBieu(jsonData,lstUsers);
+    })
+    
     log.append("<div>Cập nhật danh sách thời khóa biểu</div>");
     
  }
@@ -84,7 +87,22 @@ function createGuid()
    });  
 }  
 var guid = createGuid();
-function importThoiKhoaBieu(jsonData) 
+function getUserLogin(userTitle,lstUsers){
+    var userId = 1073741823;
+
+    for(var itm in lstUsers.d.results)
+    {
+        if (lstUsers.d.results[itm].Title == userTitle)
+        {
+            userId = lstUsers.d.results[itm].Id;
+        }
+    }
+    //var userCurrentField = new SP.FieldLookupValue();
+    //userCurrentField.set_lookupId(userId);
+    //return userCurrentField;
+    return userId ;
+}
+function importThoiKhoaBieu(jsonData,lstUsers) 
 {   
     //var stringStartDate ="2017-11-17T03:00:00Z";
     //var stringEndDate ="2017-12-01T11:00:00Z";
@@ -131,6 +149,7 @@ function importThoiKhoaBieu(jsonData)
         var splitGetDate=getDate.split(" - ");
         var resultStartDate=splitGetDate[0];
         var resultEndDate=splitGetDate[1];
+        var user = getUserLogin(jsonData[i][columns[2]],lstUsers);
         var stringStartDate=moment(`${resultStartDate} ${resultStartTime}`,'DD/MM/YYYY h:mma').utc().format('YYYY-MM-DD[T]HH:mm:ss[Z]');
         var stringEndDate=moment(`${resultEndDate} ${resultEndTime}`,'DD/MM/YYYY h:mma').utc().format('YYYY-MM-DD[T]HH:mm:ss[Z]');
         var ngay= `<recurrence><rule><firstDayOfWeek>su</firstDayOfWeek><repeat><weekly ${resultday}='TRUE' weekFrequency='1' /></repeat><repeatForever>FALSE</repeatForever></rule></recurrence>`;            
@@ -139,7 +158,7 @@ function importThoiKhoaBieu(jsonData)
                 'type': 'SP.Data.TKListItem'
             },
             'Title':jsonData[i][columns[1]],
-            'Tengiangvien':jsonData[i][columns[2]],
+            'UserLoginId': user,
             'Tenmonhoc':jsonData[i][columns[4]],
             'Sotinchi':jsonData[i][columns[5]],
             'Mamonhoc':jsonData[i][columns[3]],
@@ -154,6 +173,7 @@ function importThoiKhoaBieu(jsonData)
             'UID': guid,
             'EventType': 1
         };
+
         //create a string that has the events
         var recReq =
                 {
@@ -167,7 +187,9 @@ function importThoiKhoaBieu(jsonData)
             }
         };
     
-        jQuery.ajax(recReq)
+        jQuery.ajax(recReq).success(function(s) {
+            console.log("ok");
+        }).error(function(e) {console.log(i); console.log(e) });
     }
     function success(){
             alert("Event data saved.");             
@@ -176,4 +198,21 @@ function importThoiKhoaBieu(jsonData)
         alert("Error occurred while saving question data.");
         console.log("ERROR", err);
     }
+}
+function getUser() {
+    var defer = $.Deferred(function () {
+        $.ajax({
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('User%20Information%20List')/items",
+            method: "GET",
+            headers: { "Accept": "application/json; odata=verbose" },
+            success: function (data) {
+                defer.resolve(data);
+            },
+            error: function (err) {
+                console.log(err)
+                defer.reject(err);
+            }
+        });
+    });
+    return defer.promise();
 }
