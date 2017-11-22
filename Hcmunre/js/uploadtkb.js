@@ -57,6 +57,12 @@ function ExportToTable() {
  {
     var log = $("#log");
     log.append("<div>Đang cập nhật...</div>");
+    ImportMonHoc(jsonData);
+    log.append("<div>Cập nhật danh sách môn học</div>");
+    ImportLopHoc(jsonData);
+    log.append("<div>Cập nhật danh sách lớp học</div>");
+    ImportPH(jsonData);
+    log.append("<div>Cập nhật danh sách phòng học</div>");
     getUser().done(function(lstUsers){
         importThoiKhoaBieu(jsonData,lstUsers);
     })
@@ -106,6 +112,12 @@ function importThoiKhoaBieu(jsonData,lstUsers)
 {   
     //var stringStartDate ="2017-11-17T03:00:00Z";
     //var stringEndDate ="2017-12-01T11:00:00Z";
+    var path=document.getElementById('excelfile').value;
+    var file = path.replace(/^.*[\\\/]/, '');
+    var filename = file.substring(0,file.lastIndexOf("."));
+    var arrNamHoc=filename.split("_");
+    var hocKi=arrNamHoc[1]+arrNamHoc[2];
+    var namHoc=arrNamHoc[3]+'-'+arrNamHoc[4];
     var columns = GetSheetColumns(jsonData);          
     for(var i = 0; i < jsonData.length; i++){
         var day=jsonData[i][columns[7]];
@@ -167,6 +179,8 @@ function importThoiKhoaBieu(jsonData,lstUsers)
             'Buoi':jsonData[i][columns[11]],
             'EventDate': stringStartDate,
             'EndDate': stringEndDate,
+            'Hocki':hocKi,
+            'Namhoc':namHoc,
             'fRecurrence': true,
             'fAllDayEvent': false,
             'RecurrenceData': ngay,
@@ -191,13 +205,6 @@ function importThoiKhoaBieu(jsonData,lstUsers)
             console.log("ok");
         }).error(function(e) {console.log(i); console.log(e) });
     }
-    function success(){
-            alert("Event data saved.");             
-        }
-    function error(err) {
-        alert("Error occurred while saving question data.");
-        console.log("ERROR", err);
-    }
 }
 function getUser() {
     var defer = $.Deferred(function () {
@@ -216,3 +223,149 @@ function getUser() {
     });
     return defer.promise();
 }
+function ImportMonHoc(jsonData) 
+ {
+    var items = [];
+    var listitemcollection = [];
+    
+    var columns = GetSheetColumns(jsonData);
+        
+    for (var i = 0; i < jsonData.length; i++) {  
+        var tenmonhoc = (jsonData[i][columns[4]] != null ? jsonData[i][columns[4]] : "");
+        var mamonhoc =  (jsonData[i][columns[3]] != null ? jsonData[i][columns[3]] : "");
+        var tctemp = (jsonData[i][columns[5]] != null ? jsonData[i][columns[5]] : "");
+        var tclt = 0;
+        var tcth = 0;
+        if (tctemp.indexOf("LT") >= 0)
+            tclt = tctemp.replace("(LT)", "");
+        else if (tctemp.indexOf("(TH)") >= 0)
+            tcth = tctemp.replace("(TH)", "");
+        
+        var item = { MMH: mamonhoc, TMH: tenmonhoc, TCLT: tclt, TCTH: tcth }
+        
+        var existed = false;
+        $.each(items, function(idx, val) {
+            var currentItem = items[idx];
+            if (currentItem.MMH === mamonhoc && currentItem.TMH === tenmonhoc)
+            {
+                existed = true;
+                if (currentItem.TCLT === 0)
+                    currentItem.TCLT =  tclt;
+                if (currentItem.TCTH === 0)
+                    currentItem.TCTH =  tcth;
+            }
+        });
+        
+        if (!existed)
+        {
+            items.push(item);
+        }
+    }  
+    
+    var clientContext = SP.ClientContext.get_current();  
+    var oList = clientContext.get_web().get_lists().getByTitle('Monhoc');
+    for(var idx = 0; idx < items.length; idx++) {
+        var itemCreateInfo = new SP.ListItemCreationInformation(); 
+        var oListItem = oList.addItem(itemCreateInfo);
+        oListItem.set_item('Title', items[idx].TMH);  
+        oListItem.set_item('Mamonhoc', items[idx].MMH);  
+        oListItem.set_item('Sotinchi', items[idx].TCLT);
+        oListItem.set_item('Sotinchithuchanh', items[idx].TCTH); 
+        oListItem.update(); 
+        clientContext.load(oListItem);  
+    }
+    
+    clientContext.executeQueryAsync(function()  {
+        $("#log").append("<div>" + items.length + " items are added.</div>");
+    } , function(e, a) {
+        $("#log").append("<div>ERROR: " + JSON.stringify(a.get_message()) + "</div>");
+    });
+ }
+ function ImportPH(jsonData) 
+ {
+    var items = [];
+    var listitemcollection = [];
+    
+    var columns = GetSheetColumns(jsonData);
+        
+    for (var i = 0; i < jsonData.length; i++) {  
+        var tenphonghoc = (jsonData[i][columns[9]] != null ? jsonData[i][columns[9]] : "");
+        var item = { PH: tenphonghoc }
+        
+        var existed = false;
+        $.each(items, function(idx, val) {
+            var currentItem = items[idx];
+            if (currentItem.PH === tenphonghoc)
+            {
+                existed = true;
+                
+            }
+        });
+        
+        if (!existed)
+        {
+            items.push(item);
+        }
+    }  
+    
+    var clientContext = SP.ClientContext.get_current();  
+    var oList = clientContext.get_web().get_lists().getByTitle('Phonghoc');
+    for(var idx = 0; idx < items.length; idx++) {
+        var itemCreateInfo = new SP.ListItemCreationInformation(); 
+        var oListItem = oList.addItem(itemCreateInfo);
+        oListItem.set_item('Title', items[idx].PH);   
+        oListItem.update(); 
+        clientContext.load(oListItem);  
+    }
+    
+    clientContext.executeQueryAsync(function()  {
+        $("#log").append("<div>" + items.length + " items are added.</div>");
+    } , function(e, a) {
+        $("#log").append("<div>ERROR: " + JSON.stringify(a.get_message()) + "</div>");
+    });
+ }
+ function ImportLopHoc(jsonData) 
+ {
+    var items = [];
+    var listitemcollection = [];
+    
+    var columns = GetSheetColumns(jsonData);
+        
+    for (var i = 0; i < jsonData.length; i++) {  
+        var tenlop = (jsonData[i][columns[1]] != null ? jsonData[i][columns[1]] : "");
+        var siso = (jsonData[i][columns[6]] != null ? jsonData[i][columns[6]] : "");
+        var item = { TL: tenlop,SS:siso }
+        
+        var existed = false;
+        $.each(items, function(idx, val) {
+            var currentItem = items[idx];
+            if (currentItem.TL === tenlop && currentItem.SS === siso)
+            {
+                existed = true;
+                
+            }
+        });
+        
+        if (!existed)
+        {
+            items.push(item);
+        }
+    }  
+    
+    var clientContext = SP.ClientContext.get_current();  
+    var oList = clientContext.get_web().get_lists().getByTitle('Lop');
+    for(var idx = 0; idx < items.length; idx++) {
+        var itemCreateInfo = new SP.ListItemCreationInformation(); 
+        var oListItem = oList.addItem(itemCreateInfo);
+        oListItem.set_item('Title', items[idx].TL);  
+        oListItem.set_item('Siso', items[idx].SS);   
+        oListItem.update(); 
+        clientContext.load(oListItem);  
+    }
+    
+    clientContext.executeQueryAsync(function()  {
+        $("#log").append("<div>" + items.length + " items are added.</div>");
+    } , function(e, a) {
+        $("#log").append("<div>ERROR: " + JSON.stringify(a.get_message()) + "</div>");
+    });
+ }
