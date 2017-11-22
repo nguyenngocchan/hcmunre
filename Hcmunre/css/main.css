@@ -1,5 +1,63 @@
 ﻿*{margin:0;
 padding: 0;}
+.modal-dialog {
+    width: 100%;
+}
+.modal-body {
+    height: 100%!important;
+    }
+.col-md-4.col-sm-8.col-xs-8.col-no-padding {
+    margin-bottom: 10px;
+}
+
+.get_survey a.a-image-tile {
+    text-decoration: none;
+}
+
+.conta-tile {
+    padding: 10px 8px;
+    color: #fff;
+    font-size: 16px;
+    /* text-decoration: none; */
+}
+
+.get_survey img.img-responsive.img-tile {
+    width: 100%;
+}
+.ms-core-sideNavBox-removeLeftMargin{
+	margin-top: 25px;
+	margin-bottom: 25px;
+}
+.ms-core-listMenu-verticalBox li.static > .ms-core-listMenu-item{
+	min-height: 50px;
+    border-radius: 2px;
+    background-color: #f6f6f6;
+    display: block;
+    margin-bottom: 5px;
+    color: #444444;
+    padding: 11px 30px 11px 15px;
+    transition: all 0.25s ease-in-out;
+    position: relative;
+    font-weight:600;
+}
+.ms-core-listMenu-verticalBox li.static.selected > .ms-core-listMenu-item{
+	color: #009241;
+}
+.ms-core-listMenu-verticalBox li.static.selected > .ms-core-listMenu-item:before{
+	content: '';
+    background-color: #009241;
+    display: inline-block;
+    height: 100%;
+    width: 5px;
+    border-radius: 10px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 1;
+}
+.ms-navedit-editLinksText > span > .ms-metadata{
+	color: #444444;
+}
 .modal-body {
     height: 315px;
     }
