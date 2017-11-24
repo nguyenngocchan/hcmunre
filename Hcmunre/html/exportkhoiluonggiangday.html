@@ -1,10 +1,27 @@
 <script src='../SiteAssets/Hcmunre/js/exportkhoiluonggiangday.js' type='text/javascript'></script>
-<div class="container">
   <div class="row">
     <div class="col-sm-12 text-center">
       <h2>Thống kê khối lượng giảng dạy</h2>
     </div>
-    <div class="col-md-8 col-md-offset-2">
+  </div>
+  <div class="row">
+    <div class="col-sm-2">
+      <div class="form-group">
+        <label>Chọn năm học</label>
+        <select class="form-control" id="select_namhoc">
+        </select>
+      </div>
+    </div>
+    <div class="col-sm-2">
+      <div class="form-group">
+        <label>Chọn học kì</label>
+        <select class="form-control" id="select_hocki" >
+          <option value="hk1">HK1</option>
+          <option value="hk1">HK2</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-md-8">
       <div class="form-group">
         <label>Chọn giảng viên</label>
         <select class="form-control" id="select_id" >
@@ -12,7 +29,6 @@
       </div>
     </div>
   </div>
-</div>
 <div id="myModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
     <!-- Modal content-->

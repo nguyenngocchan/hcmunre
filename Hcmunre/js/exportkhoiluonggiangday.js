@@ -1,7 +1,80 @@
+function getNamHoc(){
+    // Getting our list items
+    $.ajax({
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời khóa biểu')/items?$select=Namhoc&$top=1000",
+        method: "GET",
+        headers: { "Accept": "application/json; odata=verbose" },
+        success: function (data) {
+            var items = [];
+            var item=[];
+            for (var i in data.d.results) {
+                var namhoc = (data.d.results[i].Namhoc)?data.d.results[i].Namhoc:'';
+                var arrnamhoc={NH:namhoc};
+                var existed=false;
+                $.each(items,function(idx,val){
+                        var currentItem=items[idx];
+                        if(currentItem.NH===namhoc){
+                            existed=true;
+                        }               
+                    }
+                );  
+                if(!existed){
+                    items.push(arrnamhoc);
+                }
+            }
+            for(var idx = 0; idx < items.length; idx++) {
+                var tennamhoc = items[idx].NH;
+                var html=('<option value="'+tennamhoc+'">'+tennamhoc+'</option>');
+                item.push(html); 
+            }
+            jQuery('#select_namhoc').append(item.join(''));
+        },
+        error: function (data) {
+            
+        }
+    });
+}
+/*function getHocKi(){
+    var namhoc=$("#select_namhoc option:selected").text();
+    // Getting our list items
+    $.ajax({
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời khóa biểu')/items?$select=Namhoc,Hocki&$filter=Namhoc eq '"+namhoc+"'&$top=1000",
+        method: "GET",
+        headers: { "Accept": "application/json; odata=verbose" },
+        success: function (data) {
+            var items = [];
+            var item=[];
+            for (var i in data.d.results) {
+                var hocki = (data.d.results[i].Hocki)?data.d.results[i].Hocki:'';
+                var arrhocki={HK:hocki};
+                var existed=false;
+                $.each(items,function(idx,val){
+                        var currentItem=items[idx];
+                        if(currentItem.HK===hocki){
+                            existed=true;
+                        }               
+                    }
+                );  
+                if(!existed){
+                    items.push(arrhocki);
+                }
+            }
+            for(var idx = 0; idx < items.length; idx++) {
+                var tenhocki = items[idx].HK;
+                var html=('<option value="'+tenhocki+'">'+tenhocki+'</option>');
+                item.push(html); 
+            }
+            jQuery('#select_hocki').append(item.join(''));
+        },
+        error: function (data) {
+            
+        }
+    });
+}*/
 function getTenGiangVien() {
     // Getting our list items
     $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời khóa biểu')/items?$select=UserLogin/Title,UserLogin/ID&$expand=UserLogin",
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời khóa biểu')/items?$select=UserLogin/Title,UserLogin/ID&$expand=UserLogin&$top=1000",
         method: "GET",
         headers: { "Accept": "application/json; odata=verbose" },
         success: function (data) {
@@ -36,9 +109,11 @@ function getTenGiangVien() {
 }
 function getKhoiLuongGiangVien() {
     // Getting our list items
-    var tengiangvien=$("select option:selected").text();
+    var hocki=$("#select_hocki option:selected").text();
+    var namhoc=$("#select_namhoc option:selected").text();
+    var ten=$("#select_id option:selected").text();
     $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời%20khóa%20biểu')/items?$select=Id,Title,EventDate,EndDate,Tenmonhoc,Sotinchi,Mamonhoc,Siso,Phong,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/Id&$expand=UserLogin&$filter=UserLogin/Title eq '"+tengiangvien+"'",
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời%20khóa%20biểu')/items?$select=Id,Title,EventDate,EndDate,Tenmonhoc,Sotinchi,Mamonhoc,Siso,Phong,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/Id&$expand=UserLogin&$filter=UserLogin/Title eq '"+ten+"'",
         method: "GET",
         headers: { "Accept": "application/json; odata=verbose" },
         success: function (data) {
@@ -101,16 +176,11 @@ var tableToExcel = (function() {
           }
         })()
 jQuery(document).ready(function(){
-  try{
+    getNamHoc();
     getTenGiangVien();
+        $("#select_id").change(function () {
+        $( $(this).val() ).modal('show');
+        getKhoiLuongGiangVien();
+    }); 
     
-  } 
-  catch(error){
-  
-  };
-  $("#select_id").change(function () {
-    $( $(this).val() ).modal('show');
-    getKhoiLuongGiangVien();
-    
-});
 });
