@@ -1,3 +1,19 @@
+function getItems(){
+    // Getting our list items
+    $.ajax({
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời khóa biểu')/items(1681)",
+        method: "GET",
+        headers: { "Accept": "application/json; odata=verbose" },
+        success: function (data) {
+            var items = [];
+            for (var i in data.d.results) {
+            }
+        },
+        error: function (data) {
+            
+        }
+    });
+}
 function getNamHoc(){
     // Getting our list items
     $.ajax({
@@ -34,7 +50,7 @@ function getNamHoc(){
         }
     });
 }
-/*function getHocKi(){
+function getHocKi(){
     var namhoc=$("#select_namhoc option:selected").text();
     // Getting our list items
     $.ajax({
@@ -70,7 +86,7 @@ function getNamHoc(){
             
         }
     });
-}*/
+}
 function getTenGiangVien() {
     // Getting our list items
     $.ajax({
@@ -112,23 +128,54 @@ function getKhoiLuongGiangVien() {
     var hocki=$("#select_hocki option:selected").text();
     var namhoc=$("#select_namhoc option:selected").text();
     var ten=$("#select_id option:selected").text();
+    var query="/_api/web/lists/getbytitle('Thời%20khóa%20biểu')/items?$select=Id,Title,EventDate,EndDate,Tenmonhoc,Sotinchi,Mamonhoc,Siso,Phong,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/Id&$expand=UserLogin&$filter=((UserLogin/Title eq '"+ten+"') and (Namhoc eq '"+namhoc+"') and (Hocki eq '"+hocki+"'))&$top=1000";
+    //"/_api/web/lists/getbytitle('Thời%20khóa%20biểu')/items?$select=Id,Title,EventDate,EndDate,Tenmonhoc,Sotinchi,Mamonhoc,Siso,Phong,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/Id&$expand=UserLogin&$filter=((Namhoc eq '"+namhoc+"') and (Hocki eq '"+hocki+"') and (UserLogin/Title eq '"+ten+"'))&$top=1000";
     $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời%20khóa%20biểu')/items?$select=Id,Title,EventDate,EndDate,Tenmonhoc,Sotinchi,Mamonhoc,Siso,Phong,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/Id&$expand=UserLogin&$filter=UserLogin/Title eq '"+ten+"'",
+        url: _spPageContextInfo.webAbsoluteUrl + query,   
         method: "GET",
         headers: { "Accept": "application/json; odata=verbose" },
         success: function (data) {
             var items = [];
+            var arrkekhai=[];
             var item=[];
-            for (var i in data.d.results) {       
+            for (var i in data.d.results) { 
                 var tenmonhoc=(data.d.results[i].Tenmonhoc)?data.d.results[i].Tenmonhoc:'';
                 var lop=(data.d.results[i].Title)?data.d.results[i].Title:'';
-                var sotiet=(data.d.results[i].Sotinchi)?data.d.results[i].Sotinchi:''; 
+                var tctemp=(data.d.results[i].Sotinchi)?data.d.results[i].Sotinchi:''; 
+                var tclt=0;
+                var tcth=0;
+                if (tctemp.indexOf("LT") >= 0)
+                tclt = tctemp.replace("(LT)", "");
+                else if (tctemp.indexOf("(TH)") >= 0)
+                tcth = tctemp.replace("(TH)", "");
+                item={TMH: tenmonhoc,LOP:lop,TCLT: tclt, TCTH: tcth};
+                var existed = false;
+                $.each(items, function(idx, val) {
+                    var currentItem = items[idx];
+                    if (currentItem.TMH === tenmonhoc && currentItem.LOP === lop)
+                    {
+                        existed = true;
+                        currentItem.TMH=tenmonhoc;
+                        currentItem.LOP=lop;
+                        if (currentItem.TCLT === 0)
+                            currentItem.TCLT =  tclt;
+                        if (currentItem.TCTH === 0)
+                            currentItem.TCTH =  tcth;
+                    }
+                });
+                
+                if (!existed)
+                {
+                    items.push(item);
+                }      
+            }
+            for(var idx=0;idx<items.length;idx++){
                 var htmlkekhai=(
-                   '<tr class="xl158" height="22" style="height:16.5pt" >'+  
-                '<td height="22" class="xl190" style="height:16.5pt;border-top:none">'+tenmonhoc+'</td>'+
-                  '<td class="xl151" style="border-top:none;border-left:none">'+lop+'</td>'+
-                  '<td class="xl152" style="border-top:none;border-left:none">30</td>'+
-                  '<td class="xl154" style="border-top:none;border-left:none">30</td>'+
+                  '<tr class="xl158" height="22" style="height:16.5pt" >'+  
+                  '<td height="22" class="xl190" style="height:16.5pt;border-top:none">'+items[idx].TMH+'</td>'+
+                  '<td class="xl151" style="border-top:none;border-left:none">'+items[idx].LOP+'</td>'+
+                  '<td class="xl152" style="border-top:none;border-left:none">'+items[idx].TCLT*15+'/'+items[idx].TCTH*30+'</td>'+
+                  '<td class="xl154" style="border-top:none;border-left:none">'+((items[idx].TCLT*15)+((items[idx].TCTH*30)*0.75))+'</td>'+
                   '<td class="xl152" style="border-top:none;border-left:none">8</td>'+
                   '<td class="xl152" style="border-top:none;border-left:none">0</td>'+
                   '<td class="xl153" style="border-top:none;border-left:none">ĐH-TC</td>'+
@@ -152,12 +199,12 @@ function getKhoiLuongGiangVien() {
                   '<td class="xl158"></td>'+
                   '</tr>'
                     );
-                items.push(htmlkekhai);         
+                arrkekhai.push(htmlkekhai);   
             }
             var htmltengiangvien = (data.d.results[i].UserLogin.Title)?data.d.results[i].UserLogin.Title:'';  
             jQuery('#tengiangvien').html(htmltengiangvien);
             //jQuery('#kekhai').html(items.join(''));
-            jQuery('#testTable > tbody > tr').eq(jQuery('#dataafter').index()).after(items.join(''));
+            jQuery('#testTable > tbody > tr').eq(jQuery('#dataafter').index()).after(arrkekhai.join(''));
         },
         error: function (data) {
             
@@ -177,10 +224,11 @@ var tableToExcel = (function() {
         })()
 jQuery(document).ready(function(){
     getNamHoc();
+   // getHocKi();
     getTenGiangVien();
-        $("#select_id").change(function () {
-        $( $(this).val() ).modal('show');
-        getKhoiLuongGiangVien();
+    $("#select_id").change(function () {
+    $( $(this).val() ).modal('show');
+    getKhoiLuongGiangVien();
     }); 
     
 });
