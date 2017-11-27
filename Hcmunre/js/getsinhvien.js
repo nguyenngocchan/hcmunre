@@ -9,6 +9,16 @@ myAngApp.controller('spSinhvienController', function($scope, $http) {
         }
     }).success(function(data, status, headers, config) {
         $scope.sinhviens = data.d.results;
+        $scope.totalItems = $scope.sinhviens.length;  
+        $scope.numPerPage = 5;
+        $scope.currentPage = 1; 
+        $scope.paginate = function (value) {  
+        var begin, end, index;  
+        begin = ($scope.currentPage - 1) * $scope.numPerPage;  
+        end = begin + $scope.numPerPage;  
+        index = $scope.sinhviens.indexOf(value);  
+        return (begin <= index && index < end);  
+        };
         // var a= $scope.customers;
     }).error(function(data, status, headers, config) {});
     //$scope.customers = [];

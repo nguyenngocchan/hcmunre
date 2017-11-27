@@ -141,6 +141,7 @@ function getKhoiLuongGiangVien() {
             for (var i in data.d.results) { 
                 var tenmonhoc=(data.d.results[i].Tenmonhoc)?data.d.results[i].Tenmonhoc:'';
                 var lop=(data.d.results[i].Title)?data.d.results[i].Title:'';
+                var siso=(data.d.results[i].Siso)?data.d.results[i].Siso:'';
                 var tctemp=(data.d.results[i].Sotinchi)?data.d.results[i].Sotinchi:''; 
                 var tclt=0;
                 var tcth=0;
@@ -148,7 +149,7 @@ function getKhoiLuongGiangVien() {
                 tclt = tctemp.replace("(LT)", "");
                 else if (tctemp.indexOf("(TH)") >= 0)
                 tcth = tctemp.replace("(TH)", "");
-                item={TMH: tenmonhoc,LOP:lop,TCLT: tclt, TCTH: tcth};
+                item={TMH: tenmonhoc,LOP:lop,TCLT: tclt, TCTH: tcth,};
                 var existed = false;
                 $.each(items, function(idx, val) {
                     var currentItem = items[idx];
@@ -171,7 +172,7 @@ function getKhoiLuongGiangVien() {
             }
             for(var idx=0;idx<items.length;idx++){
                 var htmlkekhai=(
-                  '<tr class="xl158" height="22" style="height:16.5pt" >'+  
+                  '<tr class="xl158 trdataitem" height="22" style="height:16.5pt" >'+  
                   '<td height="22" class="xl190" style="height:16.5pt;border-top:none">'+items[idx].TMH+'</td>'+
                   '<td class="xl151" style="border-top:none;border-left:none">'+items[idx].LOP+'</td>'+
                   '<td class="xl152" style="border-top:none;border-left:none">'+items[idx].TCLT*15+'/'+items[idx].TCTH*30+'</td>'+
@@ -204,6 +205,7 @@ function getKhoiLuongGiangVien() {
             var htmltengiangvien = (data.d.results[i].UserLogin.Title)?data.d.results[i].UserLogin.Title:'';  
             jQuery('#tengiangvien').html(htmltengiangvien);
             //jQuery('#kekhai').html(items.join(''));
+            jQuery('#testTable > tbody > tr.trdataitem').each(function() { jQuery(this).remove(); });
             jQuery('#testTable > tbody > tr').eq(jQuery('#dataafter').index()).after(arrkekhai.join(''));
         },
         error: function (data) {

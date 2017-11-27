@@ -57,12 +57,12 @@ function ExportToTable() {
  {
     var log = $("#log");
     log.append("<div>Đang cập nhật...</div>");
-    ImportMonHoc(jsonData);
-    log.append("<div>Cập nhật danh sách môn học</div>");
-    ImportLopHoc(jsonData);
-    log.append("<div>Cập nhật danh sách lớp học</div>");
-    ImportPH(jsonData);
-    log.append("<div>Cập nhật danh sách phòng học</div>");
+    //ImportMonHoc(jsonData);
+    //log.append("<div>Cập nhật danh sách môn học</div>");
+    //ImportLopHoc(jsonData);
+    //log.append("<div>Cập nhật danh sách lớp học</div>");
+    //ImportPH(jsonData);
+    //log.append("<div>Cập nhật danh sách phòng học</div>");
     getUser().done(function(lstUsers){
         importThoiKhoaBieu(jsonData,lstUsers);
     })
