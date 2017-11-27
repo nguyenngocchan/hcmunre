@@ -1,3 +1,16 @@
+function sum(input){             
+    if (toString.call(input) !== "[object Array]")
+        return false;
+    var total =  0;
+    for(var i=0;i<input.length;i++)
+      {                  
+        if(isNaN(input[i])){
+        continue;
+         }
+          total += Number(input[i]);
+       }
+    return total;
+}
 function getItems(){
     // Getting our list items
     $.ajax({
@@ -128,7 +141,7 @@ function getKhoiLuongGiangVien() {
     var hocki=$("#select_hocki option:selected").text();
     var namhoc=$("#select_namhoc option:selected").text();
     var ten=$("#select_id option:selected").text();
-    var query="/_api/web/lists/getbytitle('Thời%20khóa%20biểu')/items?$select=Id,Title,EventDate,EndDate,Tenmonhoc,Sotinchi,Mamonhoc,Siso,Phong,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/Id&$expand=UserLogin&$filter=((UserLogin/Title eq '"+ten+"') and (Namhoc eq '"+namhoc+"') and (Hocki eq '"+hocki+"'))&$top=1000";
+    var query="/_api/web/lists/getbytitle('Thời%20khóa%20biểu')/items?$select=Id,Title,EventDate,EndDate,Tenmonhoc,Sotinchi,Mamonhoc,Siso,Phong,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/JobTitle,UserLogin/Id&$expand=UserLogin&$filter=((UserLogin/Title eq '"+ten+"') and (Namhoc eq '"+namhoc+"') and (Hocki eq '"+hocki+"'))&$top=1000";
     //"/_api/web/lists/getbytitle('Thời%20khóa%20biểu')/items?$select=Id,Title,EventDate,EndDate,Tenmonhoc,Sotinchi,Mamonhoc,Siso,Phong,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/Id&$expand=UserLogin&$filter=((Namhoc eq '"+namhoc+"') and (Hocki eq '"+hocki+"') and (UserLogin/Title eq '"+ten+"'))&$top=1000";
     $.ajax({
         url: _spPageContextInfo.webAbsoluteUrl + query,   
@@ -137,6 +150,7 @@ function getKhoiLuongGiangVien() {
         success: function (data) {
             var items = [];
             var arrkekhai=[];
+            var arrtong2=[];
             var item=[];
             for (var i in data.d.results) { 
                 var tenmonhoc=(data.d.results[i].Tenmonhoc)?data.d.results[i].Tenmonhoc:'';
@@ -149,7 +163,7 @@ function getKhoiLuongGiangVien() {
                 tclt = tctemp.replace("(LT)", "");
                 else if (tctemp.indexOf("(TH)") >= 0)
                 tcth = tctemp.replace("(TH)", "");
-                item={TMH: tenmonhoc,LOP:lop,TCLT: tclt, TCTH: tcth,};
+                item={TMH: tenmonhoc,LOP:lop,TCLT: tclt, TCTH: tcth,SS:siso};
                 var existed = false;
                 $.each(items, function(idx, val) {
                     var currentItem = items[idx];
@@ -171,22 +185,77 @@ function getKhoiLuongGiangVien() {
                 }      
             }
             for(var idx=0;idx<items.length;idx++){
+                var sotietltth=items[idx].TCLT*15+'/'+items[idx].TCTH*30;
+                var sotietlt=items[idx].TCLT*15;
+                var sotietth=items[idx].TCTH*30;
+                var sisolt;
+                var sisoth;
+                if(sotietlt!=0 && sotietth!=0){
+                    sisolt=sisoth=items[idx].SS;                
+                }
+                if(sotietlt==0 && sotietth!=0){
+                    sisolt=0;
+                    sisoth=items[idx].SS;
+                }
+                if(sotietlt!=0 && sotietth==0){
+                    sisolt=items[idx].SS;
+                    sisoth=0;
+                }
+                var bacdaotao;
+                var splitlop=(items[idx].LOP).split("_");
+                if(splitlop[1]==="ĐH"){
+                    bacdaotao="ĐH";
+                }
+                if(splitlop[1]==="TRC"){
+                    bacdaotao="TRC";
+                }
+                if(splitlop[1]==="CĐ"){
+                    bacdaotao="CĐ";
+                }
+                else{
+                    bacdaotao="ĐH-TC"
+                    }
+                var ldth;
+                if(sisoth<27){
+                    ldth=1;
+                }
+                if(sisoth>26 && sisoth<39){
+                    ldth=1.1;
+                }
+                if(sisoth>38){
+                    ldth=1.2;
+                }
+                var dtkc=0.95;
+                if(bacdaotao==="ĐH" || bacdaotao==="CĐ"){
+                    dtkc=1.1;
+                }
+                if(bacdaotao==="ĐH-TC"){
+                    dtkc=2;
+                }
+                if(bacdaotao==="ĐH-TA"){
+                    dtkc=1.2;
+                }
+                var getngoaigio="TG"
+                var ngoaigio=1;
+                if(getngoaigio==="NG"){
+                    ngoaigio=1.4;
+                }
                 var htmlkekhai=(
                   '<tr class="xl158 trdataitem" height="22" style="height:16.5pt" >'+  
                   '<td height="22" class="xl190" style="height:16.5pt;border-top:none">'+items[idx].TMH+'</td>'+
                   '<td class="xl151" style="border-top:none;border-left:none">'+items[idx].LOP+'</td>'+
-                  '<td class="xl152" style="border-top:none;border-left:none">'+items[idx].TCLT*15+'/'+items[idx].TCTH*30+'</td>'+
+                  '<td class="xl152" style="border-top:none;border-left:none">'+sotietltth+'</td>'+
                   '<td class="xl154" style="border-top:none;border-left:none">'+((items[idx].TCLT*15)+((items[idx].TCTH*30)*0.75))+'</td>'+
-                  '<td class="xl152" style="border-top:none;border-left:none">8</td>'+
-                  '<td class="xl152" style="border-top:none;border-left:none">0</td>'+
-                  '<td class="xl153" style="border-top:none;border-left:none">ĐH-TC</td>'+
-                  '<td class="xl152" style="border-top:none;border-left:none">TG</td>'+
+                  '<td class="xl152" style="border-top:none;border-left:none">'+sisolt+'</td>'+
+                  '<td class="xl152" style="border-top:none;border-left:none">'+sisoth+'</td>'+
+                  '<td class="xl153" style="border-top:none;border-left:none">'+bacdaotao+'</td>'+
+                  '<td class="xl152" style="border-top:none;border-left:none">'+getngoaigio+'</td>'+
                   '<td class="xl154" style="border-top:none;border-left:none">1</td>'+
-                  '<td class="xl154" style="border-top:none;border-left:none">1</td>'+
-                  '<td class="xl154" style="border-top:none;border-left:none">2</td>'+
+                  '<td class="xl154" style="border-top:none;border-left:none">'+ldth+'</td>'+
+                  '<td class="xl154" style="border-top:none;border-left:none">'+dtkc+'</td>'+
                   '<td class="xl155" style="border-top:none;border-left:none">1.4</td>'+
-                  '<td class="xl154" style="border-top:none;border-left:none">1</td>'+
-                  '<td class="xl156" align="right" style="border-top:none;border-left:none">84.00</td>'+
+                  '<td class="xl154" style="border-top:none;border-left:none">'+ngoaigio+'</td>'+
+                  '<td class="xl156" align="right" style="border-top:none;border-left:none">'+(((items[idx].TCLT*15)+((items[idx].TCTH*30)*0.75)))*ldth*dtkc*ngoaigio+'</td>'+
                   '<td class="xl157" style="border-top:none;border-left:none">&nbsp;</td>'+
                   '<td class="xl158"></td>'+
                   '<td class="xl158"></td>'+
@@ -200,9 +269,15 @@ function getKhoiLuongGiangVien() {
                   '<td class="xl158"></td>'+
                   '</tr>'
                     );
-                arrkekhai.push(htmlkekhai);   
+               
+               var tong2=(((items[idx].TCLT*15)+((items[idx].TCTH*30)*0.75)))*ldth*dtkc*ngoaigio;
+               arrtong2.push(tong2);
+                arrkekhai.push(htmlkekhai);  
             }
+            var htmlhocvi=(data.d.results[i].UserLogin.JobTitle)?data.d.results[i].UserLogin.JobTitle:'';
             var htmltengiangvien = (data.d.results[i].UserLogin.Title)?data.d.results[i].UserLogin.Title:'';  
+            jQuery('#tong2').html(sum(arrtong2));
+            jQuery('#hocvi').html(htmlhocvi);
             jQuery('#tengiangvien').html(htmltengiangvien);
             //jQuery('#kekhai').html(items.join(''));
             jQuery('#testTable > tbody > tr.trdataitem').each(function() { jQuery(this).remove(); });
