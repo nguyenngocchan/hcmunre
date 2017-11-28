@@ -94,7 +94,7 @@ function createGuid()
 }  
 var guid = createGuid();
 function getUserLogin(userTitle,lstUsers){
-    var userId = 1073741823;
+    var userId;
 
     for(var itm in lstUsers.d.results)
     {

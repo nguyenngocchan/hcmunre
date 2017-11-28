@@ -1,15 +1,15 @@
 function sum(input){             
-    if (toString.call(input) !== "[object Array]")
-        return false;
-    var total =  0;
-    for(var i=0;i<input.length;i++)
-      {                  
-        if(isNaN(input[i])){
-        continue;
-         }
-          total += Number(input[i]);
-       }
-    return total;
+if (toString.call(input) !== "[object Array]")
+    return false;
+var total =  0;
+for(var i=0;i<input.length;i++)
+  {                  
+    if(isNaN(input[i])){
+    continue;
+     }
+      total += Number(input[i]);
+   }
+return total;
 }
 function getItems(){
     // Getting our list items
@@ -157,6 +157,7 @@ function getKhoiLuongGiangVien() {
                 var lop=(data.d.results[i].Title)?data.d.results[i].Title:'';
                 var siso=(data.d.results[i].Siso)?data.d.results[i].Siso:'';
                 var tctemp=(data.d.results[i].Sotinchi)?data.d.results[i].Sotinchi:''; 
+                var htmlhocvi=(data.d.results[i].UserLogin.JobTitle)?data.d.results[i].UserLogin.JobTitle:'';
                 var tclt=0;
                 var tcth=0;
                 if (tctemp.indexOf("LT") >= 0)
@@ -240,6 +241,22 @@ function getKhoiLuongGiangVien() {
                 if(getngoaigio==="NG"){
                     ngoaigio=1.4;
                 }
+                var hocvikh=0.8;
+                if(htmlhocvi==="Thạc sĩ"){
+                    hocvikh=1;
+                }
+                if(htmlhocvi==="Thạc sĩ - Giảng viên chính"){
+                    hocvikh=1.2;
+                }
+                if(htmlhocvi==="Tiến sĩ"){
+                    hocvikh=1.4;
+                }
+                if(htmlhocvi==="Tiến sĩ - Giảng viên chính"){
+                    hocvikh=1.5;
+                }
+                if(htmlhocvi==="Phó Giáo sư - Giảng viên cao cấp"){
+                    hocvikh=2.5;
+                }
                 var htmlkekhai=(
                   '<tr class="xl158 trdataitem" height="22" style="height:16.5pt" >'+  
                   '<td height="22" class="xl190" style="height:16.5pt;border-top:none">'+items[idx].TMH+'</td>'+
@@ -253,7 +270,7 @@ function getKhoiLuongGiangVien() {
                   '<td class="xl154" style="border-top:none;border-left:none">1</td>'+
                   '<td class="xl154" style="border-top:none;border-left:none">'+ldth+'</td>'+
                   '<td class="xl154" style="border-top:none;border-left:none">'+dtkc+'</td>'+
-                  '<td class="xl155" style="border-top:none;border-left:none">1.4</td>'+
+                  '<td class="xl155" style="border-top:none;border-left:none">'+hocvikh+'</td>'+
                   '<td class="xl154" style="border-top:none;border-left:none">'+ngoaigio+'</td>'+
                   '<td class="xl156" align="right" style="border-top:none;border-left:none">'+(((items[idx].TCLT*15)+((items[idx].TCTH*30)*0.75)))*ldth*dtkc*ngoaigio+'</td>'+
                   '<td class="xl157" style="border-top:none;border-left:none">&nbsp;</td>'+
@@ -273,8 +290,7 @@ function getKhoiLuongGiangVien() {
                var tong2=(((items[idx].TCLT*15)+((items[idx].TCTH*30)*0.75)))*ldth*dtkc*ngoaigio;
                arrtong2.push(tong2);
                 arrkekhai.push(htmlkekhai);  
-            }
-            var htmlhocvi=(data.d.results[i].UserLogin.JobTitle)?data.d.results[i].UserLogin.JobTitle:'';
+            } 
             var htmltengiangvien = (data.d.results[i].UserLogin.Title)?data.d.results[i].UserLogin.Title:'';  
             jQuery('#tong2').html(sum(arrtong2));
             jQuery('#hocvi').html(htmlhocvi);
