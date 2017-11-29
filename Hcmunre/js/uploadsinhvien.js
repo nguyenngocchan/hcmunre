@@ -55,16 +55,16 @@ function ExportToTable() {
  
  function ImportData(jsonData)
  {
- 	var log = $("#log");
- 	log.append("<div>Start to import...</div>");
- 	 ImportSinhVien(jsonData);
- 	log.append("<div>Importing to Sinhvien list</div>");
-  	
+    var log = $("#log");
+    log.append("<div>Start to import...</div>");
+     ImportSinhVien(jsonData);
+    log.append("<div>Importing to Sinhvien list</div>");
+    
  }
  
  function GetSheetColumns(jsondata) {/*Function used to get all column names from JSON and bind the html table header*/  
      var columnSet = [];   
-     for (var i = 0	; i < jsondata.length; i++) {  
+     for (var i = 0 ; i < jsondata.length; i++) {  
          var rowHash = jsondata[i];  
          for (var key in rowHash) {  
              if (rowHash.hasOwnProperty(key)) {  
@@ -78,29 +78,29 @@ function ExportToTable() {
  }
   function ImportSinhVien(jsonData) 
  {
- 	var path=document.getElementById('excelfile').value;
- 	var file = path.replace(/^.*[\\\/]/, '');
- 	var filename = file.substring(0,file.lastIndexOf("."));
- 	var columns = GetSheetColumns(jsonData);    
+    var path=document.getElementById('excelfile').value;
+    var file = path.replace(/^.*[\\\/]/, '');
+    var filename = file.substring(0,file.lastIndexOf("."));
+    var columns = GetSheetColumns(jsonData);    
     var clientContext = SP.ClientContext.get_current();  
-	var oList = clientContext.get_web().get_lists().getByTitle('Sinhvien');
+    var oList = clientContext.get_web().get_lists().getByTitle('Sinhvien');
     for(var i = 0; i < jsonData.length; i++) {
-    	var itemCreateInfo = new SP.ListItemCreationInformation(); 
-    	var oListItem = oList.addItem(itemCreateInfo);
-    	var ho_ten=jsonData[i][columns[2]]+" "+jsonData[i][columns[3]]
-    	oListItem.set_item('Title', ho_ten); 
-    	oListItem.set_item('Lop', filename ); 
-    	oListItem.set_item('Masinhvien', jsonData[i][columns[1]]);   
-		oListItem.update(); 
-		clientContext.load(oListItem);  
+        var itemCreateInfo = new SP.ListItemCreationInformation(); 
+        var oListItem = oList.addItem(itemCreateInfo);
+        var ho_ten=jsonData[i][columns[2]]+" "+jsonData[i][columns[3]]
+        oListItem.set_item('Title', ho_ten); 
+        oListItem.set_item('Lop', filename ); 
+        oListItem.set_item('Masinhvien', jsonData[i][columns[1]]);   
+        oListItem.update(); 
+        clientContext.load(oListItem);  
     }
     
-	clientContext.executeQueryAsync(function()  {
-		$("#log").append("<div>" + jsonData.length + " items are added.</div>");
-	} , function(e, a) {
-		$("#log").append("<div>ERROR: " + JSON.stringify(a.get_message()) + "</div>");
-	});
+    clientContext.executeQueryAsync(function()  {
+        $("#log").append("<div>" + jsonData.length + " items are added.</div>");
+    } , function(e, a) {
+        $("#log").append("<div>ERROR: " + JSON.stringify(a.get_message()) + "</div>");
+    });
  }
 
-	
+    
 
