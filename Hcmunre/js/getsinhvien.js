@@ -15,6 +15,7 @@ myAngApp.controller('spSinhvienController', function($scope, $http) {
     
     
     getStatus();
+    getLookupLop();
     //$scope.customers = [];
     $scope.getByDataID = function(sinhvien) {
         var sinhvienId = sinhvien;
@@ -81,9 +82,11 @@ myAngApp.controller('spSinhvienController', function($scope, $http) {
                 },
                 "Title": $scope.sinhvien.Title,
                 "Masinhvien": $scope.sinhvien.Masinhvien,
+                "Sodienthoai":$scope.sinhvien.Sodienthoai,
+                "Diachi":$scope.sinhvien.Diachi,
                 "Tinhtrang": $("#drpStatus option:selected").val(),
+                "Lop": $("#drpLop option:selected").val(),
                 "Ghichu": $scope.sinhvien.Ghichu
-
 
             }),
             headers: {
@@ -202,6 +205,32 @@ function getStatus(){
                     text : data.d.results[0].Choices.results[i]
                  }
                  ));
+            }
+        },
+        error: function (error) {
+            alert(JSON.stringify(error));
+        }
+
+    });
+}
+function getLookupLop(){
+ $.ajax({
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Lop')/items?$select=Title,Id",
+        type: "GET",
+        headers: {
+            "accept": "application/json;odata=verbose",
+        },
+        success: function (data) {
+            items=[];
+            for(var i in data.d.results){
+               var id = data.d.results[i].Id;
+               var title = (data.d.results[i].Title)?data.d.results[i].Title:'';
+               $('#drpLop').append($('<option>',
+                 {
+                    value: id,
+                    text : title
+                 }
+                 ));             
             }
         },
         error: function (error) {

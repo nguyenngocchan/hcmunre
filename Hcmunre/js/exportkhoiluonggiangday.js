@@ -141,7 +141,7 @@ function getKhoiLuongGiangVien() {
     var hocki=$("#select_hocki option:selected").text();
     var namhoc=$("#select_namhoc option:selected").text();
     var ten=$("#select_id option:selected").text();
-    var query="/_api/web/lists/getbytitle('Thời%20khóa%20biểu')/items?$select=Id,Title,EventDate,EndDate,Tenmonhoc,Sotinchi,Mamonhoc,Siso,Phong,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/JobTitle,UserLogin/Id&$expand=UserLogin&$filter=((UserLogin/Title eq '"+ten+"') and (Namhoc eq '"+namhoc+"') and (Hocki eq '"+hocki+"'))&$top=1000";
+    var query="/_api/web/lists/getbytitle('Thời%20khóa%20biểu')/items?$select=Id,Title,EventDate,EndDate,Ten_x0020_mon_x0020_hoc/Sotinchithuchanh,Ten_x0020_mon_x0020_hoc/Sotinchi,Ten_x0020_mon_x0020_hoc/Id,Ten_x0020_mon_x0020_hoc/Title,Ten_x0020_mon_x0020_hoc/Mamonhoc,Tenlop/Siso,Tenlop/Title,Phonghoc/Title,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/JobTitle,UserLogin/Id&$expand=UserLogin,Tenlop,Phonghoc,Ten_x0020_mon_x0020_hoc&$filter=((UserLogin/Title eq '"+ten+"') and (Namhoc eq '"+namhoc+"') and (Hocki eq '"+hocki+"'))&$top=1000";
     //"/_api/web/lists/getbytitle('Thời%20khóa%20biểu')/items?$select=Id,Title,EventDate,EndDate,Tenmonhoc,Sotinchi,Mamonhoc,Siso,Phong,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/Id&$expand=UserLogin&$filter=((Namhoc eq '"+namhoc+"') and (Hocki eq '"+hocki+"') and (UserLogin/Title eq '"+ten+"'))&$top=1000";
     $.ajax({
         url: _spPageContextInfo.webAbsoluteUrl + query,   
@@ -153,17 +153,12 @@ function getKhoiLuongGiangVien() {
             var arrtong2=[];
             var item=[];
             for (var i in data.d.results) { 
-                var tenmonhoc=(data.d.results[i].Tenmonhoc)?data.d.results[i].Tenmonhoc:'';
-                var lop=(data.d.results[i].Title)?data.d.results[i].Title:'';
-                var siso=(data.d.results[i].Siso)?data.d.results[i].Siso:'';
-                var tctemp=(data.d.results[i].Sotinchi)?data.d.results[i].Sotinchi:''; 
+                var tenmonhoc=(data.d.results[i].Ten_x0020_mon_x0020_hoc.Title)?data.d.results[i].Ten_x0020_mon_x0020_hoc.Title:'';
+                var lop=(data.d.results[i].Tenlop.Title)?data.d.results[i].Tenlop.Title:'';
+                var siso=(data.d.results[i].Tenlop.Siso)?data.d.results[i].Tenlop.Siso:'';
+                var tclt=(data.d.results[i].Ten_x0020_mon_x0020_hoc.Sotinchi)?data.d.results[i].Ten_x0020_mon_x0020_hoc.Sotinchi:'';
+                var tcth=(data.d.results[i].Ten_x0020_mon_x0020_hoc.Sotinchithuchanh)?data.d.results[i].Ten_x0020_mon_x0020_hoc.Sotinchithuchanh:'';  
                 var htmlhocvi=(data.d.results[i].UserLogin.JobTitle)?data.d.results[i].UserLogin.JobTitle:'';
-                var tclt=0;
-                var tcth=0;
-                if (tctemp.indexOf("LT") >= 0)
-                tclt = tctemp.replace("(LT)", "");
-                else if (tctemp.indexOf("(TH)") >= 0)
-                tcth = tctemp.replace("(TH)", "");
                 item={TMH: tenmonhoc,LOP:lop,TCLT: tclt, TCTH: tcth,SS:siso};
                 var existed = false;
                 $.each(items, function(idx, val) {
@@ -173,10 +168,6 @@ function getKhoiLuongGiangVien() {
                         existed = true;
                         currentItem.TMH=tenmonhoc;
                         currentItem.LOP=lop;
-                        if (currentItem.TCLT === 0)
-                            currentItem.TCLT =  tclt;
-                        if (currentItem.TCTH === 0)
-                            currentItem.TCTH =  tcth;
                     }
                 });
                 

@@ -1,4 +1,8 @@
-<script type="text/javascript" src="/sites/Hcmunre/SiteAssets/Hcmunre/js/getsinhvien.js" ></script>
+<link rel="stylesheet" href="../SiteAssets/Hcmunre/library/css/dataTables.bootstrap.min.css">
+<script type="text/javascript" src="../SiteAssets/Hcmunre/library/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../SiteAssets/Hcmunre/library/js/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="../SiteAssets/Hcmunre/js/getsinhvien.js" ></script>
+
 <style>
 div#contentBox {
     margin-left: 40px;
@@ -10,41 +14,37 @@ div#sideNavBox {
 .modal-dialog {
     width: 600px;
 }
-
 </style>
 <div ng-app="SharePointAngApp" class="row">
    <div ng-controller="spSinhvienController" >
    		<div class="col-sm-12 text-center">
 			<h1>Danh sách sinh viên</h1> 
-		</div>
-		<div>  
-		Sắp xếp theo:  
-		<select ng-model="sortExpression">  
-			<option value="Id">ID</option>
-			<option value="Title">Sinh viên</option>  
-			<option value="Masinhvien">Mã sinh viên</option>  
-			<option value="Lop">Lớp</option>
-			<option value="Tinhtrang">Tình trạng</option>  
-		</select>  
-        </div>  
-        <br/> Tìm kiếm:  
-        	<input type="text" ng-model="search.$" />  
-        <br/>  
-	    <table id="tb_showsinhvien" class="table table-condensed table-hover">
+		</div> 
+	    <table id="example1" datatables="ng"  class="table table-bordered table-striped">
+         <thead>
          <tr> 
-        	<th>ID</th>  
-            <th>Tên sinh viên</th>  
-            <th>Mã sinh viên</th>  
+        	<th>Mã sinh viên</th>  
+            <th>Tên sinh viên</th>
+            <th>Số điện thoại</th>
+            <th>Địa chỉ</th>  
             <th>Lớp</th>
-            <th>Tình trạng</th>  
+            <th>Sỉ số</th>  
+            <th>Niên khóa</th>
+            <th>Tình trạng</th>
+            <th>Ghi chú</th>  
 			<th>Edit</th>
           </tr>
-          <tr ng-repeat="sinhvien in sinhviens  |orderBy:mySortFunction | filter:search">
-            <td>{{sinhvien.ID}}</td>
-            <td>{{sinhvien.Title}}</td>
+          </thead>
+          <tr ng-repeat="sinhvien in sinhviens">
             <td>{{sinhvien.Masinhvien}}</td>
+            <td>{{sinhvien.Title}}</td>
+            <td>{{sinhvien.Sodienthoai}}</td>
+            <td>{{sinhvien.Diachi}}</td>
             <td>{{sinhvien.Lop.Title}}</td>
+            <td>{{sinhvien.Lop.Siso}}</td>
+            <td>{{sinhvien.Lop.Nienkhoa}}</td>
             <td>{{sinhvien.Tinhtrang}}</td>
+            <td>{{sinhvien.Ghichu}}</td>
             <td>
             	<a id="Idedit" class="btn btn-primary btn-xs" value="Edit" ng-readonly='!($index == eEditable)' data-ng-click="getByDataID(sinhvien.Id)" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-pencil"></span></a>
               	<a id="Delete" class="btn btn-danger btn-xs" value="Delete" data-ng-click="Delete(sinhvien.Id)"><span class="glyphicon glyphicon-trash"></span></a>
@@ -62,31 +62,53 @@ div#sideNavBox {
 					<div class="modal-body">
 						<div class="col-sm-12">
 							<div class="form-group">
+								<label>Mã sinh viên</label>
+								<input id="txtma" class="form-control required"  data-ng-model="sinhvien.Masinhvien" type="text">
+							</div>
+
+							<div class="form-group">
 								<label>Họ và tên</label>
 								<input id="txtItemId" class="form-control required"  data-ng-model="sinhvien.ID" type="hidden">
 								<input id="txttitle" class="form-control required"  data-ng-model="sinhvien.Title" type="text">
 							</div>
 							<div class="form-group">
-								<label>Mã sinh viên</label>
-								<input id="txtma" class="form-control required"  data-ng-model="sinhvien.Masinhvien" type="text">
+								<label>Số điện thọai</label>
+								<input id="txtsdt" class="form-control required"  data-ng-model="sinhvien.Sodienthoai" type="text">
+							</div>
+							<div class="form-group">
+								<label>Địa chỉ</label>
+								<input id="txtdiachi" class="form-control required"  data-ng-model="sinhvien.Diachi" type="text">
 							</div>
 							<div class="form-group">
 								<label>Lớp</label>
-								<input id="txtlop" class="form-control required"  data-ng-model="sinhvien.Lop.Title" type="text">
+								<select id="drpLop" class="form-control"  data-ng-model="sinhvien.Lop.Title"></select>
 							</div>
 							<div class="form-group">
 								<label>Tình trạng</label>
-								<input id="txttinhtrang" class="form-control required"  data-ng-model="sinhvien.Tinhtrang" type="text">
+								<select id="drpStatus" class="form-control" data-ng-mode="sinhvien.Tinhtrang"></select>
+							</div>
+							<div class="form-group">
+								<label>Ghi chú</label>
+								<input id="txtghichu" class="form-control required"  data-ng-model="sinhvien.Ghichu" type="text">
 							</div>
 					    </div>
 					</div>
 					<div class="modal-footer">
-						<!--<input type="submit" id="btnsave" value="Save" data-ng-click="Save()"/>-->
-						<input type="submit" class="fa fa-pencil" value="Update" id="btnupdateval" data-ng-click="Update()"/>
-						<input type="reset" value="Clear" data-ng-click="ClearFields()"/>
+						<span id="spupdating" style="float:left;display:none">Updating...</span>
+						<input type="button" class="fa fa-pencil" value="Update" id="btnupdateval" data-ng-click="Update()">
+						<input type="reset" value="Clear" data-ng-click="ClearFields()">
 					</div>
 				</div>
 			</div>
 		</div>
    </div>
 </div>
+<script>
+setTimeout(function () {
+  $(function () {
+    $('#example1').DataTable();
+    $('#example1_length').append('<a  type="button" id="btnsave" data-toggle="modal" data-target="#myModal" data-ng-click="Save()">Tạo mới<span class="glyphicon glyphicon-plus" id="icon_add"></span></a>');
+  });
+}, 3000);
+
+</script>

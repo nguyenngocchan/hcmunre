@@ -57,12 +57,12 @@ function ExportToTable() {
  {
     var log = $("#log");
     log.append("<div>Đang cập nhật...</div>");
-    //ImportMonHoc(jsonData);
-    //log.append("<div>Cập nhật danh sách môn học</div>");
-    //ImportLopHoc(jsonData);
-    //log.append("<div>Cập nhật danh sách lớp học</div>");
-    //ImportPH(jsonData);
-    //log.append("<div>Cập nhật danh sách phòng học</div>");
+    ImportMonHoc(jsonData);
+    log.append("<div>Cập nhật danh sách môn học</div>");
+   ImportLopHoc(jsonData);
+    log.append("<div>Cập nhật danh sách lớp học</div>");
+    ImportPH(jsonData);
+    log.append("<div>Cập nhật danh sách phòng học</div>");
         getUser().done(function(lstUsers){
             getItem("Lop").done(function(lstLop){
                 getItem("Phonghoc").done(function(lstPhonghoc){
@@ -125,7 +125,7 @@ function importThoiKhoaBieu(jsonData,lstUsers,lstLop,lstPhonghoc,lstMonhoc)
     var hocKi=arrNamHoc[1]+arrNamHoc[2];
     var namHoc=arrNamHoc[3]+'-'+arrNamHoc[4];
     var columns = GetSheetColumns(jsonData);          
-    for(var i = 0; i < 5; i++){
+    for(var i = 0; i < jsonData.length; i++){
         var day=jsonData[i][columns[7]];
         var resultday;
         if(day==2){
@@ -183,6 +183,7 @@ function importThoiKhoaBieu(jsonData,lstUsers,lstLop,lstPhonghoc,lstMonhoc)
             'UserLoginId': user,
             'Ten_x0020_mon_x0020_hocId':tenmonhoc,
             'PhonghocId':phong,
+            'Sotinchi':jsonData[i][columns[5]],
             'Buoi':jsonData[i][columns[11]],
             'TenlopId':tenlop,
             'EventDate': stringStartDate,
