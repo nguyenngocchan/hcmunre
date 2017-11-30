@@ -57,7 +57,9 @@ function ExportToTable() {
  {
     var log = $("#log");
     log.append("<div>Start to import...</div>");
-     ImportSinhVien(jsonData);
+     getItem("Lop").done(function(lstName){
+       ImportSinhVien(jsonData,lstName);
+    })
     log.append("<div>Importing to Sinhvien list</div>");
     
  }
@@ -76,20 +78,22 @@ function ExportToTable() {
      }    
      return columnSet;  
  }
-  function ImportSinhVien(jsonData) 
+  function ImportSinhVien(jsonData,lstName) 
  {
     var path=document.getElementById('excelfile').value;
     var file = path.replace(/^.*[\\\/]/, '');
     var filename = file.substring(0,file.lastIndexOf("."));
-    var columns = GetSheetColumns(jsonData);    
+    var lop=filename.slice(0,2)+'_'+filename.slice(2,4)+'_'+filename.slice(4,filename.length);
+    var columns = GetSheetColumns(jsonData);
+    var idlop=GetLookup(lstName,lop);    
     var clientContext = SP.ClientContext.get_current();  
     var oList = clientContext.get_web().get_lists().getByTitle('Sinhvien');
-    for(var i = 0; i < jsonData.length; i++) {
+    for(var i = 0; i < 5; i++) {
         var itemCreateInfo = new SP.ListItemCreationInformation(); 
         var oListItem = oList.addItem(itemCreateInfo);
         var ho_ten=jsonData[i][columns[2]]+" "+jsonData[i][columns[3]]
         oListItem.set_item('Title', ho_ten); 
-        oListItem.set_item('Lop', filename ); 
+        oListItem.set_item('Lop',idlop); 
         oListItem.set_item('Masinhvien', jsonData[i][columns[1]]);   
         oListItem.update(); 
         clientContext.load(oListItem);  
@@ -101,6 +105,34 @@ function ExportToTable() {
         $("#log").append("<div>ERROR: " + JSON.stringify(a.get_message()) + "</div>");
     });
  }
-
+ 
+function getItem(lstName) {
+    var defer = $.Deferred(function () {
+        $.ajax({
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('"+lstName+"')/items",
+            method: "GET",
+            headers: { "Accept": "application/json; odata=verbose" },
+            success: function (data) {
+                defer.resolve(data);
+            },
+            error: function (err) {
+                console.log(err)
+                defer.reject(err);
+            }
+        });
+    });
+    return defer.promise();
+}
+function GetLookup(lstName, val)
+{
+    var id = "";
+    for(var itm in lstName.d.results) {
+        if (lstName.d.results[itm].Title == val)
+        {
+            id = lstName.d.results[itm].Id;
+        }
+    };
     
+    return id;
+}
 

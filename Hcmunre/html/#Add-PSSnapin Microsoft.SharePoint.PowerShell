@@ -1,0 +1,14 @@
+#Add-PSSnapin Microsoft.SharePoint.PowerShell
+#Get the CSV file and connect to the SharePoint list            
+$vessellist = import-csv -Path "C:\Users\spinstaller\Downloads\book1.csv"            
+#Get the list used to import the data to            
+$l = (Get-Spweb "http://win-kqb8o4aijpr/sites/Hcmunre").GetList("http://win-kqb8o4aijpr/sites/Hcmunre/Lists/DK")            
+             
+for($i = 0; $i -lt 201; $i++)
+{
+   $n = $l.AddItem();
+   $n["Title"] = $i;
+   $n["Ldlt"] = $vessellist.$i;
+   $n.Update();
+    write-host $vessellist.$i
+}

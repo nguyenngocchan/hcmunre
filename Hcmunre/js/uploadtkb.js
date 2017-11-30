@@ -63,9 +63,15 @@ function ExportToTable() {
     //log.append("<div>Cập nhật danh sách lớp học</div>");
     //ImportPH(jsonData);
     //log.append("<div>Cập nhật danh sách phòng học</div>");
-    getUser().done(function(lstUsers){
-        importThoiKhoaBieu(jsonData,lstUsers);
-    })
+        getUser().done(function(lstUsers){
+            getItem("Lop").done(function(lstLop){
+                getItem("Phonghoc").done(function(lstPhonghoc){
+                    getItem("Monhoc").done(function(lstMonhoc){
+                        importThoiKhoaBieu(jsonData,lstUsers,lstLop,lstPhonghoc,lstMonhoc);
+                        });
+                });
+            });
+    });
     
     log.append("<div>Cập nhật danh sách thời khóa biểu</div>");
     
@@ -108,7 +114,7 @@ function getUserLogin(userTitle,lstUsers){
     //return userCurrentField;
     return userId ;
 }
-function importThoiKhoaBieu(jsonData,lstUsers) 
+function importThoiKhoaBieu(jsonData,lstUsers,lstLop,lstPhonghoc,lstMonhoc) 
 {   
     //var stringStartDate ="2017-11-17T03:00:00Z";
     //var stringEndDate ="2017-12-01T11:00:00Z";
@@ -119,7 +125,7 @@ function importThoiKhoaBieu(jsonData,lstUsers)
     var hocKi=arrNamHoc[1]+arrNamHoc[2];
     var namHoc=arrNamHoc[3]+'-'+arrNamHoc[4];
     var columns = GetSheetColumns(jsonData);          
-    for(var i = 0; i < jsonData.length; i++){
+    for(var i = 0; i < 5; i++){
         var day=jsonData[i][columns[7]];
         var resultday;
         if(day==2){
@@ -158,6 +164,10 @@ function importThoiKhoaBieu(jsonData,lstUsers)
             resultEndTime="05:35pm";
         }
         var getDate=jsonData[i][columns[10]];
+        var gettenlop=jsonData[i][columns[1]];
+        var tenlop=GetLookupMulti(lstLop,gettenlop);
+        var phong=GetLookup(lstPhonghoc,jsonData[i][columns[9]]);
+        var tenmonhoc=GetLookup(lstMonhoc,jsonData[i][columns[4]]);
         var splitGetDate=getDate.split(" - ");
         var resultStartDate=splitGetDate[0];
         var resultEndDate=splitGetDate[1];
@@ -171,12 +181,10 @@ function importThoiKhoaBieu(jsonData,lstUsers)
             },
             'Title':jsonData[i][columns[1]],
             'UserLoginId': user,
-            'Tenmonhoc':jsonData[i][columns[4]],
-            'Sotinchi':jsonData[i][columns[5]],
-            'Mamonhoc':jsonData[i][columns[3]],
-            'Siso':jsonData[i][columns[6]],
-            'Phong':jsonData[i][columns[9]],
+            'Ten_x0020_mon_x0020_hocId':tenmonhoc,
+            'PhonghocId':phong,
             'Buoi':jsonData[i][columns[11]],
+            'TenlopId':tenlop,
             'EventDate': stringStartDate,
             'EndDate': stringEndDate,
             'Hocki':hocKi,
@@ -334,7 +342,24 @@ function ImportMonHoc(jsonData)
     for (var i = 0; i < jsonData.length; i++) {  
         var tenlop = (jsonData[i][columns[1]] != null ? jsonData[i][columns[1]] : "");
         var siso = (jsonData[i][columns[6]] != null ? jsonData[i][columns[6]] : "");
-        var item = { TL: tenlop,SS:siso }
+        var nienkhoa=tenlop.split('_')[0];
+        var resultnienkhoa;
+        if(nienkhoa==="02"){
+            resultnienkhoa="2013-2017";
+        }
+        if(nienkhoa==="03"){
+            resultnienkhoa="2014-2018";
+        }
+        if(nienkhoa==="04"){
+            resultnienkhoa="2015-2019";
+        }
+        if(nienkhoa==="05"){
+            resultnienkhoa="2016-2020";
+        }
+        if(nienkhoa==="07"){
+            resultnienkhoa="2017-2021";
+        }
+        var item = { TL: tenlop,SS:siso,NK:resultnienkhoa }
         
         var existed = false;
         $.each(items, function(idx, val) {
@@ -358,7 +383,8 @@ function ImportMonHoc(jsonData)
         var itemCreateInfo = new SP.ListItemCreationInformation(); 
         var oListItem = oList.addItem(itemCreateInfo);
         oListItem.set_item('Title', items[idx].TL);  
-        oListItem.set_item('Siso', items[idx].SS);   
+        oListItem.set_item('Siso', items[idx].SS);
+        oListItem.set_item('Nienkhoa', items[idx].NK);   
         oListItem.update(); 
         clientContext.load(oListItem);  
     }
@@ -369,3 +395,60 @@ function ImportMonHoc(jsonData)
         $("#log").append("<div>ERROR: " + JSON.stringify(a.get_message()) + "</div>");
     });
  }
+ function getItem(lstName) {
+    var defer = $.Deferred(function () {
+        $.ajax({
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('"+lstName+"')/items",
+            method: "GET",
+            headers: { "Accept": "application/json; odata=verbose" },
+            success: function (data) {
+                defer.resolve(data);
+            },
+            error: function (err) {
+                console.log(err)
+                defer.reject(err);
+            }
+        });
+    });
+    return defer.promise();
+}
+function GetLookup(lstName, val)
+{
+    var id = 0;
+    for(var itm in lstName.d.results) {
+        if (lstName.d.results[itm].Title == val)
+        {
+            id = lstName.d.results[itm].Id;
+        }
+    };
+    
+    return id;
+}
+
+function GetLookupMulti(lstName, val)
+{
+    /*var id = "";
+    var parts = val.split('\n');
+    var v1 = parts[0];
+    var v2 = v1;
+    if (parts.length > 1) v2 = parts[1];
+    for(var itm in lstName.d.results) {
+        if (lstName.d.results[itm].Title == v1 || lstName.d.results[itm].Title ==  v2)
+        {
+            id += lstName.d.results[itm].Id + ";#";
+        }
+    };*/
+    
+    var id = "0";
+    val = val.replace('\n', '').replace('\r', '');
+    
+    for(var itm in lstName.d.results) {
+        var v = lstName.d.results[itm].Title.replace('\n', '').replace('\r','');
+        if (v == val)
+        {
+            id = lstName.d.results[itm].Id;
+        }
+    };
+    
+    return id;
+}
