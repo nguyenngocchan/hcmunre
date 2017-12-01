@@ -46,16 +46,22 @@ myAngApp.controller('spSinhvienController', function($scope, $http) {
         });
     };
     $scope.Save = function() {
+        $("#spadd").show();
+        $("#btnadd").attr("disabled", "disabled");
         $.ajax({
             url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('Sinhvien')/items",
             type: "POST",
             data: JSON.stringify({
                 '__metadata': {
-                    'type': 'SP.Data.UserTestListItem'
+                    'type': 'SP.Data.SinhvienListItem'
                 },
                 "Title": $scope.sinhvien.Title,
                 "Masinhvien": $scope.sinhvien.Masinhvien,
-                "Lop": $scope.sinhvien.Lop
+                "Sodienthoai":$scope.sinhvien.Sodienthoai,
+                "Diachi":$scope.sinhvien.Diachi,
+                "Tinhtrang": $("#drpStatus option:selected").val(),
+               // "Lop": $("#drpLop option:selected").val(),
+                "Ghichu": $scope.sinhvien.Ghichu
             }),
             headers: {
                 "Accept": "application/json;odata=verbose",
@@ -64,9 +70,19 @@ myAngApp.controller('spSinhvienController', function($scope, $http) {
             },
             success: function(data) {
                 alert("Item added successfully!");
+                $("#spadd").hide();
+                $("#btnadd").removeAttr("disabled");
+                $("#myModal").modal("toggle");
+                location.reload();
+
             },
             error: function(err) {
                 alert("Error while adding item: " + JSON.stringify(err));
+                $("#spadd").hide();
+                $("#btnadd").removeAttr("disabled");
+                $("#myModal").modal("toggle");
+                location.reload();
+
             }
         });
     };
@@ -85,7 +101,7 @@ myAngApp.controller('spSinhvienController', function($scope, $http) {
                 "Sodienthoai":$scope.sinhvien.Sodienthoai,
                 "Diachi":$scope.sinhvien.Diachi,
                 "Tinhtrang": $("#drpStatus option:selected").val(),
-                "Lop": $("#drpLop option:selected").val(),
+                //"Lop": $("#drpLop option:selected").val(),
                 "Ghichu": $scope.sinhvien.Ghichu
 
             }),
@@ -101,12 +117,14 @@ myAngApp.controller('spSinhvienController', function($scope, $http) {
                 $("#spupdating").hide();
                 $("#btnupdateval").removeAttr("disabled");
                 $("#myModal").modal("toggle");
+                location.reload();
             },
             error: function(err) {
                 alert("Error while updating item: " + JSON.stringify(err));
                 $("#spupdating").hide();
                 $("#btnupdateval").removeAttr("disabled");
                 $("#myModal").modal("toggle");
+                location.reload();
             }
         });
     };
@@ -124,9 +142,11 @@ myAngApp.controller('spSinhvienController', function($scope, $http) {
             },
             success: function(data) {
                 alert("Item deleted successfully!");
+                location.reload();
             },
             error: function(err) {
                 alert("Error while deleting item: " + JSON.stringify(err));
+                location.reload();
             }
         });
     };
@@ -238,4 +258,8 @@ function getLookupLop(){
         }
 
     });
+}
+function showNew(){
+    $('#btnadd').show();
+    $('#btnupdateval').hide();
 }

@@ -96,6 +96,8 @@ div#sideNavBox {
 					<div class="modal-footer">
 						<span id="spupdating" style="float:left;display:none">Updating...</span>
 						<input type="button" class="fa fa-pencil" value="Update" id="btnupdateval" data-ng-click="Update()">
+						<span id="spadd" style="float:left;display:none">Inserting...</span>
+						<input type="button" class="fa fa-pencil" style="display:none" value="Insert" id="btnadd" data-ng-click="Save()">
 						<input type="reset" value="Clear" data-ng-click="ClearFields()">
 					</div>
 				</div>
@@ -107,7 +109,7 @@ div#sideNavBox {
 setTimeout(function () {
   $(function () {
     $('#example1').DataTable();
-    $('#example1_length').append('<a  type="button" id="btnsave" data-toggle="modal" data-target="#myModal" data-ng-click="Save()">Tạo mới<span class="glyphicon glyphicon-plus" id="icon_add"></span></a>');
+    $('#example1_length').append('<a  type="button" id="btnshownew" onclick="showNew();" data-toggle="modal" data-target="#myModal" >Tạo mới<span class="glyphicon glyphicon-plus" id="icon_add"></span></a>');
   });
 }, 3000);
 
