@@ -2,6 +2,10 @@
 <script type="text/javascript" src="../SiteAssets/Hcmunre/library/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="../SiteAssets/Hcmunre/library/js/dataTables.bootstrap.min.js"></script>
 <script type="text/javascript" src="../SiteAssets/Hcmunre/js/getsinhvien.js" ></script>
+<script src="../SiteAssets/Hcmunre/js/highcharts.js"></script>
+<script src="../SiteAssets/Hcmunre/js/exporting.js"></script>
+<script src="../SiteAssets/Hcmunre/js/spJQRest.js"></script>
+
 
 <style>
 div#contentBox {
@@ -17,13 +21,13 @@ div#sideNavBox {
 </style>
 <div ng-app="SharePointAngApp" class="row">
    <div ng-controller="spSinhvienController" >
-   		<div class="col-sm-12 text-center">
-			<h1>Danh sách sinh viên</h1> 
-		</div> 
-	    <table id="example1" datatables="ng"  class="table table-bordered table-striped">
+      <div class="col-sm-12 text-center">
+      <h1>Danh sách sinh viên</h1> 
+    </div> 
+      <table id="example1" datatables="ng"  class="table table-bordered table-striped">
          <thead>
          <tr> 
-        	<th>Mã sinh viên</th>  
+          <th>Mã sinh viên</th>  
             <th>Tên sinh viên</th>
             <th>Số điện thoại</th>
             <th>Địa chỉ</th>  
@@ -32,7 +36,7 @@ div#sideNavBox {
             <th>Niên khóa</th>
             <th>Tình trạng</th>
             <th>Ghi chú</th>  
-			<th>Edit</th>
+      <th>Edit</th>
           </tr>
           </thead>
           <tr ng-repeat="sinhvien in sinhviens">
@@ -46,71 +50,99 @@ div#sideNavBox {
             <td>{{sinhvien.Tinhtrang}}</td>
             <td>{{sinhvien.Ghichu}}</td>
             <td>
-            	<a id="Idedit" class="btn btn-primary btn-xs" value="Edit" ng-readonly='!($index == eEditable)' data-ng-click="getByDataID(sinhvien.Id)" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-pencil"></span></a>
-              	<a id="Delete" class="btn btn-danger btn-xs" value="Delete" data-ng-click="Delete(sinhvien.Id)"><span class="glyphicon glyphicon-trash"></span></a>
+              <a id="Idedit" class="btn btn-primary btn-xs" value="Edit" ng-readonly='!($index == eEditable)' data-ng-click="getByDataID(sinhvien.Id)" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-pencil"></span></a>
+                <a id="Delete" class="btn btn-danger btn-xs" value="Delete" data-ng-click="Delete(sinhvien.Id)"><span class="glyphicon glyphicon-trash"></span></a>
             </td>
          </tr>
       </table>
       <div class="modal fade" id="myModal" role="dialog">
-			<div class="modal-dialog">
-			<!-- Modal content-->
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal">&times;</button>
-						<h4 class="modal-title">Chỉnh sửa thông tin sinh viên</h4>
-					</div>
-					<div class="modal-body">
-						<div class="col-sm-12">
-							<div class="form-group">
-								<label>Mã sinh viên</label>
-								<input id="txtma" class="form-control required"  data-ng-model="sinhvien.Masinhvien" type="text">
-							</div>
+      <div class="modal-dialog">
+      <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Chỉnh sửa thông tin sinh viên</h4>
+          </div>
+          <div class="modal-body">
+            <div class="col-sm-12">
+              <div class="form-group">
+                <label>Mã sinh viên</label>
+                <input id="txtma" class="form-control required"  data-ng-model="sinhvien.Masinhvien" type="text">
+              </div>
 
-							<div class="form-group">
-								<label>Họ và tên</label>
-								<input id="txtItemId" class="form-control required"  data-ng-model="sinhvien.ID" type="hidden">
-								<input id="txttitle" class="form-control required"  data-ng-model="sinhvien.Title" type="text">
-							</div>
-							<div class="form-group">
-								<label>Số điện thọai</label>
-								<input id="txtsdt" class="form-control required"  data-ng-model="sinhvien.Sodienthoai" type="text">
-							</div>
-							<div class="form-group">
-								<label>Địa chỉ</label>
-								<input id="txtdiachi" class="form-control required"  data-ng-model="sinhvien.Diachi" type="text">
-							</div>
-							<div class="form-group">
-								<label>Lớp</label>
-								<select id="drpLop" class="form-control"  data-ng-model="sinhvien.Lop.Title"></select>
-							</div>
-							<div class="form-group">
-								<label>Tình trạng</label>
-								<select id="drpStatus" class="form-control" data-ng-mode="sinhvien.Tinhtrang"></select>
-							</div>
-							<div class="form-group">
-								<label>Ghi chú</label>
-								<input id="txtghichu" class="form-control required"  data-ng-model="sinhvien.Ghichu" type="text">
-							</div>
-					    </div>
-					</div>
-					<div class="modal-footer">
-						<span id="spupdating" style="float:left;display:none">Updating...</span>
-						<input type="button" class="fa fa-pencil" value="Update" id="btnupdateval" data-ng-click="Update()">
-						<span id="spadd" style="float:left;display:none">Inserting...</span>
-						<input type="button" class="fa fa-pencil" style="display:none" value="Insert" id="btnadd" data-ng-click="Save()">
-						<input type="reset" value="Clear" data-ng-click="ClearFields()">
-					</div>
-				</div>
+              <div class="form-group">
+                <label>Họ và tên</label>
+                <input id="txtItemId" class="form-control required"  data-ng-model="sinhvien.ID" type="hidden">
+                <input id="txttitle" class="form-control required"  data-ng-model="sinhvien.Title" type="text">
+              </div>
+              <div class="form-group">
+                <label>Số điện thọai</label>
+                <input id="txtsdt" class="form-control required"  data-ng-model="sinhvien.Sodienthoai" type="text">
+              </div>
+              <div class="form-group">
+                <label>Địa chỉ</label>
+                <input id="txtdiachi" class="form-control required"  data-ng-model="sinhvien.Diachi" type="text">
+              </div>
+              <div class="form-group">
+                <label>Lớp</label>
+                <select id="drpLop" class="form-control"  data-ng-model="sinhvien.Lop.Title"></select>
+              </div>
+              <div class="form-group">
+                <label>Tình trạng</label>
+                <select id="drpStatus" class="form-control" data-ng-mode="sinhvien.Tinhtrang"></select>
+              </div>
+              <div class="form-group">
+                <label>Ghi chú</label>
+                <input id="txtghichu" class="form-control required"  data-ng-model="sinhvien.Ghichu" type="text">
+              </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <span id="spupdating" style="float:left;display:none">Updating...</span>
+            <input type="button" class="fa fa-pencil" value="Update" id="btnupdateval" data-ng-click="Update()">
+            <span id="spadd" style="float:left;display:none">Inserting...</span>
+            <input type="button" class="fa fa-pencil" style="display:none" value="Insert" id="btnadd" data-ng-click="Save()">
+            <input type="reset" value="Clear" data-ng-click="ClearFields()">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="myModal1" role="dialog">
+      <div class="modal-dialog">
+      
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Modal Header</h4>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+			  <label>Chon lop</label>
+			  <select class="form-control" id="select_id" onclick="showChart()">
+			  </select>
 			</div>
-		</div>
+			<div id="showchart"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+        
+      </div>
+    </div>
    </div>
 </div>
 <script>
 setTimeout(function () {
   $(function () {
     $('#example1').DataTable();
-    $('#example1_length').append('<a  type="button" id="btnshownew" onclick="showNew();" data-toggle="modal" data-target="#myModal" >Tạo mới<span class="glyphicon glyphicon-plus" id="icon_add"></span></a>');
-  });
+ 	$('#example1_length').prepend('<a  type="button" class="btn btn-primary mg_button" onclick="tableToExcel(example1)"><span class="glyphicon glyphicon-save-file" aria-hidden="true"></span><span><strong>Export</strong></span></a>');
+ 	$('#example1_length').prepend('<a  type="button" class="btn btn-primary  mg_button" data-toggle="modal" data-target="#myModal1" onclick="showGetLop"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span><span><strong>View</strong></span></a>');
+	$('#example1_length').prepend('<a  type="button" class="btn btn-primary  mg_button" id="btnshownew" onclick="showNew();" data-toggle="modal" data-target="#myModal" ><span class="glyphicon glyphicon-plus" aria-hidden="true"></span><span><strong>Add</strong></span></a>');
+ 
+ });
 }, 3000);
 
 </script>
+<script src='../SiteAssets/Hcmunre/js/sinhvien.chart.js?v01' type='text/javascript'></script>
