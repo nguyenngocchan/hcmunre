@@ -1,15 +1,15 @@
 function sum(input){             
-if (toString.call(input) !== "[object Array]")
-    return false;
-var total =  0;
-for(var i=0;i<input.length;i++)
-  {                  
-    if(isNaN(input[i])){
-    continue;
-     }
-      total += Number(input[i]);
-   }
-return total;
+    if (toString.call(input) !== "[object Array]")
+        return false;
+    var total =  0;
+    for(var i=0;i<input.length;i++)
+      {                  
+        if(isNaN(input[i])){
+        continue;
+         }
+          total += Number(input[i]);
+       }
+    return total;
 }
 function getItems(){
     // Getting our list items
@@ -93,7 +93,7 @@ function getHocKi(){
                 var html=('<option value="'+tenhocki+'">'+tenhocki+'</option>');
                 item.push(html); 
             }
-            jQuery('#select_hocki').append(item.join(''));
+            jQuery('#select_hocki').html(item.join(''));
         },
         error: function (data) {
             
@@ -102,8 +102,10 @@ function getHocKi(){
 }
 function getTenGiangVien() {
     // Getting our list items
+    var hocki=$("#select_hocki option:selected").text();
+    var namhoc=$("#select_namhoc option:selected").text();
     $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời khóa biểu')/items?$select=UserLogin/Title,UserLogin/ID&$expand=UserLogin&$top=1000",
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời khóa biểu')/items?$select=UserLogin/Title,UserLogin/ID&$expand=UserLogin&$filter=((Namhoc eq '"+namhoc+"') and (Hocki eq '"+hocki+"'))&$top=1000",
         method: "GET",
         headers: { "Accept": "application/json; odata=verbose" },
         success: function (data) {
@@ -129,14 +131,14 @@ function getTenGiangVien() {
                 var html=('<option value="#myModal" id="'+tengiangvien+'">'+tengiangvien+'</option>');
                 item.push(html); 
             }
-            jQuery('#select_id').append(item.join(''));
+            jQuery('#select_id').html(item.join(''));
         },
         error: function (data) {
             
         }
     });
 }
-function getKhoiLuongGiangVien() {
+function getKhoiLuongGiangVien(lstLookup) {
     // Getting our list items
     var hocki=$("#select_hocki option:selected").text();
     var namhoc=$("#select_namhoc option:selected").text();
@@ -248,6 +250,7 @@ function getKhoiLuongGiangVien() {
                 if(htmlhocvi==="Phó Giáo sư - Giảng viên cao cấp"){
                     hocvikh=2.5;
                 }
+                var getldlt=GetLookup(lstLookup,sisolt);
                 var htmlkekhai=(
                   '<tr class="xl158 trdataitem" height="22" style="height:16.5pt" >'+  
                   '<td height="22" class="xl190" style="height:16.5pt;border-top:none">'+items[idx].TMH+'</td>'+
@@ -258,7 +261,7 @@ function getKhoiLuongGiangVien() {
                   '<td class="xl152" style="border-top:none;border-left:none">'+sisoth+'</td>'+
                   '<td class="xl153" style="border-top:none;border-left:none">'+bacdaotao+'</td>'+
                   '<td class="xl152" style="border-top:none;border-left:none">'+getngoaigio+'</td>'+
-                  '<td class="xl154" style="border-top:none;border-left:none">1</td>'+
+                  '<td class="xl154" style="border-top:none;border-left:none">'+getldlt+'</td>'+
                   '<td class="xl154" style="border-top:none;border-left:none">'+ldth+'</td>'+
                   '<td class="xl154" style="border-top:none;border-left:none">'+dtkc+'</td>'+
                   '<td class="xl155" style="border-top:none;border-left:none">'+hocvikh+'</td>'+
@@ -306,13 +309,44 @@ var tableToExcel = (function() {
             window.location.href = uri + base64(format(template, ctx))
           }
         })()
+function getItem(lstName) {
+    var defer = $.Deferred(function () {
+        $.ajax({
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('"+lstName+"')/items",
+            method: "GET",
+            headers: { "Accept": "application/json; odata=verbose" },
+            success: function (data) {
+                defer.resolve(data);
+            },
+            error: function (err) {
+                console.log(err)
+                defer.reject(err);
+            }
+        });
+    });
+    return defer.promise();
+}
+function GetLookup(lstName, val)
+{
+    var ldlt = 1.5;
+    for(var itm in lstName.d.results) {
+        if (lstName.d.results[itm].Title == val)
+        {
+            ldlt = lstName.d.results[itm].Ldlt;
+        }
+    };
+    
+    return ldlt;
+}
 jQuery(document).ready(function(){
     getNamHoc();
    // getHocKi();
-    getTenGiangVien();
+    
     $("#select_id").change(function () {
     $( $(this).val() ).modal('show');
-    getKhoiLuongGiangVien();
+    getItem("DK").done(function(lstLookup){
+         getKhoiLuongGiangVien(lstLookup);
+        });
     }); 
-    
+
 });

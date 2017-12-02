@@ -325,3 +325,20 @@ jQuery(document).ready(function(){
     }); 
     
 });
+var a=new Array(1,2,3,4,5,6,7,8,9,10,15);
+for(var i=0;i<a.length;i++){
+    switch(a[i]){
+        case a[i]%3===0:
+            a[i]="ba";
+            break;
+        case a[i]%5===0:
+            a[i]="ba";
+            break;
+        case a[i]%5===0 && a[i]%3===0:
+            a[i]="ba";
+            break;        
+    }
+    console.log(a[i]);
+    }
+}
+    

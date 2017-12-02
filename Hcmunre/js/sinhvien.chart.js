@@ -1,23 +1,17 @@
-jQuery(document).ready(function(){
-    try{
-        getLop();
-    }   
-    catch(error){
-    
-    }
-
-});
+function showGetLop(){
+    getLop();
+}
 function getLop() {
     // Getting our list items
     $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Sinhvien')/items?$select=Lop",
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Sinhvien')/items?$select=Lop/Title,Lop/Id&$expand=Lop",
         method: "GET",
         headers: { "Accept": "application/json; odata=verbose" },
         success: function (data) {
             var items = [];
             var item=[];
             for (var i in data.d.results) {
-                var lop = (data.d.results[i].Lop)?data.d.results[i].Lop:'';
+                var lop = (data.d.results[i].Lop.Title)?data.d.results[i].Lop.Title:'';
                 var arrlop={LOP:lop};
                 var existed=false;
                 $.each(items,function(idx,val){
@@ -92,7 +86,7 @@ function showChart() {
             type: 'pie'
         },
         title: {
-            text: 'Thống kê tình trạng xử lý các yêu cầu duyệt công tác'
+            text: 'Thống kê tình trạng sinh vien'
         },
         tooltip: {
             pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
