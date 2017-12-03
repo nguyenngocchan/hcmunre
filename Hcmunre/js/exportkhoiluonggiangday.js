@@ -14,7 +14,7 @@ function sum(input){
 function getItems(){
     // Getting our list items
     $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời khóa biểu')/items(1681)",
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời%20khóa%20biểu')/items?$select=Id,Title,EventDate,EndDate,Ten_x0020_mon_x0020_hoc/Sotinchithuchanh,Ten_x0020_mon_x0020_hoc/Sotinchi,Ten_x0020_mon_x0020_hoc/Id,Ten_x0020_mon_x0020_hoc/Title,Ten_x0020_mon_x0020_hoc/Mamonhoc,Tenlop/Siso,Tenlop/Title,Phonghoc/Title,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/JobTitle,UserLogin/Id&$expand=UserLogin,Tenlop,Phonghoc,Ten_x0020_mon_x0020_hoc&$filter=((UserLogin/Title%20eq%20%27Hà%20Thanh%20Vân%27)%20and%20(Namhoc%20eq%20%272017-2018%27)%20and%20(Hocki%20eq%20%27HKI%27))&$top=1000",
         method: "GET",
         headers: { "Accept": "application/json; odata=verbose" },
         success: function (data) {
@@ -155,9 +155,16 @@ function getKhoiLuongGiangVien(lstLookup) {
             var arrtong2=[];
             var item=[];
             for (var i in data.d.results) { 
+                var parsesiso=0;
+                var strLop = "";
+                $.each(data.d.results[i].Tenlop.results, function(j,v) {
+                    strLop +=  v.Title +"<br/>";
+                    parsesiso+=parseInt(v.Siso);
+                });
+                
                 var tenmonhoc=(data.d.results[i].Ten_x0020_mon_x0020_hoc.Title)?data.d.results[i].Ten_x0020_mon_x0020_hoc.Title:'';
-                var lop=(data.d.results[i].Tenlop.Title)?data.d.results[i].Tenlop.Title:'';
-                var siso=(data.d.results[i].Tenlop.Siso)?data.d.results[i].Tenlop.Siso:'';
+                var lop=strLop;
+                var siso=parsesiso;
                 var tclt=(data.d.results[i].Ten_x0020_mon_x0020_hoc.Sotinchi)?data.d.results[i].Ten_x0020_mon_x0020_hoc.Sotinchi:'';
                 var tcth=(data.d.results[i].Ten_x0020_mon_x0020_hoc.Sotinchithuchanh)?data.d.results[i].Ten_x0020_mon_x0020_hoc.Sotinchithuchanh:'';  
                 var htmlhocvi=(data.d.results[i].UserLogin.JobTitle)?data.d.results[i].UserLogin.JobTitle:'';
@@ -266,7 +273,7 @@ function getKhoiLuongGiangVien(lstLookup) {
                   '<td class="xl154" style="border-top:none;border-left:none">'+dtkc+'</td>'+
                   '<td class="xl155" style="border-top:none;border-left:none">'+hocvikh+'</td>'+
                   '<td class="xl154" style="border-top:none;border-left:none">'+ngoaigio+'</td>'+
-                  '<td class="xl156" align="right" style="border-top:none;border-left:none">'+(((items[idx].TCLT*15)+((items[idx].TCTH*30)*0.75)))*ldth*dtkc*ngoaigio+'</td>'+
+                  '<td class="xl156" align="right" style="border-top:none;border-left:none">'+(((items[idx].TCLT*15)+((items[idx].TCTH*30)*0.75)))*ldth*dtkc*ngoaigio*getldlt+'</td>'+
                   '<td class="xl157" style="border-top:none;border-left:none">&nbsp;</td>'+
                   '<td class="xl158"></td>'+
                   '<td class="xl158"></td>'+
@@ -312,7 +319,7 @@ var tableToExcel = (function() {
 function getItem(lstName) {
     var defer = $.Deferred(function () {
         $.ajax({
-            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('"+lstName+"')/items",
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('"+lstName+"')/items?$top=1000",
             method: "GET",
             headers: { "Accept": "application/json; odata=verbose" },
             success: function (data) {

@@ -57,12 +57,12 @@ function ExportToTable() {
  {
     var log = $("#log");
     log.append("<div>Đang cập nhật...</div>");
-    ImportMonHoc(jsonData);
+   /* ImportMonHoc(jsonData);
     log.append("<div>Cập nhật danh sách môn học</div>");
    ImportLopHoc(jsonData);
     log.append("<div>Cập nhật danh sách lớp học</div>");
     ImportPH(jsonData);
-    log.append("<div>Cập nhật danh sách phòng học</div>");
+    log.append("<div>Cập nhật danh sách phòng học</div>");*/
         getUser().done(function(lstUsers){
             getItem("Lop").done(function(lstLop){
                 getItem("Phonghoc").done(function(lstPhonghoc){
@@ -185,7 +185,8 @@ function importThoiKhoaBieu(jsonData,lstUsers,lstLop,lstPhonghoc,lstMonhoc)
             'PhonghocId':phong,
             'Sotinchi':jsonData[i][columns[5]],
             'Buoi':jsonData[i][columns[11]],
-            'TenlopId':tenlop,
+            'TenlopId': tenlop,
+            //{ "results" : [165, 166] }
             'EventDate': stringStartDate,
             'EndDate': stringEndDate,
             'Hocki':hocKi,
@@ -428,19 +429,25 @@ function GetLookup(lstName, val)
 
 function GetLookupMulti(lstName, val)
 {
-    /*var id = "";
-    var parts = val.split('\n');
-    var v1 = parts[0];
+    var id = "{ \"results\" : [";
+    val = val.replace('\n', '-').replace('\r', '-');
+    var parts = val.split('--');
+    var v1 = parts[0].trim();
     var v2 = v1;
-    if (parts.length > 1) v2 = parts[1];
+    if (parts.length > 1) v2 = parts[1].trim();
     for(var itm in lstName.d.results) {
+        //console.log(lstName.d.results[itm].Title + "|" + v1 + "|" + v2);
         if (lstName.d.results[itm].Title == v1 || lstName.d.results[itm].Title ==  v2)
         {
-            id += lstName.d.results[itm].Id + ";#";
+            id += lstName.d.results[itm].Id + ",";
         }
-    };*/
+    };
     
-    var id = "0";
+    if (id.indexOf(",") > 0) id = id.substr(0, id.length-1);
+    
+    id += "] }"
+    
+   /* var id = "0";
     val = val.replace('\n', '').replace('\r', '');
     
     for(var itm in lstName.d.results) {
@@ -449,7 +456,7 @@ function GetLookupMulti(lstName, val)
         {
             id = lstName.d.results[itm].Id;
         }
-    };
+    };*/
     
-    return id;
+    return $.parseJSON(id);
 }
