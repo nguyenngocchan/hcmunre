@@ -1,344 +1,462 @@
-function sum(input){             
-if (toString.call(input) !== "[object Array]")
-    return false;
-var total =  0;
-for(var i=0;i<input.length;i++)
-  {                  
-    if(isNaN(input[i])){
-    continue;
-     }
-      total += Number(input[i]);
-   }
-return total;
-}
-function getItems(){
-    // Getting our list items
-    $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời khóa biểu')/items(1681)",
-        method: "GET",
-        headers: { "Accept": "application/json; odata=verbose" },
-        success: function (data) {
-            var items = [];
-            for (var i in data.d.results) {
-            }
-        },
-        error: function (data) {
-            
-        }
-    });
-}
-function getNamHoc(){
-    // Getting our list items
-    $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời khóa biểu')/items?$select=Namhoc&$top=1000",
-        method: "GET",
-        headers: { "Accept": "application/json; odata=verbose" },
-        success: function (data) {
-            var items = [];
-            var item=[];
-            for (var i in data.d.results) {
-                var namhoc = (data.d.results[i].Namhoc)?data.d.results[i].Namhoc:'';
-                var arrnamhoc={NH:namhoc};
-                var existed=false;
-                $.each(items,function(idx,val){
-                        var currentItem=items[idx];
-                        if(currentItem.NH===namhoc){
-                            existed=true;
-                        }               
-                    }
-                );  
-                if(!existed){
-                    items.push(arrnamhoc);
-                }
-            }
-            for(var idx = 0; idx < items.length; idx++) {
-                var tennamhoc = items[idx].NH;
-                var html=('<option value="'+tennamhoc+'">'+tennamhoc+'</option>');
-                item.push(html); 
-            }
-            jQuery('#select_namhoc').append(item.join(''));
-        },
-        error: function (data) {
-            
-        }
-    });
-}
-function getHocKi(){
-    var namhoc=$("#select_namhoc option:selected").text();
-    // Getting our list items
-    $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời khóa biểu')/items?$select=Namhoc,Hocki&$filter=Namhoc eq '"+namhoc+"'&$top=1000",
-        method: "GET",
-        headers: { "Accept": "application/json; odata=verbose" },
-        success: function (data) {
-            var items = [];
-            var item=[];
-            for (var i in data.d.results) {
-                var hocki = (data.d.results[i].Hocki)?data.d.results[i].Hocki:'';
-                var arrhocki={HK:hocki};
-                var existed=false;
-                $.each(items,function(idx,val){
-                        var currentItem=items[idx];
-                        if(currentItem.HK===hocki){
-                            existed=true;
-                        }               
-                    }
-                );  
-                if(!existed){
-                    items.push(arrhocki);
-                }
-            }
-            for(var idx = 0; idx < items.length; idx++) {
-                var tenhocki = items[idx].HK;
-                var html=('<option value="'+tenhocki+'">'+tenhocki+'</option>');
-                item.push(html); 
-            }
-            jQuery('#select_hocki').append(item.join(''));
-        },
-        error: function (data) {
-            
-        }
-    });
-}
-function getTenGiangVien() {
-    // Getting our list items
-    $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời khóa biểu')/items?$select=UserLogin/Title,UserLogin/ID&$expand=UserLogin&$top=1000",
-        method: "GET",
-        headers: { "Accept": "application/json; odata=verbose" },
-        success: function (data) {
-            var items = [];
-            var item=[];
-            for (var i in data.d.results) {
-                var tengiangvien = (data.d.results[i].UserLogin.Title)?data.d.results[i].UserLogin.Title:'';
-                var arrgiangvien={TGV:tengiangvien};
-                var existed=false;
-                $.each(items,function(idx,val){
-                        var currentItem=items[idx];
-                        if(currentItem.TGV===tengiangvien){
-                            existed=true;
-                        }               
-                    }
-                );  
-                if(!existed){
-                    items.push(arrgiangvien);
-                }
-            }
-            for(var idx = 0; idx < items.length; idx++) {
-                var tengiangvien = items[idx].TGV;
-                var html=('<option value="#myModal" id="'+tengiangvien+'">'+tengiangvien+'</option>');
-                item.push(html); 
-            }
-            jQuery('#select_id').append(item.join(''));
-        },
-        error: function (data) {
-            
-        }
-    });
-}
-function getKhoiLuongGiangVien() {
-    // Getting our list items
-    var hocki=$("#select_hocki option:selected").text();
-    var namhoc=$("#select_namhoc option:selected").text();
-    var ten=$("#select_id option:selected").text();
-    var query="/_api/web/lists/getbytitle('Thời%20khóa%20biểu')/items?$select=Id,Title,EventDate,EndDate,Ten_x0020_mon_x0020_hoc/Sotinchithuchanh,Ten_x0020_mon_x0020_hoc/Sotinchi,Ten_x0020_mon_x0020_hoc/Id,Ten_x0020_mon_x0020_hoc/Title,Ten_x0020_mon_x0020_hoc/Mamonhoc,Tenlop/Siso,Tenlop/Title,Phonghoc/Title,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/JobTitle,UserLogin/Id&$expand=UserLogin,Tenlop,Phonghoc,Ten_x0020_mon_x0020_hoc&$filter=((UserLogin/Title eq '"+ten+"') and (Namhoc eq '"+namhoc+"') and (Hocki eq '"+hocki+"'))&$top=1000";
-    //"/_api/web/lists/getbytitle('Thời%20khóa%20biểu')/items?$select=Id,Title,EventDate,EndDate,Tenmonhoc,Sotinchi,Mamonhoc,Siso,Phong,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/Id&$expand=UserLogin&$filter=((Namhoc eq '"+namhoc+"') and (Hocki eq '"+hocki+"') and (UserLogin/Title eq '"+ten+"'))&$top=1000";
-    $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + query,   
-        method: "GET",
-        headers: { "Accept": "application/json; odata=verbose" },
-        success: function (data) {
-            var items = [];
-            var arrkekhai=[];
-            var arrtong2=[];
-            var item=[];
-            for (var i in data.d.results) { 
-                var tenmonhoc=(data.d.results[i].Ten_x0020_mon_x0020_hoc.Title)?data.d.results[i].Ten_x0020_mon_x0020_hoc.Title:'';
-                var lop=(data.d.results[i].Tenlop.Title)?data.d.results[i].Tenlop.Title:'';
-                var siso=(data.d.results[i].Tenlop.Siso)?data.d.results[i].Tenlop.Siso:'';
-                //var tctemp=(data.d.results[i].Sotinchi)?data.d.results[i].Sotinchi:''; 
-                var htmlhocvi=(data.d.results[i].UserLogin.JobTitle)?data.d.results[i].UserLogin.JobTitle:'';
-                var tclt=0;
-                var tcth=0;
-                if (tctemp.indexOf("LT") >= 0)
-                tclt = tctemp.replace("(LT)", "");
-                else if (tctemp.indexOf("(TH)") >= 0)
-                tcth = tctemp.replace("(TH)", "");
-                item={TMH: tenmonhoc,LOP:lop,TCLT: tclt, TCTH: tcth,SS:siso};
-                var existed = false;
-                $.each(items, function(idx, val) {
-                    var currentItem = items[idx];
-                    if (currentItem.TMH === tenmonhoc && currentItem.LOP === lop)
-                    {
-                        existed = true;
-                        currentItem.TMH=tenmonhoc;
-                        currentItem.LOP=lop;
-                        if (currentItem.TCLT === 0)
-                            currentItem.TCLT =  tclt;
-                        if (currentItem.TCTH === 0)
-                            currentItem.TCTH =  tcth;
-                    }
+function ExportToTable() {  
+     var regex = /^([a-zA-Z0-9\-'àđĐÀâÂäÄáÁéÉèÈêÊëËìÌîÎïÏòóÒôÔöÖùúÙûÛüÜçÇ’ñß\s_\\.\-:])+(.xlsx|.xls)$/;  
+     /*Checks whether the file is a valid excel file*/  
+     if (regex.test($("#excelfile").val().toLowerCase())) {  
+         var xlsxflag = false; /*Flag for checking whether excel is .xls format or .xlsx format*/  
+         if ($("#excelfile").val().toLowerCase().indexOf(".xlsx") > 0) {  
+             xlsxflag = true;  
+         }  
+         /*Checks whether the browser supports HTML5*/  
+         if (typeof (FileReader) != "undefined") {  
+             var reader = new FileReader();  
+             reader.onload = function (e) {  
+                 var data = e.target.result;  
+                 /*Converts the excel data in to object*/  
+                 if (xlsxflag) {  
+                     var workbook = XLSX.read(data, { type: 'binary' });  
+                 }  
+                 else {  
+                     var workbook = XLS.read(data, { type: 'binary' });  
+                 }  
+                 /*Gets all the sheetnames of excel in to a variable*/  
+                 var sheet_name_list = workbook.SheetNames;  
+  
+                 var cnt = 0; /*This is used for restricting the script to consider only first sheet of excel*/  
+                 sheet_name_list.forEach(function (y) { /*Iterate through all sheets*/  
+                     /*Convert the cell value to Json*/  
+                     if (xlsxflag) {  
+                         var exceljson = XLSX.utils.sheet_to_json(workbook.Sheets[y]);  
+                     }  
+                     else {  
+                         var exceljson = XLS.utils.sheet_to_row_object_array(workbook.Sheets[y]);  
+                     }  
+                     if (exceljson.length > 0 && cnt == 0) {  
+                         ImportData(exceljson);  
+                         cnt++;  
+                     }  
+                 });  
+                 $('#exceltable').show();  
+             }  
+             if (xlsxflag) {/*If excel file is .xlsx extension than creates a Array Buffer from excel*/  
+                 reader.readAsArrayBuffer($("#excelfile")[0].files[0]);  
+             }  
+             else {  
+                 reader.readAsBinaryString($("#excelfile")[0].files[0]);  
+             }  
+         }  
+         else {  
+             alert("Sorry! Your browser does not support HTML5!");  
+         }  
+     }  
+     else {  
+         alert("Please upload a valid Excel file!");  
+     }  
+ }  
+ 
+ function ImportData(jsonData)
+ {
+    var log = $("#log");
+    log.append("<div>Đang cập nhật...</div>");
+    ImportMonHoc(jsonData);
+    log.append("<div>Cập nhật danh sách môn học</div>");
+    ImportLopHoc(jsonData);
+    log.append("<div>Cập nhật danh sách lớp học</div>");
+    ImportPH(jsonData);
+    /*log.append("<div>Cập nhật danh sách phòng học</div>");
+        getUser().done(function(lstUsers){
+            getItem("Lop").done(function(lstLop){
+                getItem("Phonghoc").done(function(lstPhonghoc){
+                    getItem("Monhoc").done(function(lstMonhoc){
+                        importThoiKhoaBieu(jsonData,lstUsers,lstLop,lstPhonghoc,lstMonhoc);
+                        });
                 });
-                
-                if (!existed)
-                {
-                    items.push(item);
-                }      
-            }
-            for(var idx=0;idx<items.length;idx++){
-                var sotietltth=items[idx].TCLT*15+'/'+items[idx].TCTH*30;
-                var sotietlt=items[idx].TCLT*15;
-                var sotietth=items[idx].TCTH*30;
-                var sisolt;
-                var sisoth;
-                if(sotietlt!=0 && sotietth!=0){
-                    sisolt=sisoth=items[idx].SS;                
-                }
-                if(sotietlt==0 && sotietth!=0){
-                    sisolt=0;
-                    sisoth=items[idx].SS;
-                }
-                if(sotietlt!=0 && sotietth==0){
-                    sisolt=items[idx].SS;
-                    sisoth=0;
-                }
-                var bacdaotao;
-                var splitlop=(items[idx].LOP).split("_");
-                if(splitlop[1]==="ĐH"){
-                    bacdaotao="ĐH";
-                }
-                if(splitlop[1]==="TRC"){
-                    bacdaotao="TRC";
-                }
-                if(splitlop[1]==="CĐ"){
-                    bacdaotao="CĐ";
-                }
-                else{
-                    bacdaotao="ĐH-TC"
-                    }
-                var ldth;
-                if(sisoth<27){
-                    ldth=1;
-                }
-                if(sisoth>26 && sisoth<39){
-                    ldth=1.1;
-                }
-                if(sisoth>38){
-                    ldth=1.2;
-                }
-                var dtkc=0.95;
-                if(bacdaotao==="ĐH" || bacdaotao==="CĐ"){
-                    dtkc=1.1;
-                }
-                if(bacdaotao==="ĐH-TC"){
-                    dtkc=2;
-                }
-                if(bacdaotao==="ĐH-TA"){
-                    dtkc=1.2;
-                }
-                var getngoaigio="TG"
-                var ngoaigio=1;
-                if(getngoaigio==="NG"){
-                    ngoaigio=1.4;
-                }
-                var hocvikh=0.8;
-                if(htmlhocvi==="Thạc sĩ"){
-                    hocvikh=1;
-                }
-                if(htmlhocvi==="Thạc sĩ - Giảng viên chính"){
-                    hocvikh=1.2;
-                }
-                if(htmlhocvi==="Tiến sĩ"){
-                    hocvikh=1.4;
-                }
-                if(htmlhocvi==="Tiến sĩ - Giảng viên chính"){
-                    hocvikh=1.5;
-                }
-                if(htmlhocvi==="Phó Giáo sư - Giảng viên cao cấp"){
-                    hocvikh=2.5;
-                }
-                var htmlkekhai=(
-                  '<tr class="xl158 trdataitem" height="22" style="height:16.5pt" >'+  
-                  '<td height="22" class="xl190" style="height:16.5pt;border-top:none">'+items[idx].TMH+'</td>'+
-                  '<td class="xl151" style="border-top:none;border-left:none">'+items[idx].LOP+'</td>'+
-                  '<td class="xl152" style="border-top:none;border-left:none">'+sotietltth+'</td>'+
-                  '<td class="xl154" style="border-top:none;border-left:none">'+((items[idx].TCLT*15)+((items[idx].TCTH*30)*0.75))+'</td>'+
-                  '<td class="xl152" style="border-top:none;border-left:none">'+sisolt+'</td>'+
-                  '<td class="xl152" style="border-top:none;border-left:none">'+sisoth+'</td>'+
-                  '<td class="xl153" style="border-top:none;border-left:none">'+bacdaotao+'</td>'+
-                  '<td class="xl152" style="border-top:none;border-left:none">'+getngoaigio+'</td>'+
-                  '<td class="xl154" style="border-top:none;border-left:none">1</td>'+
-                  '<td class="xl154" style="border-top:none;border-left:none">'+ldth+'</td>'+
-                  '<td class="xl154" style="border-top:none;border-left:none">'+dtkc+'</td>'+
-                  '<td class="xl155" style="border-top:none;border-left:none">'+hocvikh+'</td>'+
-                  '<td class="xl154" style="border-top:none;border-left:none">'+ngoaigio+'</td>'+
-                  '<td class="xl156" align="right" style="border-top:none;border-left:none">'+(((items[idx].TCLT*15)+((items[idx].TCTH*30)*0.75)))*ldth*dtkc*ngoaigio+'</td>'+
-                  '<td class="xl157" style="border-top:none;border-left:none">&nbsp;</td>'+
-                  '<td class="xl158"></td>'+
-                  '<td class="xl158"></td>'+
-                  '<td class="xl158"></td>'+
-                  '<td class="xl158"></td>'+
-                  '<td class="xl158"></td>'+
-                  '<td class="xl158"></td>'+
-                  '<td class="xl158"></td>'+
-                  '<td class="xl158"></td>'+
-                  '<td class="xl158"></td>'+
-                  '<td class="xl158"></td>'+
-                  '</tr>'
-                    );
-               
-               var tong2=(((items[idx].TCLT*15)+((items[idx].TCTH*30)*0.75)))*ldth*dtkc*ngoaigio;
-               arrtong2.push(tong2);
-                arrkekhai.push(htmlkekhai);  
-            } 
-            var htmltengiangvien = (data.d.results[i].UserLogin.Title)?data.d.results[i].UserLogin.Title:'';  
-            jQuery('#tong2').html(sum(arrtong2));
-            jQuery('#hocvi').html(htmlhocvi);
-            jQuery('#tengiangvien').html(htmltengiangvien);
-            //jQuery('#kekhai').html(items.join(''));
-            jQuery('#testTable > tbody > tr.trdataitem').each(function() { jQuery(this).remove(); });
-            jQuery('#testTable > tbody > tr').eq(jQuery('#dataafter').index()).after(arrkekhai.join(''));
-        },
-        error: function (data) {
-            
+            });
+    });*/
+    
+    log.append("<div>Cập nhật danh sách thời khóa biểu</div>");
+    
+ }
+ 
+ function GetSheetColumns(jsondata) {/*Function used to get all column names from JSON and bind the html table header*/  
+     var columnSet = [];   
+     for (var i = 0 ; i < jsondata.length; i++) {  
+         var rowHash = jsondata[i];  
+         for (var key in rowHash) {  
+             if (rowHash.hasOwnProperty(key)) {  
+                 if ($.inArray(key, columnSet) == -1) {/*Adding each unique column names to a variable array*/  
+                     columnSet.push(key);   
+                 }  
+             }  
+         }  
+     }    
+     return columnSet;  
+ }
+function createGuid()  
+{  
+   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {  
+      var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);  
+      return v.toString(16);  
+   });  
+}  
+var guid = createGuid();
+function getUserLogin(userTitle,lstUsers){
+    var userId;
+
+    for(var itm in lstUsers.d.results)
+    {
+        if (lstUsers.d.results[itm].Title == userTitle)
+        {
+            userId = lstUsers.d.results[itm].Id;
         }
+    }
+    //var userCurrentField = new SP.FieldLookupValue();
+    //userCurrentField.set_lookupId(userId);
+    //return userCurrentField;
+    return userId ;
+}
+function importThoiKhoaBieu(jsonData,lstUsers,lstLop,lstPhonghoc,lstMonhoc) 
+{   
+    //var stringStartDate ="2017-11-17T03:00:00Z";
+    //var stringEndDate ="2017-12-01T11:00:00Z";
+    var path=document.getElementById('excelfile').value;
+    var file = path.replace(/^.*[\\\/]/, '');
+    var filename = file.substring(0,file.lastIndexOf("."));
+    var arrNamHoc=filename.split("_");
+    var hocKi=arrNamHoc[1]+arrNamHoc[2];
+    var namHoc=arrNamHoc[3]+'-'+arrNamHoc[4];
+    var columns = GetSheetColumns(jsonData);          
+    for(var i = 0; i < jsonData.length; i++){
+        var day=jsonData[i][columns[7]];
+        var resultday;
+        if(day==2){
+            resultday="mo";
+        }
+        if(day==3){
+            resultday="tu";
+        }
+        if(day==4){
+            resultday="we";
+        }
+        if(day==5){
+            resultday="th";
+        }
+        if(day==6){
+            resultday="fr";
+        }
+        var tiethoc=jsonData[i][columns[8]];
+        var gettiet=tiethoc.replace(/[^0-9]/g,'');
+        var resultStartTime;
+        var resultEndTime;
+        if(gettiet==="123"){
+            resultStartTime="06:30am";
+            resultEndTime="09:00am";
+        }
+        if(gettiet==="456"){
+            resultStartTime="09:05am";
+            resultEndTime="11:35am";
+        }
+        if(gettiet==="789"){
+            resultStartTime="12:30pm";
+            resultEndTime="03:00pm";
+        }
+        if(gettiet==="012"){
+            resultStartTime="03:05pm";
+            resultEndTime="05:35pm";
+        }
+        var getDate=jsonData[i][columns[10]];
+        var gettenlop=jsonData[i][columns[1]];
+        var tenlop=GetLookupMulti(lstLop,gettenlop);
+        var phong=GetLookup(lstPhonghoc,jsonData[i][columns[9]]);
+        var tenmonhoc=GetLookup(lstMonhoc,jsonData[i][columns[4]]);
+        var splitGetDate=getDate.split(" - ");
+        var resultStartDate=splitGetDate[0];
+        var resultEndDate=splitGetDate[1];
+        var user = getUserLogin(jsonData[i][columns[2]],lstUsers);
+        var stringStartDate=moment(`${resultStartDate} ${resultStartTime}`,'DD/MM/YYYY h:mma').utc().format('YYYY-MM-DD[T]HH:mm:ss[Z]');
+        var stringEndDate=moment(`${resultEndDate} ${resultEndTime}`,'DD/MM/YYYY h:mma').utc().format('YYYY-MM-DD[T]HH:mm:ss[Z]');
+        var ngay= `<recurrence><rule><firstDayOfWeek>su</firstDayOfWeek><repeat><weekly ${resultday}='TRUE' weekFrequency='1' /></repeat><repeatForever>FALSE</repeatForever></rule></recurrence>`;            
+        var data = {
+            '__metadata': {
+                'type': 'SP.Data.TKListItem'
+            },
+            'Title':jsonData[i][columns[1]],
+            'UserLoginId': user,
+            'Ten_x0020_mon_x0020_hocId':tenmonhoc,
+            'PhonghocId':phong,
+            'Sotinchi':jsonData[i][columns[5]],
+            'Buoi':jsonData[i][columns[11]],
+            'TenlopId': tenlop,
+            //{ "results" : [165, 166] }
+            'EventDate': stringStartDate,
+            'EndDate': stringEndDate,
+            'Hocki':hocKi,
+            'Namhoc':namHoc,
+            'fRecurrence': true,
+            'fAllDayEvent': false,
+            'RecurrenceData': ngay,
+            'UID': guid,
+            'EventType': 1
+        };
+
+        //create a string that has the events
+        var recReq =
+                {
+            url: _spPageContextInfo.webAbsoluteUrl+"/_api/web/lists/GetByTitle('Thời khóa biểu')/items",
+            type: "POST",
+            data: JSON.stringify(data),
+            headers: {
+                "accept": "application/json;odata=verbose",
+                "content-type": "application/json;odata=verbose",
+                "X-RequestDigest": $("#__REQUESTDIGEST").val()
+            }
+        };
+    
+        jQuery.ajax(recReq).success(function(s) {
+            console.log("ok");
+        }).error(function(e) {console.log(i); console.log(e) });
+    }
+}
+function getUser() {
+    var defer = $.Deferred(function () {
+        $.ajax({
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('User%20Information%20List')/items",
+            method: "GET",
+            headers: { "Accept": "application/json; odata=verbose" },
+            success: function (data) {
+                defer.resolve(data);
+            },
+            error: function (err) {
+                console.log(err)
+                defer.reject(err);
+            }
+        });
     });
+    return defer.promise();
 }
-var tableToExcel = (function() {
-          var uri = 'data:application/vnd.ms-excel;base64,'
-            , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
-            , base64 = function(s) { return window.btoa(unescape(encodeURIComponent(s))) }
-            , format = function(s, c) { return s.replace(/{(\w+)}/g, function(m, p) { return c[p]; }) }
-          return function(table, name) {
-            if (!table.nodeType) table = document.getElementById(table)
-            var ctx = {worksheet: name || 'Worksheet', table: table.innerHTML}
-            window.location.href = uri + base64(format(template, ctx))
-          }
-        })()
-jQuery(document).ready(function(){
-    getNamHoc();
-   // getHocKi();
-    getTenGiangVien();
-    $("#select_id").change(function () {
-    $( $(this).val() ).modal('show');
-    getKhoiLuongGiangVien();
-    }); 
+function ImportMonHoc(jsonData) 
+ {
+    var items = [];
+    var listitemcollection = [];
     
-});
-var a=new Array(1,2,3,4,5,6,7,8,9,10,15);
-for(var i=0;i<a.length;i++){
-    switch(a[i]){
-        case a[i]%3===0:
-            a[i]="ba";
-            break;
-        case a[i]%5===0:
-            a[i]="ba";
-            break;
-        case a[i]%5===0 && a[i]%3===0:
-            a[i]="ba";
-            break;        
+    var columns = GetSheetColumns(jsonData);
+        
+    for (var i = 0; i < jsonData.length; i++) {  
+        var tenmonhoc = (jsonData[i][columns[4]] != null ? jsonData[i][columns[4]] : "");
+        var mamonhoc =  (jsonData[i][columns[3]] != null ? jsonData[i][columns[3]] : "");
+        var tctemp = (jsonData[i][columns[5]] != null ? jsonData[i][columns[5]] : "");
+        var tclt = 0;
+        var tcth = 0;
+        if (tctemp.indexOf("LT") >= 0)
+            tclt = tctemp.replace("(LT)", "");
+        else if (tctemp.indexOf("(TH)") >= 0)
+            tcth = tctemp.replace("(TH)", "");
+        
+        var item = { MMH: mamonhoc, TMH: tenmonhoc, TCLT: tclt, TCTH: tcth }
+        
+        var existed = false;
+        $.each(items, function(idx, val) {
+            var currentItem = items[idx];
+            if (currentItem.MMH === mamonhoc && currentItem.TMH === tenmonhoc)
+            {
+                existed = true;
+                if (currentItem.TCLT === 0)
+                    currentItem.TCLT =  tclt;
+                if (currentItem.TCTH === 0)
+                    currentItem.TCTH =  tcth;
+            }
+        });
+        
+        if (!existed)
+        {
+            items.push(item);
+        }
+    }  
+    
+    var clientContext = SP.ClientContext.get_current();  
+    var oList = clientContext.get_web().get_lists().getByTitle('Monhoc');
+    for(var idx = 0; idx < items.length; idx++) {
+        var itemCreateInfo = new SP.ListItemCreationInformation(); 
+        var oListItem = oList.addItem(itemCreateInfo);
+        oListItem.set_item('Title', items[idx].TMH);  
+        oListItem.set_item('Mamonhoc', items[idx].MMH);  
+        oListItem.set_item('Sotinchi', items[idx].TCLT);
+        oListItem.set_item('Sotinchithuchanh', items[idx].TCTH); 
+        oListItem.update(); 
+        clientContext.load(oListItem);  
     }
-    console.log(a[i]);
+    
+    clientContext.executeQueryAsync(function()  {
+        $("#log").append("<div>" + items.length + " items are added.</div>");
+    } , function(e, a) {
+        $("#log").append("<div>ERROR: " + JSON.stringify(a.get_message()) + "</div>");
+    });
+ }
+ function ImportPH(jsonData) 
+ {
+    var items = [];
+    var listitemcollection = [];
+    
+    var columns = GetSheetColumns(jsonData);
+        
+    for (var i = 0; i < jsonData.length; i++) {  
+        var tenphonghoc = (jsonData[i][columns[9]] != null ? jsonData[i][columns[9]] : "");
+        var item = { PH: tenphonghoc }
+        
+        var existed = false;
+        $.each(items, function(idx, val) {
+            var currentItem = items[idx];
+            if (currentItem.PH === tenphonghoc)
+            {
+                existed = true;
+                
+            }
+        });
+        
+        if (!existed)
+        {
+            items.push(item);
+        }
+    }  
+    
+    var clientContext = SP.ClientContext.get_current();  
+    var oList = clientContext.get_web().get_lists().getByTitle('Phonghoc');
+    for(var idx = 0; idx < items.length; idx++) {
+        var itemCreateInfo = new SP.ListItemCreationInformation(); 
+        var oListItem = oList.addItem(itemCreateInfo);
+        oListItem.set_item('Title', items[idx].PH);   
+        oListItem.update(); 
+        clientContext.load(oListItem);  
     }
+    
+    clientContext.executeQueryAsync(function()  {
+        $("#log").append("<div>" + items.length + " items are added.</div>");
+    } , function(e, a) {
+        $("#log").append("<div>ERROR: " + JSON.stringify(a.get_message()) + "</div>");
+    });
+ }
+ function ImportLopHoc(jsonData) 
+ {
+    var items = [];
+    var listitemcollection = [];
+    
+    var columns = GetSheetColumns(jsonData);
+        
+    for (var i = 0; i < jsonData.length; i++) {  
+        var tenlop = (jsonData[i][columns[1]] != null ? jsonData[i][columns[1]] : "");
+        var siso = (jsonData[i][columns[6]] != null ? jsonData[i][columns[6]] : "");
+        var nienkhoa=tenlop.split('_')[0];
+        var resultnienkhoa;
+        if(nienkhoa==="02"){
+            resultnienkhoa="2013-2017";
+        }
+        if(nienkhoa==="03"){
+            resultnienkhoa="2014-2018";
+        }
+        if(nienkhoa==="04"){
+            resultnienkhoa="2015-2019";
+        }
+        if(nienkhoa==="05"){
+            resultnienkhoa="2016-2020";
+        }
+        if(nienkhoa==="07"){
+            resultnienkhoa="2017-2021";
+        }
+        var item = { TL: tenlop,SS:siso,NK:resultnienkhoa }
+        
+        var existed = false;
+        $.each(items, function(idx, val) {
+            var currentItem = items[idx];
+            if (currentItem.TL === tenlop && currentItem.SS === siso)
+            {
+                existed = true;
+                
+            }
+        });
+        
+        if (!existed)
+        {
+            items.push(item);
+        }
+    }  
+    
+    var clientContext = SP.ClientContext.get_current();  
+    var oList = clientContext.get_web().get_lists().getByTitle('Lop');
+    for(var idx = 0; idx < items.length; idx++) {
+        var itemCreateInfo = new SP.ListItemCreationInformation(); 
+        var oListItem = oList.addItem(itemCreateInfo);
+        oListItem.set_item('Title', items[idx].TL);  
+        oListItem.set_item('Siso', items[idx].SS);
+        oListItem.set_item('Nienkhoa', items[idx].NK);   
+        oListItem.update(); 
+        clientContext.load(oListItem);  
+    }
+    
+    clientContext.executeQueryAsync(function()  {
+        $("#log").append("<div>" + items.length + " items are added.</div>");
+    } , function(e, a) {
+        $("#log").append("<div>ERROR: " + JSON.stringify(a.get_message()) + "</div>");
+    });
+ }
+ function getItem(lstName) {
+    var defer = $.Deferred(function () {
+        $.ajax({
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('"+lstName+"')/items",
+            method: "GET",
+            headers: { "Accept": "application/json; odata=verbose" },
+            success: function (data) {
+                defer.resolve(data);
+            },
+            error: function (err) {
+                console.log(err)
+                defer.reject(err);
+            }
+        });
+    });
+    return defer.promise();
 }
+function GetLookup(lstName, val)
+{
+    var id = 0;
+    for(var itm in lstName.d.results) {
+        if (lstName.d.results[itm].Title == val)
+        {
+            id = lstName.d.results[itm].Id;
+        }
+    };
     
+    return id;
+}
+
+function GetLookupMulti(lstName, val)
+{
+    var id = "{ \"results\" : [";
+    val = val.replace('\n', '-').replace('\r', '-');
+    var parts = val.split('--');
+    var v1 = parts[0].trim();
+    var v2 = v1;
+    if (parts.length > 1) v2 = parts[1].trim();
+    for(var itm in lstName.d.results) {
+        //console.log(lstName.d.results[itm].Title + "|" + v1 + "|" + v2);
+        if (lstName.d.results[itm].Title == v1 || lstName.d.results[itm].Title ==  v2)
+        {
+            id += lstName.d.results[itm].Id + ",";
+        }
+    };
+    
+    if (id.indexOf(",") > 0) id = id.substr(0, id.length-1);
+    
+    id += "] }"
+    
+   /* var id = "0";
+    val = val.replace('\n', '').replace('\r', '');
+    
+    for(var itm in lstName.d.results) {
+        var v = lstName.d.results[itm].Title.replace('\n', '').replace('\r','');
+        if (v == val)
+        {
+            id = lstName.d.results[itm].Id;
+        }
+    };*/
+    
+    return $.parseJSON(id);
+}

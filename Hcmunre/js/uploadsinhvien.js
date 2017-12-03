@@ -57,6 +57,7 @@ function ExportToTable() {
  {
     var log = $("#log");
     log.append("<div>Start to import...</div>");
+    ImportLopHoc(jsonData);
      getItem("Lop").done(function(lstName){
        ImportSinhVien(jsonData,lstName);
     })
@@ -88,7 +89,7 @@ function ExportToTable() {
     var idlop=GetLookup(lstName,lop);    
     var clientContext = SP.ClientContext.get_current();  
     var oList = clientContext.get_web().get_lists().getByTitle('Sinhvien');
-    for(var i = 0; i < 5; i++) {
+    for(var i = 0; i <jsonData.length; i++) {
         var itemCreateInfo = new SP.ListItemCreationInformation(); 
         var oListItem = oList.addItem(itemCreateInfo);
         var ho_ten=jsonData[i][columns[2]]+" "+jsonData[i][columns[3]]
@@ -135,4 +136,44 @@ function GetLookup(lstName, val)
     
     return id;
 }
+ function ImportLopHoc(jsonData) 
+ {
+    var columns = GetSheetColumns(jsonData); 
+    var path=document.getElementById('excelfile').value;
+    var file = path.replace(/^.*[\\\/]/, '');
+    var filename = file.substring(0,file.lastIndexOf("."));
+    var tenlop=filename.slice(0,2)+'_'+filename.slice(2,4)+'_'+filename.slice(4,filename.length);
+    var nienkhoa=tenlop.split('_')[0];
+    var resultnienkhoa;
+    if(nienkhoa==="02"){
+        resultnienkhoa="2013-2017";
+    }
+    if(nienkhoa==="03"){
+        resultnienkhoa="2014-2018";
+    }
+    if(nienkhoa==="04"){
+        resultnienkhoa="2015-2019";
+    }
+    if(nienkhoa==="05"){
+        resultnienkhoa="2016-2020";
+    }
+    if(nienkhoa==="07"){
+        resultnienkhoa="2017-2021";
+    } 
+    
+    var clientContext = SP.ClientContext.get_current();  
+    var oList = clientContext.get_web().get_lists().getByTitle('Lop');
+        var itemCreateInfo = new SP.ListItemCreationInformation(); 
+        var oListItem = oList.addItem(itemCreateInfo);
+        oListItem.set_item('Title', tenlop);  
+        oListItem.set_item('Nienkhoa', resultnienkhoa);   
+        oListItem.update(); 
+        clientContext.load(oListItem);  
+    clientContext.executeQueryAsync(function()  {
+        $("#log").append("<div>" + items.length + " items are added.</div>");
+    } , function(e, a) {
+        $("#log").append("<div>ERROR: " + JSON.stringify(a.get_message()) + "</div>");
+    });
+ }
+
 
