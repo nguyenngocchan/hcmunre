@@ -14,7 +14,7 @@ function sum(input){
 function getItems(){
     // Getting our list items
     $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời%20khóa%20biểu')/items?$select=Id,Title,EventDate,EndDate,Ten_x0020_mon_x0020_hoc/Sotinchithuchanh,Ten_x0020_mon_x0020_hoc/Sotinchi,Ten_x0020_mon_x0020_hoc/Id,Ten_x0020_mon_x0020_hoc/Title,Ten_x0020_mon_x0020_hoc/Mamonhoc,Tenlop/Siso,Tenlop/Title,Phonghoc/Title,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/JobTitle,UserLogin/Id&$expand=UserLogin,Tenlop,Phonghoc,Ten_x0020_mon_x0020_hoc&$filter=((UserLogin/Title%20eq%20%27Hà%20Thanh%20Vân%27)%20and%20(Namhoc%20eq%20%272017-2018%27)%20and%20(Hocki%20eq%20%27HKI%27))&$top=1000",
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('TKB')/items?$select=Id,Title,EventDate,EndDate,Ten_x0020_mon_x0020_hoc/Sotinchithuchanh,Ten_x0020_mon_x0020_hoc/Sotinchi,Ten_x0020_mon_x0020_hoc/Id,Ten_x0020_mon_x0020_hoc/Title,Ten_x0020_mon_x0020_hoc/Mamonhoc,Tenlop/Siso,Tenlop/Title,Phonghoc/Title,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/JobTitle,UserLogin/Id&$expand=UserLogin,Tenlop,Phonghoc,Ten_x0020_mon_x0020_hoc&$filter=((UserLogin/Title%20eq%20%27Hà%20Thanh%20Vân%27)%20and%20(Namhoc%20eq%20%272017-2018%27)%20and%20(Hocki%20eq%20%27HKI%27))&$top=1000",
         method: "GET",
         headers: { "Accept": "application/json; odata=verbose" },
         success: function (data) {
@@ -30,14 +30,14 @@ function getItems(){
 function getNamHoc(){
     // Getting our list items
     $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời khóa biểu')/items?$select=Namhoc&$top=1000",
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('TKB')/items?$select=Title&$top=1000",
         method: "GET",
         headers: { "Accept": "application/json; odata=verbose" },
         success: function (data) {
             var items = [];
             var item=[];
             for (var i in data.d.results) {
-                var namhoc = (data.d.results[i].Namhoc)?data.d.results[i].Namhoc:'';
+                var namhoc = (data.d.results[i].Title)?data.d.results[i].Title:'';
                 var arrnamhoc={NH:namhoc};
                 var existed=false;
                 $.each(items,function(idx,val){
@@ -67,7 +67,7 @@ function getHocKi(){
     var namhoc=$("#select_namhoc option:selected").text();
     // Getting our list items
     $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời khóa biểu')/items?$select=Namhoc,Hocki&$filter=Namhoc eq '"+namhoc+"'&$top=1000",
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('TKB')/items?$select=Title,Hocki&$filter=Title eq '"+namhoc+"'&$top=1000",
         method: "GET",
         headers: { "Accept": "application/json; odata=verbose" },
         success: function (data) {
@@ -105,7 +105,7 @@ function getTenGiangVien() {
     var hocki=$("#select_hocki option:selected").text();
     var namhoc=$("#select_namhoc option:selected").text();
     $.ajax({
-        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('Thời khóa biểu')/items?$select=UserLogin/Title,UserLogin/ID&$expand=UserLogin&$filter=((Namhoc eq '"+namhoc+"') and (Hocki eq '"+hocki+"'))&$top=1000",
+        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/getbytitle('TKB')/items?$select=Title,UserLogin/Title,UserLogin/ID&$expand=UserLogin&$filter=((Title eq '"+namhoc+"') and (Hocki eq '"+hocki+"'))&$top=1000",
         method: "GET",
         headers: { "Accept": "application/json; odata=verbose" },
         success: function (data) {
@@ -143,7 +143,7 @@ function getKhoiLuongGiangVien(lstLookup) {
     var hocki=$("#select_hocki option:selected").text();
     var namhoc=$("#select_namhoc option:selected").text();
     var ten=$("#select_id option:selected").text();
-    var query="/_api/web/lists/getbytitle('Thời%20khóa%20biểu')/items?$select=Id,Title,EventDate,EndDate,Ten_x0020_mon_x0020_hoc/Sotinchithuchanh,Ten_x0020_mon_x0020_hoc/Sotinchi,Ten_x0020_mon_x0020_hoc/Id,Ten_x0020_mon_x0020_hoc/Title,Ten_x0020_mon_x0020_hoc/Mamonhoc,Tenlop/Siso,Tenlop/Title,Phonghoc/Title,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/JobTitle,UserLogin/Id&$expand=UserLogin,Tenlop,Phonghoc,Ten_x0020_mon_x0020_hoc&$filter=((UserLogin/Title eq '"+ten+"') and (Namhoc eq '"+namhoc+"') and (Hocki eq '"+hocki+"'))&$top=1000";
+    var query="/_api/web/lists/getbytitle('TKB')/items?$select=Id,Title,EventDate,EndDate,Ten_x0020_mon_x0020_hoc/Sotinchithuchanh,Ten_x0020_mon_x0020_hoc/Sotinchi,Ten_x0020_mon_x0020_hoc/Id,Ten_x0020_mon_x0020_hoc/Title,Ten_x0020_mon_x0020_hoc/Mamonhoc,Tenlop/Siso,Tenlop/Title,Phonghoc/Title,Buoi,Hocki,UserLogin/Title,UserLogin/JobTitle,UserLogin/Id&$expand=UserLogin,Tenlop,Phonghoc,Ten_x0020_mon_x0020_hoc&$filter=((UserLogin/Title eq '"+ten+"') and (Title eq '"+namhoc+"') and (Hocki eq '"+hocki+"'))&$top=1000";
     //"/_api/web/lists/getbytitle('Thời%20khóa%20biểu')/items?$select=Id,Title,EventDate,EndDate,Tenmonhoc,Sotinchi,Mamonhoc,Siso,Phong,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/Id&$expand=UserLogin&$filter=((Namhoc eq '"+namhoc+"') and (Hocki eq '"+hocki+"') and (UserLogin/Title eq '"+ten+"'))&$top=1000";
     $.ajax({
         url: _spPageContextInfo.webAbsoluteUrl + query,   
@@ -273,7 +273,7 @@ function getKhoiLuongGiangVien(lstLookup) {
                   '<td class="xl154" style="border-top:none;border-left:none">'+dtkc+'</td>'+
                   '<td class="xl155" style="border-top:none;border-left:none">'+hocvikh+'</td>'+
                   '<td class="xl154" style="border-top:none;border-left:none">'+ngoaigio+'</td>'+
-                  '<td class="xl156" align="right" style="border-top:none;border-left:none">'+(((items[idx].TCLT*15)+((items[idx].TCTH*30)*0.75)))*ldth*dtkc*ngoaigio*getldlt+'</td>'+
+                  '<td class="xl156" align="right" style="border-top:none;border-left:none">'+parseFloat((((items[idx].TCLT*15)+((items[idx].TCTH*30)*0.75)))*ldth*dtkc*ngoaigio*getldlt).toFixed(2)+'</td>'+
                   '<td class="xl157" style="border-top:none;border-left:none">&nbsp;</td>'+
                   '<td class="xl158"></td>'+
                   '<td class="xl158"></td>'+
@@ -288,8 +288,9 @@ function getKhoiLuongGiangVien(lstLookup) {
                   '</tr>'
                     );
                
-               var tong2=(((items[idx].TCLT*15)+((items[idx].TCTH*30)*0.75)))*ldth*dtkc*ngoaigio;
-               arrtong2.push(tong2);
+               var tong2=(((items[idx].TCLT*15)+((items[idx].TCTH*30)*0.75)))*ldth*dtkc*ngoaigio*getldlt;
+               var formattong2=parseFloat(tong2).toFixed(2);
+               arrtong2.push(formattong2);
                 arrkekhai.push(htmlkekhai);  
             } 
             var htmltengiangvien = (data.d.results[i].UserLogin.Title)?data.d.results[i].UserLogin.Title:'';  

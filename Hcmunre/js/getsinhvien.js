@@ -20,7 +20,7 @@ myAngApp.controller('spSinhvienController', function($scope, $http) {
     $scope.getByDataID = function(sinhvien) {
         var sinhvienId = sinhvien;
         $.ajax({
-            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('Sinhvien')/items(" + sinhvienId + ")/?$select=ID,Title,Masinhvien,Lop/Title,Lop/Siso,Lop/Nienkhoa,Sodienthoai,Diachi,Ghichu,Tinhtrang&$expand=Lop",
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('Sinhvien')/items(" + sinhvienId + ")/?$select=ID,Title,Masinhvien,Lop/Title,Lop/Siso,Lop/Nienkhoa,Lop/Id,Sodienthoai,Diachi,Ghichu,Tinhtrang&$expand=Lop",
             type: "GET",
             headers: {
                 "Accept": "application/json;odata=verbose",
@@ -33,8 +33,10 @@ myAngApp.controller('spSinhvienController', function($scope, $http) {
                 $('#txtItemId').val(data.d.Id);
                 $('#txttitle').val(data.d.Title);
                 $('#txtma').val(data.d.Masinhvien);
-                $('#txtlop').val(data.d.Lop.Title);
+                //$('#txtlop').val(data.d.Lop.Title);
                 $("#drpStatus option[value='" + data.d.Tinhtrang + "']").attr("selected", true);
+                $("#drpLop option[value='" + data.d.Lop.Id + "']").attr("selected", true);
+
                 $('#txtsdt').val(data.d.Sodienthoai);
                 $('#txtdiachi').val(data.d.Diachi);
                 $('#txtghichu').val(data.d.Ghichu);
@@ -46,7 +48,7 @@ myAngApp.controller('spSinhvienController', function($scope, $http) {
         });
     };
     $scope.Save = function() {
-      $("#spadd").show();
+        $("#spadd").show();
         $("#btnadd").attr("disabled", "disabled");
         $.ajax({
             url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('Sinhvien')/items",
@@ -60,7 +62,7 @@ myAngApp.controller('spSinhvienController', function($scope, $http) {
                 "Sodienthoai":$scope.sinhvien.Sodienthoai,
                 "Diachi":$scope.sinhvien.Diachi,
                 "Tinhtrang": $("#drpStatus option:selected").val(),
-               // "Lop": $("#drpLop option:selected").val(),
+                "LopId": $("#drpLop option:selected").val(),
                 "Ghichu": $scope.sinhvien.Ghichu
             }),
             headers: {
@@ -101,7 +103,7 @@ myAngApp.controller('spSinhvienController', function($scope, $http) {
                 "Sodienthoai":$scope.sinhvien.Sodienthoai,
                 "Diachi":$scope.sinhvien.Diachi,
                 "Tinhtrang": $("#drpStatus option:selected").val(),
-                //"Lop": $("#drpLop option:selected").val(),
+                "LopId": $("#drpLop option:selected").val(),
                 "Ghichu": $scope.sinhvien.Ghichu
 
             }),
@@ -272,6 +274,7 @@ var tableToExcel = (function() {
         })()
 
 function showNew(){
-  $('#btnadd').show();
-  $('#btnupdateval').hide();
+    $(".modal-title").html("Tạo mới thông tin sinh viên");
+    $('#btnadd').show();
+    $('#btnupdateval').hide();
 }

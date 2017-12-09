@@ -47,7 +47,7 @@ function showChart() {
     /*https://social.technet.microsoft.com/wiki/contents/articles/35796.sharepoint-2013-using-rest-api-for-selecting-filtering-sorting-and-pagination-in-sharepoint-list.aspx*/
     var query = "?$select=Tinhtrang&$filter=Lop eq '"+tenlop+"'";
       
- var t5spjq = new $.t5_sp_jq({ url: _spPageContextInfo.webServerRelativeUrl });
+    var t5spjq = new $.t5_sp_jq({ url: _spPageContextInfo.webServerRelativeUrl });
     var arrChart = [];
     var arrFn = [t5spjq.getValuesOfChoice(listName, 'Tinhtrang'),
         t5spjq.getListItems(listName, query)
@@ -80,32 +80,70 @@ function showChart() {
     function bar_char(data) {
     Highcharts.chart('showchart', {
             chart: {
-            plotBackgroundColor: null,
-            plotBorderWidth: null,
-            plotShadow: false,
-            type: 'pie'
-        },
+        type: 'column'
+    },
+    title: {
+    text: 'Thống kê tình trạng sinh viên lớp '+$('#select_id option:selected').val()+''
+    },
+    xAxis: {
+        type: 'category'
+    },
+    yAxis: {
         title: {
-            text: 'Thống kê tình trạng sinh vien'
-        },
-        tooltip: {
-            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-        },
-        plotOptions: {
-            pie: {
-                allowPointSelect: true,
-                cursor: 'pointer',
-                dataLabels: {
-                    enabled: false
-                },
-                showInLegend: true
+            text: 'Tổng số sinh viên'
+        }
+
+    },
+    legend: {
+        enabled: false
+    },
+    plotOptions: {
+        series: {
+            borderWidth: 0,
+            dataLabels: {
+                enabled: true,
+                format: ''
             }
-        },
-        series: [{
-            name: 'Brands',
+        }
+    },
+        tooltip: {
+        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y} sinh viên</b><br/>'
+    },
+       series: [{
+            name: 'Tình trạng',
             colorByPoint: true,
             data: data
-        }]
+        }],    responsive: {
+                rules: [{
+                    condition: {
+                        maxWidth: 500
+                    },
+                    chartOptions: {
+                        legend: {
+                            align: 'center',
+                            verticalAlign: 'bottom',
+                            layout: 'horizontal'
+                        },
+                        yAxis: {
+                            labels: {
+                                align: 'left',
+                                x: 0,
+                                y: -5
+                            },
+                            title: {
+                                text: null
+                            }
+                        },
+                        subtitle: {
+                            text: null
+                        },
+                        credits: {
+                            enabled: false
+                        }
+                    }
+                }]
+            }
         });
 }
 };

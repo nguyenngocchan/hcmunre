@@ -57,12 +57,13 @@ function ExportToTable() {
  {
     var log = $("#log");
     log.append("<div>Đang cập nhật...</div>");
+    ImportLopHoc(jsonData);
+    /*
     ImportMonHoc(jsonData);
     log.append("<div>Cập nhật danh sách môn học</div>");
-    ImportLopHoc(jsonData);
     log.append("<div>Cập nhật danh sách lớp học</div>");
     ImportPH(jsonData);
-    /*log.append("<div>Cập nhật danh sách phòng học</div>");
+    log.append("<div>Cập nhật danh sách phòng học</div>");
         getUser().done(function(lstUsers){
             getItem("Lop").done(function(lstLop){
                 getItem("Phonghoc").done(function(lstPhonghoc){
@@ -71,8 +72,8 @@ function ExportToTable() {
                         });
                 });
             });
-    });*/
-    
+    });
+    */
     log.append("<div>Cập nhật danh sách thời khóa biểu</div>");
     
  }
@@ -336,57 +337,21 @@ function ImportMonHoc(jsonData)
  }
  function ImportLopHoc(jsonData) 
  {
-    var items = [];
-    var listitemcollection = [];
-    
     var columns = GetSheetColumns(jsonData);
-        
+    var item=[];   
     for (var i = 0; i < jsonData.length; i++) {  
         var tenlop = (jsonData[i][columns[1]] != null ? jsonData[i][columns[1]] : "");
         var siso = (jsonData[i][columns[6]] != null ? jsonData[i][columns[6]] : "");
-        var nienkhoa=tenlop.split('_')[0];
-        var resultnienkhoa;
-        if(nienkhoa==="02"){
-            resultnienkhoa="2013-2017";
-        }
-        if(nienkhoa==="03"){
-            resultnienkhoa="2014-2018";
-        }
-        if(nienkhoa==="04"){
-            resultnienkhoa="2015-2019";
-        }
-        if(nienkhoa==="05"){
-            resultnienkhoa="2016-2020";
-        }
-        if(nienkhoa==="07"){
-            resultnienkhoa="2017-2021";
-        }
-        var item = { TL: tenlop,SS:siso,NK:resultnienkhoa }
-        
-        var existed = false;
-        $.each(items, function(idx, val) {
-            var currentItem = items[idx];
-            if (currentItem.TL === tenlop && currentItem.SS === siso)
-            {
-                existed = true;
-                
-            }
-        });
-        
-        if (!existed)
-        {
-            items.push(item);
-        }
+        item.push(checkInsertLop(tenlop,siso));
     }  
-    
     var clientContext = SP.ClientContext.get_current();  
     var oList = clientContext.get_web().get_lists().getByTitle('Lop');
-    for(var idx = 0; idx < items.length; idx++) {
+    for(var idx = 0; idx < item.length; idx++) {
         var itemCreateInfo = new SP.ListItemCreationInformation(); 
         var oListItem = oList.addItem(itemCreateInfo);
-        oListItem.set_item('Title', items[idx].TL);  
-        oListItem.set_item('Siso', items[idx].SS);
-        oListItem.set_item('Nienkhoa', items[idx].NK);   
+        oListItem.set_item('Title', item[idx].TL);  
+        oListItem.set_item('Siso', item[idx].SS);
+        oListItem.set_item('Nienkhoa', item[idx].NK);   
         oListItem.update(); 
         clientContext.load(oListItem);  
     }
@@ -460,3 +425,41 @@ function GetLookupMulti(lstName, val)
     
     return $.parseJSON(id);
 }
+function checkInsertLop(tenlop,siso){
+    var items=[];
+    var nienkhoa=tenlop.split('_')[0];
+        var resultnienkhoa;
+        if(nienkhoa==="02"){
+            resultnienkhoa="2013-2017";
+        }
+        if(nienkhoa==="03"){
+            resultnienkhoa="2014-2018";
+        }
+        if(nienkhoa==="04"){
+            resultnienkhoa="2015-2019";
+        }
+        if(nienkhoa==="05"){
+            resultnienkhoa="2016-2020";
+        }
+        if(nienkhoa==="07"){
+            resultnienkhoa="2017-2021";
+        }
+    tenlop = tenlop.replace('\n', '-').replace('\r', '-');
+    var parts = tenlop.split('--');
+    if(parts.length>1){
+        for(var i=0;i<parts.length;i++){
+            tenlop=parts[i];
+            siso=0;
+            nienkhoa=nienkhoa;
+            items.push({TL:tenlop,SS:siso,NK:resultnienkhoa});
+        }    
+    }
+    else{
+        tenlop=tenlop;
+        siso=siso;
+        nienkhoa=resultnienkhoa;
+        items.push({TL:tenlop,SS:siso,NK:resultnienkhoa});
+    }
+    return items;
+}
+Thời khóa biểu

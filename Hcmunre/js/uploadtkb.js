@@ -73,7 +73,7 @@ function ExportToTable() {
             });
     });
     
-    log.append("<div>Cập nhật danh sách thời khóa biểu</div>");
+    log.append("<div>Cập nhật danh sách TKB</div>");
     
  }
  
@@ -177,20 +177,18 @@ function importThoiKhoaBieu(jsonData,lstUsers,lstLop,lstPhonghoc,lstMonhoc)
         var ngay= `<recurrence><rule><firstDayOfWeek>su</firstDayOfWeek><repeat><weekly ${resultday}='TRUE' weekFrequency='1' /></repeat><repeatForever>FALSE</repeatForever></rule></recurrence>`;            
         var data = {
             '__metadata': {
-                'type': 'SP.Data.TKListItem'
+                'type': 'SP.Data.TKBListItem'
             },
-            'Title':jsonData[i][columns[1]],
+            'Title':namHoc,
             'UserLoginId': user,
             'Ten_x0020_mon_x0020_hocId':tenmonhoc,
             'PhonghocId':phong,
-            'Sotinchi':jsonData[i][columns[5]],
+            //'Sotinchi':jsonData[i][columns[5]],
             'Buoi':jsonData[i][columns[11]],
             'TenlopId': tenlop,
-            //{ "results" : [165, 166] }
             'EventDate': stringStartDate,
             'EndDate': stringEndDate,
             'Hocki':hocKi,
-            'Namhoc':namHoc,
             'fRecurrence': true,
             'fAllDayEvent': false,
             'RecurrenceData': ngay,
@@ -201,7 +199,7 @@ function importThoiKhoaBieu(jsonData,lstUsers,lstLop,lstPhonghoc,lstMonhoc)
         //create a string that has the events
         var recReq =
                 {
-            url: _spPageContextInfo.webAbsoluteUrl+"/_api/web/lists/GetByTitle('Thời khóa biểu')/items",
+            url: _spPageContextInfo.webAbsoluteUrl+"/_api/web/lists/GetByTitle('TKB')/items",
             type: "POST",
             data: JSON.stringify(data),
             headers: {
