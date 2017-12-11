@@ -470,5 +470,45 @@ $("select[title='Danh mục']").change(function () {
         $('.stg').show();
     }
 })
+=IF(AND(MONTH(TODAY())>=1,MONTH(TODAY())<=5),"HKII "&YEAR(TODAY())&"-"&YEAR(TODAY())+1,IF(AND(MONTH(TODAY())<=12,MONTH(TODAY())>=8),"HKI 
 =IF(AND([Danh mục]="(1) Bài báo công bố trên tạp chí khoa học quốc tế thuộc danh sách ISI, Scopus",[Số tác giả]>0),600/[Số tác giả],IF(AND([Danh mục]="(2) Bài báo công bố trên tạp chí khoa học quốc tế không thuộc danh sách ISI, Scopus, có chỉ số xuất bạn ISSN",[Số tác giả]>0),400/[Số tác giả],IF(AND([Danh mục]="(3) Bài công bố trên tạp chí khoa học trong nước thuộc danh mục tạp chí  được tính điểm của hội đồng chức danh giáo sư Nhà nước có điểm số 1",[Số tác giả]>0),300/[Số tác giả],IF(AND([Danh mục]="(4) Bài công bố trên tạp chí khoa học trong nước thuộc danh mục tạp chí  được tính điểm của hội đồng chức danh giáo sư Nhà nước có điểm số 0,75",[Số tác giả]>0),150/[Số tác giả],IF(AND([Danh mục]="(5) Bài công bố trên tạp chí khoa học trong nước thuộc danh mục tạp chí  được tính điểm của hội đồng chức danh giáo sư Nhà nước có điểm số 0,5",[Số tác giả]>0),0.75/[Số tác giả],IF(AND([Danh mục]="(7) Bài công bố trên tạp chí khoa học trong nước có chỉ số xuất bản ISSN không thuộc danh mục tạp chí  được tính điểm của hội đồng chức danh giáo sư Nhà nước của ngành đó",[Số tác giả]>0),10/[Số tác giả],IF(AND([Danh mục]="(8) Bài toàn văn công bố trên kỷ yếu hội nghị quốc tế được xuất bản bởi nhà xuất bản có uy tín",[Số tác giả]>0),250/[Số tác giả],IF(AND([Danh mục]="(9) Bài toàn văn công bố trên kỷ yếu hội nghị quốc tế ",[Số tác giả]>0),0.5/[Số tác giả],IF(AND([Danh mục]="(11) Bài báo cáo (Poster) tham gia hội nghị quốc tế",[Số tác giả]>0),0.25/[Số tác giả],IF(AND([Danh mục]="(10) Bài báo cáo (oral) tham gia hội nghị quốc tế ",[Số tác giả]>0),0.4/[Số tác giả],IF(AND([Danh mục]="(12) Bài toàn văn tham gia hội nghị toàn quốc công bố trên kỷ yếu hội nghị có chỉ số ISBN",[Số tác giả]>0),40/[Số tác giả],IF(AND([Danh mục]="(13) Bài toàn văn tham gia hội nghị khoa học công bố trên kỷ yếu hội nghị có chỉ số ISBN",[Số tác giả]>0),30/[Số tác giả],IF(AND([Danh mục]="(6) Bài công bố trên tạp chí khoa học trong nước thuộc danh mục tạp chí  được tính điểm của hội đồng chức danh giáo sư Nhà nước có điểm số 0,25",[Số tác giả]>0),0.3/[Số tác giả],IF([Danh mục]="Xây dựng chương trình đào tạo cho một ngành đào tạo (bao gồm cả chủ trì và người tham gia) được phê duyệt. Chỉ tính cho các chương trình không được cấp phí",[Số giờ quy đổi],IF([Danh mục]="Biên soạn Giáo trình/sách hướng dẫn, TLTK được hội đồng do nhà trường công nhận. Chỉ tính cho chương trình không được cấp phí",[Số trang]*1.5,IF([Danh mục]="Biên soạn sách giáo trình được cấp phép xuất bản",[Số trang]*2.5,IF([Danh mục]="Bằng sáng chế ngoài nước",[Số lượng]*600,IF([Danh mục]="Bằng sáng chế trong nước",[Số lượng]*500,IF([Danh mục]="Giải pháp hữu ích",[Số lượng]*400,"-")))))))))))))))))))
-=IF(AND(MONTH(TODAY())<=7,MONTH(TODAY())>=5),YEAR(TODAY())&"/"&YEAR(TODAY())+1&"HK1","b")
+var siteUrl = '/sites/Hcmunre';
+function retrieveListItems() {
+    var clientContext = new SP.ClientContext(siteUrl);
+    var oList = clientContext.get_web().get_lists().getByTitle('Nghiencuukhoahoc');
+        
+    var camlQuery = new SP.CamlQuery();
+    camlQuery.set_viewXml("<View><Query>
+        <Where>
+        <Eq>
+        <FieldRef Name='Author' LookupId='True'/><Value Type='Lookup'>" + _spPageContextInfo.userId + "</Value>
+        </Eq>
+        </Where>
+        </Query></View>");
+    this.collListItem = oList.getItems(camlQuery);
+        
+    clientContext.load(collListItem);
+        
+    clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));        
+        
+}
+
+function onQuerySucceeded(sender, args) {
+
+    var listItemInfo = [];
+    var count=0;
+    var listItemEnumerator = collListItem.getEnumerator();
+    while(listItemEnumerator.moveNext()) {
+        var oListItem = listItemEnumerator.get_current();
+        listItemInfo[count]=oListItem.get_item('Title');
+        count++;
+        alert(count);
+    }
+
+    alert(listItemInfo);
+}
+
+function onQueryFailed(sender, args) {
+
+    alert('Request failed. ' + args.get_message() + '\n' + args.get_stackTrace());
+}
