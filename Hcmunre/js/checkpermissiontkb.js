@@ -1,4 +1,7 @@
-function getCurrentUserGroup()
+$(document).ready(function(){
+    checkPermission();
+})
+function checkPermission()
  {
   var userid=_spPageContextInfo.userId;
   $.ajax
@@ -14,14 +17,12 @@ function getCurrentUserGroup()
       {   
            var title = (data.d.results[i].Title)?data.d.results[i].Title:'';
            if(title!="Hcmunre Visitors"){
-             window.location.replace("/sites/Hcmunre/Lists/TK/admin.aspx");           }
-           else{
-           	 window.location.replace("/sites/Hcmunre/Lists/TK/calendar.aspx");
-           }
+             window.location="/sites/Hcmunre/Lists/TKB/calendar.aspx";           
+          }
+          //else{
+            // window.location="/sites/Hcmunre/Lists/TKB/Giangvien.aspx";
+          //}
       }
   }
   });
 }
-$(document).ready(function() {
-   		ExecuteOrDelayUntilScriptLoaded( getCurrentUserGroup, 'sp.js')
-   });

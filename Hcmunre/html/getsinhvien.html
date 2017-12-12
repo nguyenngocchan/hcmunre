@@ -34,7 +34,7 @@ div#sideNavBox {
             <th>Niên khóa</th>
             <th>Tình trạng</th>
             <th>Ghi chú</th>  
-      <th>Edit</th>
+          <th class="checkedit">Edit</th>
           </tr>
           </thead>
           <tr ng-repeat="sinhvien in sinhviens">
@@ -46,8 +46,8 @@ div#sideNavBox {
             <td>{{sinhvien.Lop.Siso}}</td>
             <td>{{sinhvien.Lop.Nienkhoa}}</td>
             <td>{{sinhvien.Tinhtrang}}</td>
-            <td>{{sinhvien.Ghichu}}</td>
-            <td>
+            <td >{{sinhvien.Ghichu}}</td>
+            <td class="checkedit">
               <a id="Idedit" class="btn btn-primary btn-xs" value="Edit" ng-readonly='!($index == eEditable)' data-ng-click="getByDataID(sinhvien.Id)" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-pencil"></span></a>
                 <a id="Delete" class="btn btn-danger btn-xs" value="Delete" data-ng-click="Delete(sinhvien.Id)"><span class="glyphicon glyphicon-trash"></span></a>
             </td>

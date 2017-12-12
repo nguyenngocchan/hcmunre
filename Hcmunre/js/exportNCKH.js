@@ -1,10 +1,35 @@
 jQuery(document).ready(function(){
+  checkUserLogin();
   getThoiGian();
     $("#chonnamhoc").change(function () {
     $( $(this).val() ).modal('show');
     mNCKH();
     }); 
 });
+function checkUserLogin()
+ {
+  var userid=_spPageContextInfo.userId;
+  $.ajax
+  ({
+  url: _spPageContextInfo.webAbsoluteUrl+"/_api/web/GetUserById("+userid+")/Groups",
+  type: "GET",
+  headers: { "Accept": "application/json; odata=verbose" },
+  dataType: "json",
+  async: true,
+   success: function(data){
+      var items = [];
+      for(var i in data.d.results)
+      {   
+           var title = (data.d.results[i].Title)?data.d.results[i].Title:'';
+           if(title!="Hcmunre Visitors"){
+             window.location.replace("/sites/Hcmunre/Lists/Nghiencuukhoahoc/AllItems.aspx");           }
+          // else{
+           //  window.location.replace("/sites/Hcmunre/Lists/TK/calendar.aspx");
+           //}
+      }
+  }
+  });
+}
 function sum(input){             
     if (toString.call(input) !== "[object Array]")
         return false;

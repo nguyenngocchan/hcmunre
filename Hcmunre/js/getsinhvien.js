@@ -1,3 +1,9 @@
+jQuery(document).ready(function(){
+
+        checkPermissionSinhVien();
+
+});
+
 var myAngApp = angular.module('SharePointAngApp',[]);
 myAngApp.controller('spSinhvienController', function($scope, $http) {
     $scope.eEditable = -1;
@@ -167,6 +173,7 @@ myAngApp.controller('spSinhvienController', function($scope, $http) {
 });
 jQuery(document).ready(function(){
     try{
+        checkPermissionSinhVien();
         getLop();
     }   
     catch(error){
@@ -277,4 +284,30 @@ function showNew(){
     $(".modal-title").html("Tạo mới thông tin sinh viên");
     $('#btnadd').show();
     $('#btnupdateval').hide();
+}
+function checkPermissionSinhVien()
+ {
+  var userid=_spPageContextInfo.userId;
+  $.ajax
+  ({
+  url: _spPageContextInfo.webAbsoluteUrl+"/_api/web/GetUserById("+userid+")/Groups",
+  type: "GET",
+  headers: { "Accept": "application/json; odata=verbose" },
+  dataType: "json",
+  async: true,
+   success: function(data){
+      var items = [];
+      for(var i in data.d.results)
+      {   
+           var title = (data.d.results[i].Title)?data.d.results[i].Title:'';
+           if(title!="Hcmunre Visitors"){
+            $('.checkedit').show();
+            $('#btnshownew').show();           
+          }
+          //else{
+            // window.location="/sites/Hcmunre/Lists/TKB/Giangvien.aspx";
+          //}
+      }
+  }
+  });
 }
