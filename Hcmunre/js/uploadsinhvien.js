@@ -89,13 +89,13 @@ function ExportToTable() {
     var idlop=GetLookup(lstName,lop);    
     var clientContext = SP.ClientContext.get_current();  
     var oList = clientContext.get_web().get_lists().getByTitle('Sinhvien');
-    for(var i = 0; i <jsonData.length; i++) {
+    for(var i = 1; i <jsonData.length; i++) {
         var itemCreateInfo = new SP.ListItemCreationInformation(); 
         var oListItem = oList.addItem(itemCreateInfo);
-        var ho_ten=jsonData[i][columns[2]]+" "+jsonData[i][columns[3]]
+        var ho_ten=jsonData[i][columns[4]]+" "+jsonData[i][columns[5]]
         oListItem.set_item('Title', ho_ten); 
         oListItem.set_item('Lop',idlop); 
-        oListItem.set_item('Masinhvien', jsonData[i][columns[1]]);   
+        oListItem.set_item('Masinhvien', jsonData[i][columns[3]]);   
         oListItem.update(); 
         clientContext.load(oListItem);  
     }

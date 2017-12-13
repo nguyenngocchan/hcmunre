@@ -143,7 +143,7 @@ function getKhoiLuongGiangVien(lstLookup) {
     var hocki=$("#select_hocki option:selected").text();
     var namhoc=$("#select_namhoc option:selected").text();
     var ten=$("#select_id option:selected").text();
-    var query="/_api/web/lists/getbytitle('TKB')/items?$select=Id,Title,EventDate,EndDate,Ten_x0020_mon_x0020_hoc/Sotinchithuchanh,Ten_x0020_mon_x0020_hoc/Sotinchi,Ten_x0020_mon_x0020_hoc/Id,Ten_x0020_mon_x0020_hoc/Title,Ten_x0020_mon_x0020_hoc/Mamonhoc,Tenlop/Siso,Tenlop/Title,Phonghoc/Title,Buoi,Hocki,UserLogin/Title,UserLogin/JobTitle,UserLogin/Id&$expand=UserLogin,Tenlop,Phonghoc,Ten_x0020_mon_x0020_hoc&$filter=((UserLogin/Title eq '"+ten+"') and (Title eq '"+namhoc+"') and (Hocki eq '"+hocki+"'))&$top=1000";
+    var query="/_api/web/lists/getbytitle('TKB')/items?$select=Id,Title,EventDate,EndDate,Ten_x0020_mon_x0020_hoc/Sotinchithuchanh,Ten_x0020_mon_x0020_hoc/Sotinchi,Ten_x0020_mon_x0020_hoc/Id,Ten_x0020_mon_x0020_hoc/Title,Ten_x0020_mon_x0020_hoc/Mamonhoc,Tenlop/Siso,Tenlop/Title,Phonghoc/Title,Buoi,Hocki,UserLogin/Title,UserLogin/JobTitle,UserLogin/Department,UserLogin/Id&$expand=UserLogin,Tenlop,Phonghoc,Ten_x0020_mon_x0020_hoc&$filter=((UserLogin/Title eq '"+ten+"') and (Title eq '"+namhoc+"') and (Hocki eq '"+hocki+"'))&$top=1000";
     //"/_api/web/lists/getbytitle('Thời%20khóa%20biểu')/items?$select=Id,Title,EventDate,EndDate,Tenmonhoc,Sotinchi,Mamonhoc,Siso,Phong,Buoi,Hocki,Namhoc,UserLogin/Title,UserLogin/Id&$expand=UserLogin&$filter=((Namhoc eq '"+namhoc+"') and (Hocki eq '"+hocki+"') and (UserLogin/Title eq '"+ten+"'))&$top=1000";
     $.ajax({
         url: _spPageContextInfo.webAbsoluteUrl + query,   
@@ -167,7 +167,8 @@ function getKhoiLuongGiangVien(lstLookup) {
                 var siso=parsesiso;
                 var tclt=(data.d.results[i].Ten_x0020_mon_x0020_hoc.Sotinchi)?data.d.results[i].Ten_x0020_mon_x0020_hoc.Sotinchi:'';
                 var tcth=(data.d.results[i].Ten_x0020_mon_x0020_hoc.Sotinchithuchanh)?data.d.results[i].Ten_x0020_mon_x0020_hoc.Sotinchithuchanh:'';  
-                var htmlhocvi=(data.d.results[i].UserLogin.JobTitle)?data.d.results[i].UserLogin.JobTitle:'';
+                var htmlchucvu=(data.d.results[i].UserLogin.JobTitle)?data.d.results[i].UserLogin.JobTitle:'';
+                var htmlhocvi=(data.d.results[i].UserLogin.Department)?data.d.results[i].UserLogin.Department:'';
                 item={TMH: tenmonhoc,LOP:lop,TCLT: tclt, TCTH: tcth,SS:siso};
                 var existed = false;
                 $.each(items, function(idx, val) {
@@ -295,7 +296,10 @@ function getKhoiLuongGiangVien(lstLookup) {
             } 
             var htmltengiangvien = (data.d.results[i].UserLogin.Title)?data.d.results[i].UserLogin.Title:'';  
             jQuery('#tong2').html(sum(arrtong2));
+            jQuery('#tong1va2').html(sum(arrtong2));
+            jQuery('#dinhmucgiogiang').html(sum(arrtong2));
             jQuery('#hocvi').html(htmlhocvi);
+            jQuery('#getchucvu').html(htmlchucvu);
             jQuery('#tengiangvien').html(htmltengiangvien);
             //jQuery('#kekhai').html(items.join(''));
             jQuery('#testTable > tbody > tr.trdataitem').each(function() { jQuery(this).remove(); });
@@ -358,5 +362,3 @@ jQuery(document).ready(function(){
     }); 
 
 });
-=IF(AND([Danh mục]="(1) Bài báo công bố trên tạp chí khoa học quốc tế thuộc danh sách ISI, Scopus",[So tac gia]>0),600/[So tac gia],IF(AND([Danh mục]="(2) Bài báo công bố trên tạp chí khoa học quốc tế không thuộc danh sách ISI, Scopus, có chỉ số xuất bạn ISSN",[So tac gia]>0),400/[So tac gia],IF(AND([Danh mục]="(3) Bài công bố trên tạp chí khoa học trong nước thuộc danh mục tạp chí  được tính điểm của hội đồng chức danh giáo sư Nhà nước có điểm số 1",[So tac gia]>0),300/[So tac gia],IF(AND([Danh mục]="(4) Bài công bố trên tạp chí khoa học trong nước thuộc danh mục tạp chí  được tính điểm của hội đồng chức danh giáo sư Nhà nước có điểm số 0,75",[So tac gia]>0),150/[So tac gia],IF(AND([Danh mục]="(5) Bài công bố trên tạp chí khoa học trong nước thuộc danh mục tạp chí  được tính điểm của hội đồng chức danh giáo sư Nhà nước có điểm số 0,5",[So tac gia]>0),0.75/[So tac gia],IF(AND([Danh mục]="(7) Bài công bố trên tạp chí khoa học trong nước có chỉ số xuất bản ISSN không thuộc danh mục tạp chí  được tính điểm của hội đồng chức danh giáo sư Nhà nước của ngành đó",[So tac gia]>0),10/[So tac gia],IF(AND([Danh mục]="(8) Bài toàn văn công bố trên kỷ yếu hội nghị quốc tế được xuất bản bởi nhà xuất bản có uy tín",[So tac gia]>0),250/[So tac gia],IF(AND([Danh mục]="(9) Bài toàn văn công bố trên kỷ yếu hội nghị quốc tế ",[So tac gia]>0),0.5/[So tac gia],IF(AND([Danh mục]="(11) Bài báo cáo (Poster) tham gia hội nghị quốc tế",[So tac gia]>0),0.25/[So tac gia],IF(AND([Danh mục]="(10) Bài báo cáo (oral) tham gia hội nghị quốc tế ",[So tac gia]>0),0.4/[So tac gia],IF(AND([Danh mục]="(12) Bài toàn văn tham gia hội nghị toàn quốc công bố trên kỷ yếu hội nghị có chỉ số ISBN",[So tac gia]>0),40/[So tac gia],IF(AND([Danh mục]="(13) Bài toàn văn tham gia hội nghị khoa học công bố trên kỷ yếu hội nghị có chỉ số ISBN",[So tac gia]>0),0.3/[So tac gia],IF(AND([Danh mục]="(6) Bài công bố trên tạp chí khoa học trong nước thuộc danh mục tạp chí  được tính điểm của hội đồng chức danh giáo sư Nhà nước có điểm số 0,25",[So tac gia]>0),0.3/[So tac gia],IF([Danh mục]="Xây dựng chương trình đào tạo cho một ngành đào tạo (bao gồm cả chủ trì và người tham gia) được phê duyệt. Chỉ tính cho các chương trình không được cấp phí",[Sogiochuan],IF([Danh mục]="Biên soạn Giáo trình/sách hướng dẫn, TLTK được hội đồng do nhà trường công nhận. Chỉ tính cho chương trình không được cấp phí",[Sotrang]*1.5,IF([Danh mục]="Biên soạn sách giáo trình được cấp phép xuất bản",[Sotrang]*2.5,IF([Danh mục]="Bằng sáng chế ngoài nước",[Soluong]*600,IF([Danh mục]="Bằng sáng chế trong nước",[Soluong]*500,IF([Danh mục]="Giải pháp hữu ích",[Soluong]*400,"-")))))))))))))
-IF([Danh mục]="Giải pháp hữu ích",[Soluong]*400

@@ -1,3 +1,31 @@
+$(document).ready(function(){
+    checkPermission();
+})
+function checkPermission()
+ {
+  var userid=_spPageContextInfo.userId;
+  $.ajax
+  ({
+  url: _spPageContextInfo.webAbsoluteUrl+"/_api/web/GetUserById("+userid+")/Groups",
+  type: "GET",
+  headers: { "Accept": "application/json; odata=verbose" },
+  dataType: "json",
+  async: true,
+   success: function(data){
+      var items = [];
+      for(var i in data.d.results)
+      {   
+           var title = (data.d.results[i].Title)?data.d.results[i].Title:'';
+           if(title==="Hcmunre Visitors"){
+             window.location="/sites/Hcmunre/Lists/TKB/giangvien.aspx";           
+          }
+          //else{
+            // window.location="/sites/Hcmunre/Lists/TKB/Giangvien.aspx";
+          //}
+      }
+  }
+  });
+}
 function ExportToTable() {  
      var regex = /^([a-zA-Z0-9\-'àđĐÀâÂäÄáÁéÉèÈêÊëËìÌîÎïÏòóÒôÔöÖùúÙûÛüÜçÇ’ñß\s_\\.\-:])+(.xlsx|.xls)$/;  
      /*Checks whether the file is a valid excel file*/  
@@ -55,24 +83,27 @@ function ExportToTable() {
  
  function ImportData(jsonData)
  {
-    var log = $("#log");
-    log.append("<div>Đang cập nhật...</div>");
-   /* ImportMonHoc(jsonData);
-    log.append("<div>Cập nhật danh sách môn học</div>");
+   var log = $("#log");
+   log.append("<div>Đang cập nhật...</div>");
+   ImportMonHoc(jsonData);
+   log.append("<div>Cập nhật danh sách môn học</div>");
    ImportLopHoc(jsonData);
     log.append("<div>Cập nhật danh sách lớp học</div>");
     ImportPH(jsonData);
-    log.append("<div>Cập nhật danh sách phòng học</div>");*/
+    log.append("<div>Cập nhật danh sách phòng học</div>");
+    var runnimport=function(){
         getUser().done(function(lstUsers){
             getItem("Lop").done(function(lstLop){
                 getItem("Phonghoc").done(function(lstPhonghoc){
                     getItem("Monhoc").done(function(lstMonhoc){
                         importThoiKhoaBieu(jsonData,lstUsers,lstLop,lstPhonghoc,lstMonhoc);
+                        log.append("<div>Cập nhật danh sách lịch giảng dạy</div>");
                         });
                 });
             });
-    });
-    
+        });
+    };
+    setTimeout(runnimport, 35000);
     log.append("<div>Cập nhật danh sách TKB</div>");
     
  }
@@ -210,6 +241,7 @@ function importThoiKhoaBieu(jsonData,lstUsers,lstLop,lstPhonghoc,lstMonhoc)
         };
     
         jQuery.ajax(recReq).success(function(s) {
+            $("#log").append("<div>" + items.length + " items Monhoc are added.</div>");
             console.log("ok");
         }).error(function(e) {console.log(i); console.log(e) });
     }
@@ -217,7 +249,8 @@ function importThoiKhoaBieu(jsonData,lstUsers,lstLop,lstPhonghoc,lstMonhoc)
 function getUser() {
     var defer = $.Deferred(function () {
         $.ajax({
-            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('User%20Information%20List')/items",
+            //url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/lists/GetByTitle('User%20Information%20List')/items",
+            url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/SiteUserInfoList/items",
             method: "GET",
             headers: { "Accept": "application/json; odata=verbose" },
             success: function (data) {
@@ -284,7 +317,7 @@ function ImportMonHoc(jsonData)
     }
     
     clientContext.executeQueryAsync(function()  {
-        $("#log").append("<div>" + items.length + " items are added.</div>");
+        $("#log").append("<div>" + items.length + " items Monhoc are added.</div>");
     } , function(e, a) {
         $("#log").append("<div>ERROR: " + JSON.stringify(a.get_message()) + "</div>");
     });
@@ -327,7 +360,7 @@ function ImportMonHoc(jsonData)
     }
     
     clientContext.executeQueryAsync(function()  {
-        $("#log").append("<div>" + items.length + " items are added.</div>");
+        $("#log").append("<div>" + items.length + " items Phonghoc are added.</div>");
     } , function(e, a) {
         $("#log").append("<div>ERROR: " + JSON.stringify(a.get_message()) + "</div>");
     });
@@ -359,24 +392,27 @@ function ImportMonHoc(jsonData)
         if(nienkhoa==="07"){
             resultnienkhoa="2017-2021";
         }
-        var item = { TL: tenlop,SS:siso,NK:resultnienkhoa }
+        tenlop = tenlop.replace('\n', '-').replace('\r', '-');
+        var parts = tenlop.split('--');
         
-        var existed = false;
-        $.each(items, function(idx, val) {
-            var currentItem = items[idx];
-            if (currentItem.TL === tenlop && currentItem.SS === siso)
+        $.each(parts, function(j, p) {
+            var item = { TL: p,SS:siso,NK:resultnienkhoa }
+            
+            var existed = false;
+            $.each(items, function(idx, val) {
+                var currentItem = items[idx];
+                if (currentItem.TL === p)
+                {
+                    existed = true;
+                }
+            });
+            
+            if (!existed)
             {
-                existed = true;
-                
+                items.push(item);
             }
         });
-        
-        if (!existed)
-        {
-            items.push(item);
-        }
     }  
-    
     var clientContext = SP.ClientContext.get_current();  
     var oList = clientContext.get_web().get_lists().getByTitle('Lop');
     for(var idx = 0; idx < items.length; idx++) {
@@ -390,7 +426,7 @@ function ImportMonHoc(jsonData)
     }
     
     clientContext.executeQueryAsync(function()  {
-        $("#log").append("<div>" + items.length + " items are added.</div>");
+        $("#log").append("<div>" + items.length + " items Lophoc are added.</div>");
     } , function(e, a) {
         $("#log").append("<div>ERROR: " + JSON.stringify(a.get_message()) + "</div>");
     });
