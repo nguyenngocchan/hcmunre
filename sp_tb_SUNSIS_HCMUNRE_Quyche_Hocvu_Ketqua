@@ -1,0 +1,217 @@
+USE [SUNIS_HCMUNRE]
+GO
+/****** Object:  StoredProcedure [dbo].[sp_tb_SUNSIS_HCMUNRE_Quyche_Hocvu_Ketqua]    Script Date: 25-Jun-18 2:55:57 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER proc [dbo].[sp_tb_SUNSIS_HCMUNRE_Quyche_Hocvu_Ketqua]
+@nienkhoa_id int,
+@hocky_id int,
+@nganh_id int,
+@chuyennganh_id int,
+@lophoc int
+as begin
+
+	declare @param nvarchar(255)
+	if(@nienkhoa_id is not null and @nganh_id is not null and @chuyennganh_id is not null and @lophoc is not null)
+	begin
+	select 1
+		set @param=' nk.ID='+cast(@NienKhoa_Id as nvarchar)+'and lh.ID ='+cast(@lophoc as nvarchar)+'and cn.field ='+cast(@nganh_id as nvarchar)+'and cn.ID ='+cast(@chuyennganh_id as nvarchar)+''
+	end 
+	else if(@nienkhoa_id is not null and @nganh_id is not null and @chuyennganh_id is not null and @lophoc is null)
+	begin
+		set @param=' nk.ID='+cast(@NienKhoa_Id as nvarchar)+'and cn.field ='+cast(@nganh_id as nvarchar)+'and cn.ID ='+cast(@chuyennganh_id as nvarchar)+''
+	end 
+	else if(@nienkhoa_id is not null and @nganh_id is not null and @chuyennganh_id is null and @lophoc is null)
+	begin
+		set @param=' nk.ID='+cast(@NienKhoa_Id as nvarchar)+'and cn.field ='+cast(@nganh_id as nvarchar)+''
+	end 
+	else if(@nienkhoa_id is not null and @nganh_id is null and @chuyennganh_id is null and @lophoc is null)
+	begin
+		set @param=' nk.ID='+cast(@NienKhoa_Id as nvarchar)+''
+	end 
+
+
+	exec('
+	declare @quyche_id int
+select	@quyche_id=Quyche_Id from tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa where id='+@nienkhoa_id+'
+
+declare @tmp_DTBC table(SinhVien_Id int,DTBC float,DTBTL float,TCTL int,DieuKien nvarchar(255))
+declare @tmp_DTBTL table(SinhVien_Id int,DTBC float,DTBTL float,TCTL int,DieuKien nvarchar(255))
+declare @tmp_Ketqua table(SinhVien_Id int,DTBC float,DTBTL float,TCTL int,DieuKien nvarchar(255),hocky_id int)
+declare @DTBC float
+declare @DTBC_1 float
+declare @DTBCTL_N1 float
+declare @DTBCTL_N2 float
+declare @DTBCTL_N3 float
+declare @DTBCTL_NC float
+declare @stthk int
+select @stthk=semesterorder from tb_SUNSIS_HCMUNRE_DM_HK where id='+@hocky_id+'
+select @DTBC=DTBC,@DTBC_1=DTBC_1,@DTBCTL_N1=DTBTL_N1,@DTBCTL_N2=DTBTL_N2,@DTBCTL_N3=DTBTL_N3,@DTBCTL_NC=DTBC_NC from tb_SUNSIS_HCMUNRE_Quyche_Hocvu where Quyche_Id=@quyche_id
+
+
+if(@stthk=1)
+	begin
+		insert into @tmp_DTBC(SinhVien_Id,DTBC,DTBTL,DieuKien)
+		select dtb.Sinhvien_Id,dtb.DTBC_He4,dtb.DTBTL_He4,N''Điểm trung bình chung học kỳ đầu: ''+cast(dtb.DTBC_He4 as nvarchar)
+		from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb join  tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on dtb.Sinhvien_Id=sv.ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where '+@param+' and dtb.Hocky_Id='+@hocky_id+'
+		and dtb.DTBC_He4<@DTBC
+	end
+else
+	begin
+		insert into @tmp_DTBC(SinhVien_Id,DTBC,DTBTL,DieuKien)
+		select dtb.Sinhvien_Id,dtb.DTBC_He4,dtb.DTBTL_He4,N''Điểm trung bình chung các học kỳ sau: ''+cast(dtb.DTBC_He4 as nvarchar)
+		from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb join  tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on dtb.Sinhvien_Id=sv.ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where '+@param+'  and dtb.Hocky_Id='+@hocky_id+'
+		and dtb.DTBC_He4<@DTBC_1
+	end
+if(@stthk=1 or @stthk=2)
+	begin
+	select 1
+		insert into @tmp_DTBTL(SinhVien_Id,DTBC,DTBTL,DieuKien,TCTL)
+		select dtb.Sinhvien_Id,dtb.DTBC_He4,dtb.DTBTL_He4,N''Điểm trung bình tích lũy năm 1: ''+cast(dtb.DTBTL_He4 as nvarchar),dtb.DTBTL_Tinchi
+		from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb join  tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on dtb.Sinhvien_Id=sv.ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where '+@param+' and dtb.Hocky_Id is null and dtb.Namhoc is null
+		and dtb.DTBTL_He4<@DTBCTL_N1
+	end
+else if(@stthk=3 or @stthk=4)
+	begin
+		insert into @tmp_DTBTL(SinhVien_Id,DTBC,DTBTL,DieuKien,TCTL)
+		select dtb.Sinhvien_Id,dtb.DTBC_He4,dtb.DTBTL_He4,N''Điểm trung bình tích lũy năm 2: ''+cast(dtb.DTBTL_He4 as nvarchar),dtb.DTBTL_Tinchi
+		from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb join  tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on dtb.Sinhvien_Id=sv.ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where '+@param+' and dtb.Hocky_Id is null and dtb.Namhoc is null
+		and dtb.DTBTL_He4<@DTBCTL_N2
+	end
+else if(@stthk=5 or @stthk=6)
+	begin
+	select 3
+		insert into @tmp_DTBTL(SinhVien_Id,DTBC,DTBTL,DieuKien,TCTL)
+		select dtb.Sinhvien_Id,dtb.DTBC_He4,dtb.DTBTL_He4,N''Điểm trung bình tích lũy năm 3: ''+cast(dtb.DTBTL_He4 as nvarchar),dtb.DTBTL_Tinchi
+		from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb join  tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on dtb.Sinhvien_Id=sv.ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where '+@param+' and dtb.Hocky_Id is null and dtb.Namhoc is null
+		and dtb.DTBTL_He4<@DTBCTL_N3
+	end
+else
+	begin
+	select 4
+		insert into @tmp_DTBTL(SinhVien_Id,DTBC,DTBTL,DieuKien,TCTL)
+		select dtb.Sinhvien_Id,dtb.DTBC_He4,dtb.DTBTL_He4,N''Điểm trung bình tích lũy năm 4: ''+cast(dtb.DTBTL_He4 as nvarchar),dtb.DTBTL_Tinchi
+		from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb join  tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on dtb.Sinhvien_Id=sv.ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where '+@param+' and dtb.Hocky_Id is null and dtb.Namhoc is null
+		and dtb.DTBTL_He4<@DTBCTL_NC
+	end
+insert into @tmp_Ketqua(SinhVien_Id,DTBC,DTBTL,TCTL,DieuKien,hocky_id)
+select SinhVien_Id,DTBC,DTBTL,TCTL,DieuKien,'+@hocky_id+'
+from @tmp_DTBC
+where SinhVien_Id not in (select SinhVien_Id from @tmp_DTBTL)
+
+insert into @tmp_Ketqua(SinhVien_Id,DTBC,DTBTL,TCTL,DieuKien,hocky_id)
+select SinhVien_Id,DTBC,DTBTL,TCTL,DieuKien,'+@hocky_id+'
+from @tmp_DTBTL
+where SinhVien_Id not in (select SinhVien_Id from @tmp_DTBC)
+
+insert into @tmp_Ketqua(SinhVien_Id,DTBC,DTBTL,TCTL,DieuKien,hocky_id)
+select tbc.SinhVien_Id,tbc.DTBC,tbtl.DTBTL,tbtl.TCTL,tbc.DieuKien+'';''+tbtl.DieuKien ,'+@hocky_id+'
+from @tmp_DTBTL tbtl join @tmp_DTBC tbc on tbc.SinhVien_Id=tbtl.SinhVien_Id
+
+
+
+declare @index int
+declare @count_sv int
+select @count_sv=count(*) from @tmp_Ketqua
+SET @index=1
+WHILE(@index<=@count_sv)
+	BEGIN
+		declare @check_exists int
+		declare @Sinhvien_Id int
+		declare @lock int
+		declare @STT int
+		select @Sinhvien_Id=b.svid from(
+		select SinhVien_Id as svid,ROW_NUMBER() OVER(order by SinhVien_Id) as STTT
+		from @tmp_Ketqua)as b
+		WHERE b.STTT=@index
+		select count(*) from tb_SUNSIS_HCMUNRE_Quyche_Hocvu_Ketqua where Sinhvien_Id=@Sinhvien_Id
+		select @check_exists=count (*) from tb_SUNSIS_HCMUNRE_Quyche_Hocvu_Ketqua where Sinhvien_Id=@Sinhvien_Id 
+		select @lock=lock from tb_SUNSIS_HCMUNRE_Quyche_Hocvu_Ketqua where Sinhvien_Id=@Sinhvien_Id 
+		select @STT=max(STT) from tb_SUNSIS_HCMUNRE_Quyche_Hocvu_Ketqua where Sinhvien_Id=@Sinhvien_Id 
+		if(@check_exists>0 and @lock>0)
+		begin
+			insert into tb_SUNSIS_HCMUNRE_Quyche_Hocvu_Ketqua(SinhVien_Id,DTBC,DTBTL,TCTL,DieuKien,Lock,STT,Hocky_Id)
+			select SinhVien_Id,DTBC,DTBTL,TCTL,DieuKien,@lock+1,@STT+1,hocky_id from @tmp_Ketqua 
+			where SinhVien_Id=@Sinhvien_Id
+		end
+		else if(@check_exists>0 and @lock=0)
+		begin
+			insert into tb_SUNSIS_HCMUNRE_Quyche_Hocvu_Ketqua(SinhVien_Id,DTBC,DTBTL,TCTL,DieuKien,Lock,STT,Hocky_Id)
+			select SinhVien_Id,DTBC,DTBTL,TCTL,DieuKien,1,@STT+1,hocky_id from @tmp_Ketqua
+			where SinhVien_Id=@Sinhvien_Id
+		end
+		else
+		begin
+			insert into tb_SUNSIS_HCMUNRE_Quyche_Hocvu_Ketqua(SinhVien_Id,DTBC,DTBTL,TCTL,DieuKien,Lock,STT,Hocky_Id)
+			select SinhVien_Id,DTBC,DTBTL,TCTL,DieuKien,1,1,hocky_id from @tmp_Ketqua
+			where SinhVien_Id=@Sinhvien_Id
+		end
+		SET @index=@index+1
+	end
+	if exists(select * from tb_SUNSIS_HCMUNRE_SV_Sinhvien sv JOIN 
+	(select sinhvien_id,max(stt) as STT from tb_SUNSIS_HCMUNRE_Quyche_Hocvu_Ketqua group by sinhvien_id) kq 
+	on sv.ID = kq.Sinhvien_Id
+	where sv.id not in (select SinhVien_Id from @tmp_Ketqua ))
+	begin
+		insert into tb_SUNSIS_HCMUNRE_Quyche_Hocvu_Ketqua(Sinhvien_Id,Hocky_Id,DTBC,DTBTL,Lock,STT)
+		select dtb.Sinhvien_Id,'+@hocky_id+',dtb.DTBC_He4,dtb.DTBTL_He4,kq.lock-1,kq.stt+1 from tb_SUNSIS_HCMUNRE_SV_Sinhvien sv JOIN 
+		tb_SUNSIS_HCMUNRE_Quyche_Hocvu_Ketqua kq on sv.ID = kq.Sinhvien_Id
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb on dtb.Sinhvien_Id=sv.id 
+		where sv.id not in (select SinhVien_Id from @tmp_Ketqua ) and '+@param+' and dtb.Hocky_Id='+@hocky_id+'
+		and kq.stt=(select max(stt) from tb_SUNSIS_HCMUNRE_Quyche_Hocvu_Ketqua st where St.Sinhvien_Id=kq.Sinhvien_Id)
+		and lock>0
+	end
+	')
+end
+
+
