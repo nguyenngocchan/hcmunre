@@ -1,0 +1,281 @@
+/*
+--Danh m?c ngành
+select distinct  F.FIELDNAME,i.name||'_'||f.code,f.fieldnameenglish,I.NAME,K.CODE from TBL_TSY_STAGEOFEDUCATION a inner join TBL_TSY_ADMINISTRATIVECLASS b on 
+a.id=B.STAGEOFEDUCATIONID
+inner join TBL_TSY_COURSE_CURRIINSTAGE c on C.STAGEOFEDUCATIONID=A.ID
+inner join tbl_tsy_course d on d.id=C.COURSEID
+inner join LST_TSY_MAJORFIELD e on e.id=A.FIELDID
+inner join lst_tsy_field f on f.id=E.FIELDID
+inner join TBL_TSY_CURRICULUMNINSTAGE g on G.STAGEOFEDUCATIONID=A.ID
+inner join TBL_TSY_ACADEMICYEAR h on h.id=A.AYID
+inner join TBL_TSY_TRAININGSYSTEM i on i.id=H.TRAININGSYSTEMID
+left join LST_STU_GROUP k on k.DOITUONGTHONGTINLIENQUANID=f.FACULTYID
+where i.ID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+
+
+select distinct  F.FIELDNAME,i.name||'_'||f.code,f.fieldnameenglish,I.NAME,K.CODE from TBL_TSY_STAGEOFEDUCATION a inner join TBL_TSY_ADMINISTRATIVECLASS b on 
+a.id=B.STAGEOFEDUCATIONID
+inner join TBL_TSY_COURSE_CURRIINSTAGE c on C.STAGEOFEDUCATIONID=A.ID
+inner join tbl_tsy_course d on d.id=C.COURSEID
+inner join lst_tsy_field f on f.id=a.fieldid
+inner join TBL_TSY_CURRICULUMNINSTAGE g on G.STAGEOFEDUCATIONID=A.ID
+inner join TBL_TSY_ACADEMICYEAR h on h.id=A.AYID
+inner join TBL_TSY_TRAININGSYSTEM i on i.id=H.TRAININGSYSTEMID
+left join LST_STU_GROUP k on k.DOITUONGTHONGTINLIENQUANID=f.FACULTYID
+where i.ID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+
+--Danh m?c chuyên ngành
+select distinct i.CODe||'_'||E.CODE,E.MAJORNAME,i.code||'_'||f.code,E.MAJORNAMEENGLISH from TBL_TSY_STAGEOFEDUCATION a inner join TBL_TSY_ADMINISTRATIVECLASS b on 			
+a.id=B.STAGEOFEDUCATIONID			
+inner join TBL_TSY_COURSE_CURRIINSTAGE c on C.STAGEOFEDUCATIONID=A.ID			
+inner join tbl_tsy_course d on d.id=C.COURSEID			
+inner join LST_TSY_MAJORFIELD e on e.id=A.FIELDID			
+inner join lst_tsy_field f on f.id=E.FIELDID			
+inner join TBL_TSY_CURRICULUMNINSTAGE g on G.STAGEOFEDUCATIONID=A.ID			
+inner join TBL_TSY_ACADEMICYEAR h on h.id=A.AYID			
+inner join TBL_TSY_TRAININGSYSTEM i on i.id=H.TRAININGSYSTEMID			
+where i.ID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+
+select distinct i.code||'_'||'CN'||'_'|| f.CODE,'CN'||'_'||FIELDNAME,i.code||'_'||f.code from TBL_TSY_STAGEOFEDUCATION a inner join TBL_TSY_ADMINISTRATIVECLASS b on 			
+a.id=B.STAGEOFEDUCATIONID			
+inner join TBL_TSY_COURSE_CURRIINSTAGE c on C.STAGEOFEDUCATIONID=A.ID			
+inner join tbl_tsy_course d on d.id=C.COURSEID			
+left join LST_TSY_MAJORFIELD e on e.id=A.FIELDID			
+inner join lst_tsy_field f on f.id=a.FIELDID			
+inner join TBL_TSY_CURRICULUMNINSTAGE g on G.STAGEOFEDUCATIONID=A.ID			
+inner join TBL_TSY_ACADEMICYEAR h on h.id=A.AYID			
+inner join TBL_TSY_TRAININGSYSTEM i on i.id=H.TRAININGSYSTEMID			
+where i.ID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+
+--Ch??ng trình ?ào t?o
+select distinct 'CTDT'||'_'||i.CODe||'_'||E.code,I.NAME||'_'||E.MAJORNAME,i.code||'_'||E.code from TBL_TSY_STAGEOFEDUCATION a inner join TBL_TSY_ADMINISTRATIVECLASS b on 
+a.id=B.STAGEOFEDUCATIONID
+inner join TBL_TSY_COURSE_CURRIINSTAGE c on C.STAGEOFEDUCATIONID=A.ID
+inner join tbl_tsy_course d on d.id=C.COURSEID
+inner join LST_TSY_MAJORFIELD e on e.id=A.FIELDID
+inner join lst_tsy_field f on f.id=E.FIELDID
+inner join TBL_TSY_CURRICULUMNINSTAGE g on G.STAGEOFEDUCATIONID=A.ID
+inner join TBL_TSY_ACADEMICYEAR h on h.id=A.AYID
+inner join TBL_TSY_TRAININGSYSTEM i on i.id=H.TRAININGSYSTEMID
+where i.ID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+
+
+select distinct 'CTDT'||'_'||i.CODe||'_'||'CN'||'_'|| f.CODE,I.NAME||'_'||'CN'||'_'||FIELDNAME,i.code||'_'||'CN'||'_'|| f.CODE from TBL_TSY_STAGEOFEDUCATION a inner join TBL_TSY_ADMINISTRATIVECLASS b on 
+a.id=B.STAGEOFEDUCATIONID
+inner join TBL_TSY_COURSE_CURRIINSTAGE c on C.STAGEOFEDUCATIONID=A.ID
+inner join tbl_tsy_course d on d.id=C.COURSEID
+left join LST_TSY_MAJORFIELD e on e.id=A.FIELDID
+inner join lst_tsy_field f on f.id=a.FIELDID
+inner join TBL_TSY_CURRICULUMNINSTAGE g on G.STAGEOFEDUCATIONID=A.ID
+inner join TBL_TSY_ACADEMICYEAR h on h.id=A.AYID
+inner join TBL_TSY_TRAININGSYSTEM i on i.id=H.TRAININGSYSTEMID
+where i.ID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+
+---Phiên b?n ch??ng trình ?ào t?o
+select distinct G.STAGEOFEDUCATIONID,A.STAGENAME, 'CTDT'||'_'||i.CODe||'_'||E.code from TBL_TSY_STAGEOFEDUCATION a inner join TBL_TSY_ADMINISTRATIVECLASS b on 
+a.id=B.STAGEOFEDUCATIONID
+inner join TBL_TSY_COURSE_CURRIINSTAGE c on C.STAGEOFEDUCATIONID=A.ID
+inner join tbl_tsy_course d on d.id=C.COURSEID
+inner join LST_TSY_MAJORFIELD e on e.id=A.FIELDID
+inner join lst_tsy_field f on f.id=E.FIELDID
+inner join TBL_TSY_CURRICULUMNINSTAGE g on G.STAGEOFEDUCATIONID=A.ID
+inner join TBL_TSY_ACADEMICYEAR h on h.id=A.AYID
+inner join TBL_TSY_TRAININGSYSTEM i on i.id=H.TRAININGSYSTEMID
+where i.ID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+
+
+select distinct G.STAGEOFEDUCATIONID,A.STAGENAME,'CTDT'||'_'||i.CODe||'_CN_'||f.code from TBL_TSY_STAGEOFEDUCATION a inner join TBL_TSY_ADMINISTRATIVECLASS b on 
+a.id=B.STAGEOFEDUCATIONID
+inner join TBL_TSY_COURSE_CURRIINSTAGE c on C.STAGEOFEDUCATIONID=A.ID
+inner join tbl_tsy_course d on d.id=C.COURSEID
+inner join lst_tsy_field f on f.id=a.FIELDID
+inner join TBL_TSY_CURRICULUMNINSTAGE g on G.STAGEOFEDUCATIONID=A.ID
+inner join TBL_TSY_ACADEMICYEAR h on h.id=A.AYID
+inner join TBL_TSY_TRAININGSYSTEM i on i.id=H.TRAININGSYSTEMID
+where i.ID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+
+---Môn h?c
+select  a.code,A.COURSENAME,A.COURSECREDIT,C.CODE,B.CODE,a.nomark from TBL_tsy_course a left join TBL_TSY_SUBJECT b on A.SUBJECTID=b.id
+left join TBL_TSY_COURSETYPE c on c.id=A.COURSETYPEID
+
+--Niên khóa
+
+select a.code,A.AYNAME,A.STARTYEAR,A.ENDYEAR,A.NUMBEROFSEM,A.SEMESTERNUMBERINYEAR,A.SYMBOL,B.CODE from tbl_tsy_academicyear a join TBL_TSY_TRAININGSYSTEM b on a.trainingsystemid=b.id where b.id='9246C1762CAA446CB2E03A7F3D9CBBBE'
+
+
+
+--Môn h?c version
+select distinct D.COURSENAME||' ('||d.code||+')',g.stageofeducationid,C.SEMESTERORDER from TBL_TSY_STAGEOFEDUCATION a inner join TBL_TSY_ADMINISTRATIVECLASS b on 
+a.id=B.STAGEOFEDUCATIONID
+inner join TBL_TSY_COURSE_CURRIINSTAGE c on C.STAGEOFEDUCATIONID=A.ID
+inner join tbl_tsy_course d on d.id=C.COURSEID
+inner join LST_TSY_MAJORFIELD e on e.id=A.FIELDID
+inner join lst_tsy_field f on f.id=E.FIELDID
+inner join TBL_TSY_CURRICULUMNINSTAGE g on G.STAGEOFEDUCATIONID=A.ID
+inner join TBL_TSY_ACADEMICYEAR h on h.id=A.AYID
+inner join TBL_TSY_TRAININGSYSTEM i on i.id=H.TRAININGSYSTEMID
+where i.ID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+
+
+select distinct D.COURSENAME||' ('||d.code||+')',g.stageofeducationid,C.SEMESTERORDER from TBL_TSY_STAGEOFEDUCATION a inner join TBL_TSY_ADMINISTRATIVECLASS b on 
+a.id=B.STAGEOFEDUCATIONID
+inner join TBL_TSY_COURSE_CURRIINSTAGE c on C.STAGEOFEDUCATIONID=A.ID
+inner join tbl_tsy_course d on d.id=C.COURSEID
+inner join lst_tsy_field f on f.id=a.FIELDID
+inner join TBL_TSY_CURRICULUMNINSTAGE g on G.STAGEOFEDUCATIONID=A.ID
+inner join TBL_TSY_ACADEMICYEAR h on h.id=A.AYID
+inner join TBL_TSY_TRAININGSYSTEM i on i.id=H.TRAININGSYSTEMID
+where i.ID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+
+
+
+select * from tbl_tsy_course where code='16011101'
+
+select  a.code,A.COURSENAME,A.COURSECREDIT,C.CODE,B.CODE from TBL_tsy_course a left join TBL_TSY_SUBJECT b on A.SUBJECTID=b.id
+left join TBL_TSY_COURSETYPE c on c.id=A.COURSETYPEID
+where a.code='16011101'
+
+
+---Version cho niên khóa
+select distinct H.CODE,G.STAGEOFEDUCATIONID from TBL_TSY_STAGEOFEDUCATION a inner join TBL_TSY_ADMINISTRATIVECLASS b on 
+a.id=B.STAGEOFEDUCATIONID
+inner join TBL_TSY_COURSE_CURRIINSTAGE c on C.STAGEOFEDUCATIONID=A.ID
+inner join tbl_tsy_course d on d.id=C.COURSEID
+inner join LST_TSY_MAJORFIELD e on e.id=A.FIELDID
+inner join lst_tsy_field f on f.id=E.FIELDID
+inner join TBL_TSY_CURRICULUMNINSTAGE g on G.STAGEOFEDUCATIONID=A.ID
+inner join TBL_TSY_ACADEMICYEAR h on h.id=A.AYID
+inner join TBL_TSY_TRAININGSYSTEM i on i.id=H.TRAININGSYSTEMID
+where i.ID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+
+
+select distinct H.CODE,G.STAGEOFEDUCATIONID from TBL_TSY_STAGEOFEDUCATION a inner join TBL_TSY_ADMINISTRATIVECLASS b on 
+a.id=B.STAGEOFEDUCATIONID
+inner join TBL_TSY_COURSE_CURRIINSTAGE c on C.STAGEOFEDUCATIONID=A.ID
+inner join tbl_tsy_course d on d.id=C.COURSEID
+inner join lst_tsy_field f on f.id=a.FIELDID
+inner join TBL_TSY_CURRICULUMNINSTAGE g on G.STAGEOFEDUCATIONID=A.ID
+inner join TBL_TSY_ACADEMICYEAR h on h.id=A.AYID
+inner join TBL_TSY_TRAININGSYSTEM i on i.id=H.TRAININGSYSTEMID
+where i.ID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+
+--L?p h?c
+select a.code,A.CLASSNAME,A.TYPECLASS,A.CLASSNAMETA,A.OPENCLASSDAY,b.id from TBL_TSY_ADMINISTRATIVECLASS a 
+inner join TBL_TSY_STAGEOFEDUCATION b on A.STAGEOFEDUCATIONID=B.ID
+inner join LST_TSY_MAJORFIELD c on c.id=B.FIELDID
+join tbl_tsy_academicyear g on g.id=b.ayid
+where g.TRAININGSYSTEMID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+
+
+
+select a.code,A.CLASSNAME,A.TYPECLASS,A.CLASSNAMETA,A.OPENCLASSDAY,b.id from TBL_TSY_ADMINISTRATIVECLASS a 
+inner join TBL_TSY_STAGEOFEDUCATION b on A.STAGEOFEDUCATIONID=B.ID
+inner join LST_TSY_Field c on c.id=b.FIELDID
+join tbl_tsy_academicyear g on g.id=b.ayid
+where g.TRAININGSYSTEMID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+
+FD097259D12448AE965089355FFA77BB
+A6077B3DC8C3430CA2AD8BEA9FA8CA41
+
+
+--Sinh viên
+ select E.CLASSNAME,a.CODE,a.LASTMIDDLENAME,a.FIRSTNAME,a.LASTMIDDLENAME||' '||a.FIRSTNAME,to_char(a.BIRTHDATE,'DD/MM/YYYY'),a.PLACEOFBIRTH,B.CODE,a.STUDENTSTATUS,C.CODE,a.DISTRICT,D.CODE,
+a.RESIDENTPOPULATION,a.KHICANBAOTINCHO,a.MOBILE_BK,A.GENDER
+from tbl_stu_student a left join LST_STU_ZONE b on A.ZONEID=B.ID
+left join LST_STU_NATIONALITY c on A.NATIONALITYID=C.ID
+left join LST_COM_PROVINCE d on d.id=A.PROVINCEID
+left join TBL_TSY_ADMINISTRATIVECLASS e on e.id=A.ADMINCLASSID
+left join TBL_TSY_STAGEOFEDUCATION f on f.id=E.STAGEOFEDUCATIONID
+left join TBL_TSY_ACADEMICYEAR g on g.id=F.AYID
+where G.TRAININGSYSTEMID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+
+
+--H?c k?
+
+select B.SCHOOLYEAR,B.ORDERINYEAR, B.SCHOOLYEAR||'_'||B.ORDERINYEAR,B.STARTDATE,B.ENDDATE,B.SEMESTERORDER,A.CODE,B.CODE,b.name
+from TBL_TSY_ACADEMICYEAR a inner join TBL_TSY_SEMESTER b on A.ID=B.AYID 
+where a.TRAININGSYSTEMID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+
+--L?p môn h?c
+select distinct E.CLASSNAME||'_'||b.code,E.CLASSNAME,b.COURSENAME||' ('||b.code||+')',h.code
+from TBL_PNT_TABLEMARK a inner join TBL_TSY_COURSE b on a.COURSEID=b.ID
+inner join LST_PNT_MARKTYPE c on a.MARKTYPEID=c.ID
+inner join TBL_STU_STUDENT d on a.STUDENTID=d.ID
+left join TBL_STU_USER g on g.id=a.USERID
+left join TBL_TSY_ADMINISTRATIVECLASS e on e.id=D.ADMINCLASSID
+left join TBL_TSY_STAGEOFEDUCATION f on f.id=E.STAGEOFEDUCATIONID
+left join TBL_TSY_ACADEMICYEAR k on k.id=F.AYID
+join tbl_tsy_semester h on h.ayid=k.id
+where k.TRAININGSYSTEMID='9246C1762CAA446CB2E03A7F3D9CBBBE' and a.semester=(h.SCHOOLYEAR||'_'||ORDERINYEAR)
+and e.code='02_?HCNTT_1'
+
+
+
+create table BangDiem_09_06_18 as
+
+(
+select d.code as mssv,E.CLASSNAME as tenlop,b.code as mamh,d.FIRSTNAME,E.CLASSNAME,b.COURSENAME,
+a.MARK AS THI,NULL AS QT,NULL AS TKHP,
+a.mark4,a.RESULT,g.FULLNAME,a.studytimes,f.code
+from TBL_PNT_TABLEMARK a inner join TBL_TSY_COURSE b on a.COURSEID=b.ID
+inner join LST_PNT_MARKTYPE c on a.MARKTYPEID=c.ID
+inner join TBL_STU_STUDENT d on a.STUDENTID=d.ID
+left join TBL_STU_USER g on g.id=a.USERID
+left join TBL_TSY_ADMINISTRATIVECLASS e on e.id=D.ADMINCLASSID
+left join lst_pnt_symbolmark f on f.id=a.symbolmarkid
+left join TBL_TSY_STAGEOFEDUCATION l on l.id=e.STAGEOFEDUCATIONID
+left join TBL_TSY_ACADEMICYEAR m on m.id=l.AYID
+WHERE c.CODE ='THI' and m.TRAININGSYSTEMID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+UNION
+select d.code as mssv,E.CLASSNAME as tenlop,b.code as mamh,d.FIRSTNAME,E.CLASSNAME,b.COURSENAME,
+NULL AS THI,a.MARK AS QT,NULL AS TKHP,
+a.mark4,a.RESULT,g.FULLNAME ,a.studytimes,f.code
+from TBL_PNT_TABLEMARK a inner join TBL_TSY_COURSE b on a.COURSEID=b.ID
+inner join LST_PNT_MARKTYPE c on a.MARKTYPEID=c.ID
+inner join TBL_STU_STUDENT d on a.STUDENTID=d.ID
+left join TBL_STU_USER g on g.id=a.USERID
+left join TBL_TSY_ADMINISTRATIVECLASS e on e.id=D.ADMINCLASSID
+left join lst_pnt_symbolmark f on f.id=a.symbolmarkid
+left join TBL_TSY_STAGEOFEDUCATION l on l.id=e.STAGEOFEDUCATIONID
+left join TBL_TSY_ACADEMICYEAR m on m.id=l.AYID
+WHERE c.CODE ='QT' and m.TRAININGSYSTEMID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+UNION
+select d.code as mssv,E.CLASSNAME as tenlop,b.code as mamh,d.FIRSTNAME,E.CLASSNAME,b.COURSENAME,
+NULL AS THI,NULL AS QT,a.MARK AS TKHP,
+a.mark4,a.RESULT,g.FULLNAME,a.studytimes,f.code 
+from TBL_PNT_TABLEMARK a inner join TBL_TSY_COURSE b on a.COURSEID=b.ID
+inner join LST_PNT_MARKTYPE c on a.MARKTYPEID=c.ID
+inner join TBL_STU_STUDENT d on a.STUDENTID=d.ID
+left join TBL_STU_USER g on g.id=a.USERID
+left join TBL_TSY_ADMINISTRATIVECLASS e on e.id=D.ADMINCLASSID
+left join lst_pnt_symbolmark f on f.id=a.symbolmarkid
+left join TBL_TSY_STAGEOFEDUCATION l on l.id=e.STAGEOFEDUCATIONID
+left join TBL_TSY_ACADEMICYEAR m on m.id=l.AYID
+WHERE c.CODE ='TKHP' and m.TRAININGSYSTEMID='9246C1762CAA446CB2E03A7F3D9CBBBE'
+)
+Select db.MSSV,db.CLASSNAME||'_'||db.MAMH, MAX(db.QT) AS QT,MAX(db.THI) AS THI, MAX(db.TKHP) AS TKHP,db.studytimes, MAX(db.RESULT) as KetQua,MAX(db.Code) as KyHieuDiem, MAX(db.Mark4) AS TKHP
+FROm BangDiem_09_06_18 db
+where db.mssv='0250080007'
+
+GROUP BY db.MSSV,db.CLASSNAME,db.MAMH,db.studytimes
+
+
+
+02_?HCNTT_1_31001001
+
+02_?HCNTT_1_30111001
+
+02_?HCNTT_1_20111001
+
+
+Select db.MSSV,db.CLASSNAME,db.MAMH,db.CLASSNAME||'_'||db.MAMH as LMH, MAX(db.QT) AS QT,MAX(db.THI) AS THI, MAX(db.TKHP) AS TKHP,
+MAX(db.MARK4) AS HE4,db.studytimes, MAX(db.RESULT) as KetQua,MAX(db.Code) as KyHieuDiem
+FROm BangDiem_09_06_18 db
+GROUP BY db.MSSV,db.CLASSNAME,db.MAMH,db.studytimes
+
+
+A3A37E38F6084F37A7324EA22D9AAC50
+
+select course.code,GR.CODE from TBL_TSY_COURSE course join LST_STU_GROUP gr on GR.DOITUONGTHONGTINLIENQUANID=COURSE.DEPTID*/
+
+select * from tbl_tsy_course where code='5110508001'
