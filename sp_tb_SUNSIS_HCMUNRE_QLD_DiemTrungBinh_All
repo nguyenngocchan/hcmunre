@@ -1,0 +1,1060 @@
+ALTER proc [dbo].[sp_tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All]
+@NienKhoa_Id int,
+@Namhoc nvarchar(255),
+@HocKy_Id int,
+@Nganh_Id int,
+@Chuyennganh_Id int,
+@LopHoc_Id int
+as
+begin
+	declare @quyche_Id int
+	select @quyche_Id=quyche_id from tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa where id=@NienKhoa_Id
+	declare @tmp_DTB_All table(Sinhvien_Id int,Hocky_Id int,Namhoc nvarchar(255),DTBC_He10 float,DTBC_He4 float,DTBC_Tinchi float,DTBTL_He10 float,DTBTL_He4 float,DTBTL_Tinchi float,SoMonKhongDat float,SoTinChi_MonKhongDat float)
+	declare @diem_tmp table(SinhVien_Id int,Namhoc nvarchar(255), MonHoc_Id int,DiemTongKet float,TinChi int,DiemHe4 float,HocKy_Id int)
+
+
+
+	declare @Lt_DTBC_He10 int
+	declare @Lt_DTBC_He4 int
+	declare @Lt_DTBTL_He10 int
+	declare @Lt_DTBTL_He4 int
+	select @quyche_Id=quyche_id from tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa where id=@NienKhoa_Id
+	select @Lt_DTBC_He10=Solamtron from tb_SUNSIS_HCMUNRE_Quyche_Chitietlamtrondiem ctlt join tb_SUNSIS_HCMUNRE_Quyche_Lamtron lt on lt.ID=ctlt.Lamtron_id
+	join tb_SUNSIS_HCMUNRE_Danhmuc_CotDiem cd on cd.id=ctlt.Tencotdiem where lt.Quyche_Id=@quyche_Id and cd.Tencot='DTBC_He10' and cd.Tenbang='tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All'
+	select @Lt_DTBC_He4=Solamtron from tb_SUNSIS_HCMUNRE_Quyche_Chitietlamtrondiem ctlt join tb_SUNSIS_HCMUNRE_Quyche_Lamtron lt on lt.ID=ctlt.Lamtron_id
+	join tb_SUNSIS_HCMUNRE_Danhmuc_CotDiem cd on cd.id=ctlt.Tencotdiem where lt.Quyche_Id=@quyche_Id and cd.Tencot='DTBC_He4' and cd.Tenbang='tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All'
+	select @Lt_DTBTL_He10=Solamtron from tb_SUNSIS_HCMUNRE_Quyche_Chitietlamtrondiem ctlt join tb_SUNSIS_HCMUNRE_Quyche_Lamtron lt on lt.ID=ctlt.Lamtron_id
+	join tb_SUNSIS_HCMUNRE_Danhmuc_CotDiem cd on cd.id=ctlt.Tencotdiem where lt.Quyche_Id=@quyche_Id and cd.Tencot='DTBTL_He10' and cd.Tenbang='tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All'
+	select @Lt_DTBTL_He4=Solamtron from tb_SUNSIS_HCMUNRE_Quyche_Chitietlamtrondiem ctlt join tb_SUNSIS_HCMUNRE_Quyche_Lamtron lt on lt.ID=ctlt.Lamtron_id
+	join tb_SUNSIS_HCMUNRE_Danhmuc_CotDiem cd on cd.id=ctlt.Tencotdiem where lt.Quyche_Id=@quyche_Id and cd.Tencot='DTBTL_He4' and cd.Tenbang='tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All'
+	
+	
+	--Điểm trung bình học kỳ
+
+
+	if(@NienKhoa_Id is not null and @Namhoc is not null and @HocKy_Id is not null and @Nganh_Id is not null and @Chuyennganh_Id is null and @LopHoc_Id is null)
+	begin
+
+		--Lưu dữ liệu cũ vào bảng history
+		insert into tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All_History (Sinhvien_Id,Hocky_Id,Namhoc,DTBC_He10,DTBC_He4,DTBC_Tinchi,DTBTL_He10,DTBTL_He4,DTBTL_Tinchi,SoMonKhongDat,SoTinChi_MonKhongDat)
+		select dtb.Sinhvien_Id,dtb.Hocky_Id,dtb.Namhoc,dtb.DTBC_He10,dtb.DTBC_He4,dtb.DTBC_Tinchi,dtb.DTBTL_He10,dtb.DTBTL_He4,dtb.DTBTL_Tinchi,dtb.SoMonKhongDat,dtb.SoTinChi_MonKhongDat from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb
+		join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.id=dtb.Sinhvien_Id
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and cn.field=@Nganh_Id and dtb.Hocky_Id=@HocKy_Id
+
+
+		delete from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All where Sinhvien_Id in 
+		(select sv.ID from tb_SUNSIS_HCMUNRE_SV_Sinhvien sv
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and cn.field=@Nganh_Id) and Hocky_Id=@HocKy_Id
+		---
+
+
+
+		
+		insert into @tmp_DTB_All(Sinhvien_Id,DTBC_He10,DTBC_He4,DTBC_Tinchi,Hocky_Id)
+		select diem.SinhVien_ID as sinhvienId,sum(mh.CourseCredit*diem.Diem_TongKet)/sum(mh.CourseCredit) as he10,sum(mh.CourseCredit*diem.Diemquydoihe4)/sum(mh.CourseCredit) as he4,sum(mh.CourseCredit) as tinchi,lmh.HocKy as hk
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.Id=@NienKhoa_Id and hk.ID=@HocKy_Id and cn.field=@Nganh_Id and diem.Diem_TongKet is not null and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID,lmh.HocKy
+
+		update @tmp_DTB_All set SoTinChi_MonKhongDat=kd.sotinchi,SoMonKhongDat=kd.somon
+		from(select diem.SinhVien_ID as svid,sum(mh.CourseCredit) as sotinchi,count(mh.ID) as somon ,lmh.HocKy as hk
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.Id=@NienKhoa_Id and hk.ID=@HocKy_Id and cn.field=@Nganh_Id and diem.Diem_TongKet is not null and diem.Ketqua1='HOCLAI'  and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID,lmh.HocKy) as kd
+		where Sinhvien_Id=kd.svid and Hocky_Id=kd.hk
+		
+		insert into @diem_tmp(SinhVien_Id,MonHoc_Id,DiemTongKet,TinChi,DiemHe4,HocKy_Id)
+		select diem.SinhVien_ID, lmh.MonHoc, max(diem.Diem_TongKet),mh.CourseCredit ,max(diem.Diemquydoihe4),lmh.HocKy
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Ketqua1='DAT' and nk.Id=@NienKhoa_Id and hk.ID=@HocKy_Id and cn.field=@Nganh_Id and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID, lmh.MonHoc, mh.CourseCredit,lmh.HocKy
+		--Tính điểm trung bình=sum(tín chỉ*điểm)/sum(tín chỉ) của những môn đạt trong 1 học kỳ lấy điểm lần cao nhất nếu học lại
+		update @tmp_DTB_All set DTBTL_He10=dtl.dtl_he10,DTBTL_Tinchi=dtl.tc,DTBTL_He4=dtl.dtl_he4
+		from(select SinhVien_Id as svid,sum(TinChi*DiemTongKet)/sum(TinChi) as dtl_he10,HocKy_Id as hk,SUM(TinChi) as tc,sum(TinChi*DiemHe4)/sum(TinChi) as dtl_he4 from @diem_tmp
+		group by SinhVien_Id,HocKy_Id) as dtl
+		where SinhVien_Id=dtl.svid and dtl.hk=HocKy_Id
+	end
+
+
+
+	else if(@NienKhoa_Id is not null and @Namhoc is not  null and @HocKy_Id is not null and @Nganh_Id is not null and @Chuyennganh_Id is not null and @LopHoc_Id is null)
+	begin
+		insert into tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All_History (Sinhvien_Id,Hocky_Id,Namhoc,DTBC_He10,DTBC_He4,DTBC_Tinchi,DTBTL_He10,DTBTL_He4,DTBTL_Tinchi,SoMonKhongDat,SoTinChi_MonKhongDat)
+		select dtb.Sinhvien_Id,dtb.Hocky_Id,dtb.Namhoc,dtb.DTBC_He10,dtb.DTBC_He4,dtb.DTBC_Tinchi,dtb.DTBTL_He10,dtb.DTBTL_He4,dtb.DTBTL_Tinchi,dtb.SoMonKhongDat,dtb.SoTinChi_MonKhongDat from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb
+		join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.id=dtb.Sinhvien_Id
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and cn.field=@Nganh_Id and cn.ID=@Chuyennganh_Id and dtb.Hocky_Id=@HocKy_Id
+
+
+		delete from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All where Sinhvien_Id in 
+		(select sv.ID from tb_SUNSIS_HCMUNRE_SV_Sinhvien sv
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and cn.field=@Nganh_Id and cn.ID=@Chuyennganh_Id) and Hocky_Id=@HocKy_Id
+		---
+
+
+
+		insert into @tmp_DTB_All(Sinhvien_Id,DTBC_He10,DTBC_He4,DTBC_Tinchi,Hocky_Id)
+		select diem.SinhVien_ID as sinhvienId,sum(mh.CourseCredit*diem.Diem_TongKet)/sum(mh.CourseCredit) as he10,sum(mh.CourseCredit*diem.Diemquydoihe4)/sum(mh.CourseCredit) as he4,sum(mh.CourseCredit) as tinchi,lmh.HocKy as hk
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.Id=@NienKhoa_Id and hk.ID=@HocKy_Id and cn.ID=@Chuyennganh_Id and cn.field=@Nganh_Id and diem.Diem_TongKet is not null and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID,lmh.HocKy
+		
+		update @tmp_DTB_All set SoTinChi_MonKhongDat=kd.sotinchi,SoMonKhongDat=kd.somon
+		from(select diem.SinhVien_ID as svid,sum(mh.CourseCredit) as sotinchi,count(mh.ID) as somon ,lmh.HocKy as hk
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.Id=@NienKhoa_Id and hk.ID=@HocKy_Id and cn.ID=@Chuyennganh_Id and cn.field=@Nganh_Id and diem.Diem_TongKet is not null and diem.Ketqua1='HOCLAI'  and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID,lmh.HocKy) as kd
+		where Sinhvien_Id=kd.svid and Hocky_Id=kd.hk
+
+		insert into @diem_tmp(SinhVien_Id,MonHoc_Id,DiemTongKet,TinChi,DiemHe4,HocKy_Id)
+		select diem.SinhVien_ID, lmh.MonHoc, max(diem.Diem_TongKet),mh.CourseCredit ,max(diem.Diemquydoihe4),lmh.HocKy
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Ketqua1='DAT' and nk.Id=@NienKhoa_Id and hk.ID=@HocKy_Id and cn.ID=@Chuyennganh_Id and cn.field=@Nganh_Id and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID, lmh.MonHoc, mh.CourseCredit,lmh.HocKy
+		--Tính điểm trung bình=sum(tín chỉ*điểm)/sum(tín chỉ) của những môn đạt trong 1 học kỳ lấy điểm lần cao nhất nếu học lại
+		update @tmp_DTB_All set DTBTL_He10=dtl.dtl_he10,DTBTL_Tinchi=dtl.tc,DTBTL_He4=dtl.dtl_he4
+		from(select SinhVien_Id as svid,sum(TinChi*DiemTongKet)/sum(TinChi) as dtl_he10,HocKy_Id as hk,SUM(TinChi) as tc,sum(TinChi*DiemHe4)/sum(TinChi) as dtl_he4 from @diem_tmp
+		group by SinhVien_Id,HocKy_Id) as dtl
+		where SinhVien_Id=dtl.svid and dtl.hk=HocKy_Id
+	end
+
+
+
+	else if(@NienKhoa_Id is not null and @Namhoc is  not null and @HocKy_Id is not null and @Nganh_Id is not null and @Chuyennganh_Id is not null and @LopHoc_Id is not null)
+	begin
+		insert into tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All_History (Sinhvien_Id,Hocky_Id,Namhoc,DTBC_He10,DTBC_He4,DTBC_Tinchi,DTBTL_He10,DTBTL_He4,DTBTL_Tinchi,SoMonKhongDat,SoTinChi_MonKhongDat)
+		select dtb.Sinhvien_Id,dtb.Hocky_Id,dtb.Namhoc,dtb.DTBC_He10,dtb.DTBC_He4,dtb.DTBC_Tinchi,dtb.DTBTL_He10,dtb.DTBTL_He4,dtb.DTBTL_Tinchi,dtb.SoMonKhongDat,dtb.SoTinChi_MonKhongDat from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb
+		join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.id=dtb.Sinhvien_Id
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and cn.field=@Nganh_Id and cn.ID=@Chuyennganh_Id and lh.id=@LopHoc_Id and dtb.Hocky_Id=@HocKy_Id
+
+
+		delete from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All where Sinhvien_Id in 
+		(select sv.ID from tb_SUNSIS_HCMUNRE_SV_Sinhvien sv
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and cn.field=@Nganh_Id and cn.ID=@Chuyennganh_Id and lh.id=@LopHoc_Id ) and Hocky_Id=@HocKy_Id
+
+
+
+
+
+		insert into @tmp_DTB_All(Sinhvien_Id,DTBC_He10,DTBC_He4,DTBC_Tinchi,Hocky_Id)
+		select diem.SinhVien_ID as sinhvienId,sum(mh.CourseCredit*diem.Diem_TongKet)/sum(mh.CourseCredit) as he10,sum(mh.CourseCredit*diem.Diemquydoihe4)/sum(mh.CourseCredit) as he4,sum(mh.CourseCredit) as tinchi,lmh.HocKy as hk
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.Id=@NienKhoa_Id and hk.ID=@HocKy_Id and cn.ID=@Chuyennganh_Id and cn.field=@Nganh_Id and lh.ID=@LopHoc_Id and diem.Diem_TongKet is not null and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID,lmh.HocKy
+
+		update @tmp_DTB_All set SoTinChi_MonKhongDat=kd.sotinchi,SoMonKhongDat=kd.somon
+		from(select diem.SinhVien_ID as svid,sum(mh.CourseCredit) as sotinchi,count(mh.ID) as somon ,lmh.HocKy as hk
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.Id=@NienKhoa_Id and hk.ID=@HocKy_Id and  cn.ID=@Chuyennganh_Id and cn.field=@Nganh_Id and lh.ID=@LopHoc_Id and diem.Diem_TongKet is not null and diem.Ketqua1='HOCLAI'  and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID,lmh.HocKy) as kd
+		where Sinhvien_Id=kd.svid and Hocky_Id=kd.hk
+
+		insert into @diem_tmp(SinhVien_Id,MonHoc_Id,DiemTongKet,TinChi,DiemHe4,HocKy_Id)
+		select diem.SinhVien_ID, lmh.MonHoc, max(diem.Diem_TongKet),mh.CourseCredit ,max(diem.Diemquydoihe4),lmh.HocKy
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Ketqua1='DAT' and nk.Id=@NienKhoa_Id and hk.ID=@HocKy_Id and  cn.ID=@Chuyennganh_Id and cn.field=@Nganh_Id and lh.ID=@LopHoc_Id and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID, lmh.MonHoc, mh.CourseCredit,lmh.HocKy
+		--Tính điểm trung bình=sum(tín chỉ*điểm)/sum(tín chỉ) của những môn đạt trong 1 học kỳ lấy điểm lần cao nhất nếu học lại
+		update @tmp_DTB_All set DTBTL_He10=dtl.dtl_he10,DTBTL_Tinchi=dtl.tc,DTBTL_He4=dtl.dtl_he4
+		from(select SinhVien_Id as svid,sum(TinChi*DiemTongKet)/sum(TinChi) as dtl_he10,HocKy_Id as hk,SUM(TinChi) as tc,sum(TinChi*DiemHe4)/sum(TinChi) as dtl_he4 from @diem_tmp
+		group by SinhVien_Id,HocKy_Id) as dtl
+		where SinhVien_Id=dtl.svid and dtl.hk=HocKy_Id
+	end
+
+
+
+		else if(@NienKhoa_Id is not null and @Namhoc is not  null and @HocKy_Id is not null and @Nganh_Id is null and @Chuyennganh_Id is null and @LopHoc_Id is null)
+	begin
+		insert into tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All_History (Sinhvien_Id,Hocky_Id,Namhoc,DTBC_He10,DTBC_He4,DTBC_Tinchi,DTBTL_He10,DTBTL_He4,DTBTL_Tinchi,SoMonKhongDat,SoTinChi_MonKhongDat)
+		select dtb.Sinhvien_Id,dtb.Hocky_Id,dtb.Namhoc,dtb.DTBC_He10,dtb.DTBC_He4,dtb.DTBC_Tinchi,dtb.DTBTL_He10,dtb.DTBTL_He4,dtb.DTBTL_Tinchi,dtb.SoMonKhongDat,dtb.SoTinChi_MonKhongDat from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb
+		join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.id=dtb.Sinhvien_Id
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and dtb.Hocky_Id=@HocKy_Id
+
+
+		delete from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All where Sinhvien_Id in 
+		(select sv.ID from tb_SUNSIS_HCMUNRE_SV_Sinhvien sv
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id) and Hocky_Id=@HocKy_Id
+
+
+
+
+
+
+		insert into @tmp_DTB_All(Sinhvien_Id,DTBC_He10,DTBC_He4,DTBC_Tinchi,Hocky_Id)
+		select diem.SinhVien_ID as sinhvienId,sum(mh.CourseCredit*diem.Diem_TongKet)/sum(mh.CourseCredit) as he10,sum(mh.CourseCredit*diem.Diemquydoihe4)/sum(mh.CourseCredit) as he4,sum(mh.CourseCredit) as tinchi,lmh.HocKy as hk
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.Id=@NienKhoa_Id and hk.ID=@HocKy_Id and diem.Diem_TongKet is not null and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID,lmh.HocKy
+		
+		update @tmp_DTB_All set SoTinChi_MonKhongDat=kd.sotinchi,SoMonKhongDat=kd.somon
+		from(select diem.SinhVien_ID as svid,sum(mh.CourseCredit) as sotinchi,count(mh.ID) as somon ,lmh.HocKy as hk
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.Id=@NienKhoa_Id and hk.ID=@HocKy_Id and diem.Diem_TongKet is not null and diem.Ketqua1='HOCLAI'  and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID,lmh.HocKy) as kd
+		where Sinhvien_Id=kd.svid and Hocky_Id=kd.hk
+		
+		insert into @diem_tmp(SinhVien_Id,MonHoc_Id,DiemTongKet,TinChi,DiemHe4,HocKy_Id)
+		select diem.SinhVien_ID, lmh.MonHoc, max(diem.Diem_TongKet),mh.CourseCredit ,max(diem.Diemquydoihe4),lmh.HocKy
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Ketqua1='DAT' and nk.Id=@NienKhoa_Id and hk.ID=@HocKy_Id and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID, lmh.MonHoc, mh.CourseCredit,lmh.HocKy
+		--Tính điểm trung bình=sum(tín chỉ*điểm)/sum(tín chỉ) của những môn đạt trong 1 học kỳ lấy điểm lần cao nhất nếu học lại
+		update @tmp_DTB_All set DTBTL_He10=dtl.dtl_he10,DTBTL_Tinchi=dtl.tc,DTBTL_He4=dtl.dtl_he4
+		from(select SinhVien_Id as svid,sum(TinChi*DiemTongKet)/sum(TinChi) as dtl_he10,HocKy_Id as hk,SUM(TinChi) as tc,sum(TinChi*DiemHe4)/sum(TinChi) as dtl_he4 from @diem_tmp
+		group by SinhVien_Id,HocKy_Id) as dtl
+		where SinhVien_Id=dtl.svid and dtl.hk=HocKy_Id
+	end
+
+
+
+	--Điểm trung bình năm học
+	else if(@NienKhoa_Id is not null and @Namhoc is not null and @HocKy_Id is null and @Nganh_Id is null and @Chuyennganh_Id is null and @LopHoc_Id is null)
+	begin	
+
+		insert into tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All_History (Sinhvien_Id,Hocky_Id,Namhoc,DTBC_He10,DTBC_He4,DTBC_Tinchi,DTBTL_He10,DTBTL_He4,DTBTL_Tinchi,SoMonKhongDat,SoTinChi_MonKhongDat)
+		select dtb.Sinhvien_Id,dtb.Hocky_Id,dtb.Namhoc,dtb.DTBC_He10,dtb.DTBC_He4,dtb.DTBC_Tinchi,dtb.DTBTL_He10,dtb.DTBTL_He4,dtb.DTBTL_Tinchi,dtb.SoMonKhongDat,dtb.SoTinChi_MonKhongDat from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb
+		join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.id=dtb.Sinhvien_Id
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and dtb.Namhoc=@Namhoc
+
+
+		delete from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All where Sinhvien_Id in 
+		(select sv.ID from tb_SUNSIS_HCMUNRE_SV_Sinhvien sv
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id) and Namhoc=@Namhoc
+
+
+
+
+
+
+
+		insert into @tmp_DTB_All(Sinhvien_Id,DTBC_He10,DTBC_He4,DTBC_Tinchi,Namhoc)
+		select diem.SinhVien_ID as sinhvienId,sum(mh.CourseCredit*diem.Diem_TongKet)/sum(mh.CourseCredit) as he10,sum(mh.CourseCredit*diem.Diemquydoihe4)/sum(mh.CourseCredit) as he4,sum(mh.CourseCredit) as tinchi,hk.schoolyear as nh
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+			inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.Id=@NienKhoa_Id and hk.schoolyear=@Namhoc and diem.Diem_TongKet is not null and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID,hk.schoolyear
+
+		update @tmp_DTB_All set SoTinChi_MonKhongDat=kd.sotinchi,SoMonKhongDat=kd.somon
+		from(select diem.SinhVien_ID as svid,sum(mh.CourseCredit) as sotinchi,count(mh.ID) as somon ,hk.schoolyear as nh
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.Id=@NienKhoa_Id and hk.schoolyear=@Namhoc and diem.Diem_TongKet is not null and diem.Ketqua1='HOCLAI' and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID,hk.schoolyear) as kd
+		where SinhVien_Id=kd.svid and kd.nh=NamHoc
+
+		insert into @diem_tmp(SinhVien_Id,MonHoc_Id,DiemTongKet,TinChi,DiemHe4,NamHoc)
+		select diem.SinhVien_ID, lmh.MonHoc, max(diem.Diem_TongKet),mh.CourseCredit ,max(diem.Diemquydoihe4),hk.schoolyear
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Ketqua1='DAT' and nk.Id=@NienKhoa_Id and hk.schoolyear=@Namhoc and diem.Diem_TongKet is not null and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID, lmh.MonHoc, mh.CourseCredit,hk.schoolyear
+		update @tmp_DTB_All set DTBTL_He10=dtl.dtl_he10,DTBTL_Tinchi=dtl.tc,DTBTL_He4=dtl.dtl_he4
+		from(select SinhVien_Id as svid,sum(TinChi*DiemTongKet)/sum(TinChi) as dtl_he10,NamHoc as nh,SUM(TinChi) as tc,sum(TinChi*DiemHe4)/sum(TinChi) as dtl_he4 from @diem_tmp
+		group by SinhVien_Id,NamHoc) as dtl
+		where SinhVien_Id=dtl.svid and dtl.nh=NamHoc
+	end
+
+
+
+
+	else if(@NienKhoa_Id is not null and @Namhoc is not null and @HocKy_Id is null and @Nganh_Id is not null and @Chuyennganh_Id is null and @LopHoc_Id is null)
+	begin	
+		insert into tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All_History (Sinhvien_Id,Hocky_Id,Namhoc,DTBC_He10,DTBC_He4,DTBC_Tinchi,DTBTL_He10,DTBTL_He4,DTBTL_Tinchi,SoMonKhongDat,SoTinChi_MonKhongDat)
+		select dtb.Sinhvien_Id,dtb.Hocky_Id,dtb.Namhoc,dtb.DTBC_He10,dtb.DTBC_He4,dtb.DTBC_Tinchi,dtb.DTBTL_He10,dtb.DTBTL_He4,dtb.DTBTL_Tinchi,dtb.SoMonKhongDat,dtb.SoTinChi_MonKhongDat from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb
+		join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.id=dtb.Sinhvien_Id
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and cn.field=@Nganh_Id  and dtb.Namhoc=@Namhoc
+
+
+		delete from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All where Sinhvien_Id in 
+		(select sv.ID from tb_SUNSIS_HCMUNRE_SV_Sinhvien sv
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and cn.field=@Nganh_Id) and Namhoc=@Namhoc
+
+
+
+
+
+
+
+		insert into @tmp_DTB_All(Sinhvien_Id,DTBC_He10,DTBC_He4,DTBC_Tinchi,Namhoc)
+		select diem.SinhVien_ID as sinhvienId,sum(mh.CourseCredit*diem.Diem_TongKet)/sum(mh.CourseCredit) as he10,sum(mh.CourseCredit*diem.Diemquydoihe4)/sum(mh.CourseCredit) as he4,sum(mh.CourseCredit) as tinchi,hk.schoolyear as nh
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+			inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.Id=@NienKhoa_Id and hk.schoolyear=@Namhoc and cn.field=@Nganh_Id and diem.Diem_TongKet is not null and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID,hk.schoolyear
+
+		update @tmp_DTB_All set SoTinChi_MonKhongDat=kd.sotinchi,SoMonKhongDat=kd.somon
+		from(select diem.SinhVien_ID as svid,sum(mh.CourseCredit) as sotinchi,count(mh.ID) as somon ,hk.schoolyear as nh
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.Id=@NienKhoa_Id and hk.schoolyear=@Namhoc and  cn.field=@Nganh_Id  and diem.Diem_TongKet is not null and diem.Ketqua1='HOCLAI' and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID,hk.schoolyear) as kd
+		where SinhVien_Id=kd.svid and kd.nh=NamHoc
+
+		insert into @diem_tmp(SinhVien_Id,MonHoc_Id,DiemTongKet,TinChi,DiemHe4,NamHoc)
+		select diem.SinhVien_ID, lmh.MonHoc, max(diem.Diem_TongKet),mh.CourseCredit ,max(diem.Diemquydoihe4),hk.schoolyear
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Ketqua1='DAT' and nk.Id=@NienKhoa_Id and hk.schoolyear=@Namhoc and  cn.field=@Nganh_Id  and diem.Diem_TongKet is not null and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID, lmh.MonHoc, mh.CourseCredit,hk.schoolyear
+		update @tmp_DTB_All set DTBTL_He10=dtl.dtl_he10,DTBTL_Tinchi=dtl.tc,DTBTL_He4=dtl.dtl_he4
+		from(select SinhVien_Id as svid,sum(TinChi*DiemTongKet)/sum(TinChi) as dtl_he10,NamHoc as nh,SUM(TinChi) as tc,sum(TinChi*DiemHe4)/sum(TinChi) as dtl_he4 from @diem_tmp
+		group by SinhVien_Id,NamHoc) as dtl
+		where SinhVien_Id=dtl.svid and dtl.nh=NamHoc
+	end
+
+
+
+	else if(@NienKhoa_Id is not null and @Namhoc is not null and @HocKy_Id is null and @Nganh_Id is not null and @Chuyennganh_Id is not null and @LopHoc_Id is null)
+	begin	
+		
+		insert into tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All_History (Sinhvien_Id,Hocky_Id,Namhoc,DTBC_He10,DTBC_He4,DTBC_Tinchi,DTBTL_He10,DTBTL_He4,DTBTL_Tinchi,SoMonKhongDat,SoTinChi_MonKhongDat)
+		select dtb.Sinhvien_Id,dtb.Hocky_Id,dtb.Namhoc,dtb.DTBC_He10,dtb.DTBC_He4,dtb.DTBC_Tinchi,dtb.DTBTL_He10,dtb.DTBTL_He4,dtb.DTBTL_Tinchi,dtb.SoMonKhongDat,dtb.SoTinChi_MonKhongDat from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb
+		join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.id=dtb.Sinhvien_Id
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and cn.field=@Nganh_Id and cn.ID=@Chuyennganh_Id and dtb.Namhoc=@Namhoc
+
+
+		delete from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All where Sinhvien_Id in 
+		(select sv.ID from tb_SUNSIS_HCMUNRE_SV_Sinhvien sv
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and cn.field=@Nganh_Id and cn.ID=@Chuyennganh_Id) and Namhoc=@Namhoc
+
+
+
+
+		insert into @tmp_DTB_All(Sinhvien_Id,DTBC_He10,DTBC_He4,DTBC_Tinchi,Namhoc)
+		select diem.SinhVien_ID as sinhvienId,sum(mh.CourseCredit*diem.Diem_TongKet)/sum(mh.CourseCredit) as he10,sum(mh.CourseCredit*diem.Diemquydoihe4)/sum(mh.CourseCredit) as he4,sum(mh.CourseCredit) as tinchi,hk.schoolyear as nh
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+			inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.Id=@NienKhoa_Id and hk.schoolyear=@Namhoc and cn.field=@Nganh_Id and cn.ID=@Chuyennganh_Id and diem.Diem_TongKet is not null and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID,hk.schoolyear
+
+		update @tmp_DTB_All set SoTinChi_MonKhongDat=kd.sotinchi,SoMonKhongDat=kd.somon
+		from(select diem.SinhVien_ID as svid,sum(mh.CourseCredit) as sotinchi,count(mh.ID) as somon ,hk.schoolyear as nh
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.Id=@NienKhoa_Id and hk.schoolyear=@Namhoc and cn.field=@Nganh_Id and cn.ID=@Chuyennganh_Id   and diem.Diem_TongKet is not null and diem.Ketqua1='HOCLAI' and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID,hk.schoolyear) as kd
+		where SinhVien_Id=kd.svid and kd.nh=NamHoc
+
+		insert into @diem_tmp(SinhVien_Id,MonHoc_Id,DiemTongKet,TinChi,DiemHe4,NamHoc)
+		select diem.SinhVien_ID, lmh.MonHoc, max(diem.Diem_TongKet),mh.CourseCredit ,max(diem.Diemquydoihe4),hk.schoolyear
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Ketqua1='DAT' and nk.Id=@NienKhoa_Id and hk.schoolyear=@Namhoc and cn.field=@Nganh_Id and cn.ID=@Chuyennganh_Id and diem.Diem_TongKet is not null and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID, lmh.MonHoc, mh.CourseCredit,hk.schoolyear
+		update @tmp_DTB_All set DTBTL_He10=dtl.dtl_he10,DTBTL_Tinchi=dtl.tc,DTBTL_He4=dtl.dtl_he4
+		from(select SinhVien_Id as svid,sum(TinChi*DiemTongKet)/sum(TinChi) as dtl_he10,NamHoc as nh,SUM(TinChi) as tc,sum(TinChi*DiemHe4)/sum(TinChi) as dtl_he4 from @diem_tmp
+		group by SinhVien_Id,NamHoc) as dtl
+		where SinhVien_Id=dtl.svid and dtl.nh=NamHoc
+	end
+
+
+
+	else if(@NienKhoa_Id is not null and @Namhoc is not null and @HocKy_Id is null and @Nganh_Id is not null and @Chuyennganh_Id is not null and @LopHoc_Id is not null)
+	begin	
+		insert into tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All_History (Sinhvien_Id,Hocky_Id,Namhoc,DTBC_He10,DTBC_He4,DTBC_Tinchi,DTBTL_He10,DTBTL_He4,DTBTL_Tinchi,SoMonKhongDat,SoTinChi_MonKhongDat)
+		select dtb.Sinhvien_Id,dtb.Hocky_Id,dtb.Namhoc,dtb.DTBC_He10,dtb.DTBC_He4,dtb.DTBC_Tinchi,dtb.DTBTL_He10,dtb.DTBTL_He4,dtb.DTBTL_Tinchi,dtb.SoMonKhongDat,dtb.SoTinChi_MonKhongDat from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb
+		join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.id=dtb.Sinhvien_Id
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and cn.field=@Nganh_Id and cn.ID=@Chuyennganh_Id and lh.ID=@LopHoc_Id and dtb.Namhoc=@Namhoc
+
+
+		delete from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All where Sinhvien_Id in 
+		(select sv.ID from tb_SUNSIS_HCMUNRE_SV_Sinhvien sv
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and cn.field=@Nganh_Id and cn.ID=@Chuyennganh_Id and lh.ID=@LopHoc_Id) and Namhoc=@Namhoc
+
+
+
+
+
+
+
+		insert into @tmp_DTB_All(Sinhvien_Id,DTBC_He10,DTBC_He4,DTBC_Tinchi,Namhoc)
+		select diem.SinhVien_ID as sinhvienId,sum(mh.CourseCredit*diem.Diem_TongKet)/sum(mh.CourseCredit) as he10,sum(mh.CourseCredit*diem.Diemquydoihe4)/sum(mh.CourseCredit) as he4,sum(mh.CourseCredit) as tinchi,hk.schoolyear as nh
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+			inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.Id=@NienKhoa_Id and hk.schoolyear=@Namhoc and cn.field=@Nganh_Id and cn.ID=@Chuyennganh_Id and  lh.ID=@LopHoc_Id and diem.Diem_TongKet is not null and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID,hk.schoolyear
+
+		update @tmp_DTB_All set SoTinChi_MonKhongDat=kd.sotinchi,SoMonKhongDat=kd.somon
+		from(select diem.SinhVien_ID as svid,sum(mh.CourseCredit) as sotinchi,count(mh.ID) as somon ,hk.schoolyear as nh
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.Id=@NienKhoa_Id and hk.schoolyear=@Namhoc and cn.field=@Nganh_Id and cn.ID=@Chuyennganh_Id and  lh.ID=@LopHoc_Id  and diem.Diem_TongKet is not null and diem.Ketqua1='HOCLAI' and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID,hk.schoolyear) as kd
+		where SinhVien_Id=kd.svid and kd.nh=NamHoc
+
+		insert into @diem_tmp(SinhVien_Id,MonHoc_Id,DiemTongKet,TinChi,DiemHe4,NamHoc)
+		select diem.SinhVien_ID, lmh.MonHoc, max(diem.Diem_TongKet),mh.CourseCredit ,max(diem.Diemquydoihe4),hk.schoolyear
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		inner join tb_SUNSIS_HCMUNRE_DM_HK hk on hk.ID=lmh.HocKy
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Ketqua1='DAT' and nk.Id=@NienKhoa_Id and hk.schoolyear=@Namhoc and cn.field=@Nganh_Id and cn.ID=@Chuyennganh_Id and  lh.ID=@LopHoc_Id  and diem.Diem_TongKet is not null and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID, lmh.MonHoc, mh.CourseCredit,hk.schoolyear
+		update @tmp_DTB_All set DTBTL_He10=dtl.dtl_he10,DTBTL_Tinchi=dtl.tc,DTBTL_He4=dtl.dtl_he4
+		from(select SinhVien_Id as svid,sum(TinChi*DiemTongKet)/sum(TinChi) as dtl_he10,NamHoc as nh,SUM(TinChi) as tc,sum(TinChi*DiemHe4)/sum(TinChi) as dtl_he4 from @diem_tmp
+		group by SinhVien_Id,NamHoc) as dtl
+		where SinhVien_Id=dtl.svid and dtl.nh=NamHoc
+	end
+
+
+
+
+
+	--Điểm tích lũy toàn khóa
+	else if(@NienKhoa_Id is not null and @Namhoc is null and @HocKy_Id is null and @Nganh_Id is null and @Chuyennganh_Id is null and @LopHoc_Id is null)
+		begin
+
+		insert into tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All_History (Sinhvien_Id,Hocky_Id,Namhoc,DTBC_He10,DTBC_He4,DTBC_Tinchi,DTBTL_He10,DTBTL_He4,DTBTL_Tinchi,SoMonKhongDat,SoTinChi_MonKhongDat)
+		select dtb.Sinhvien_Id,dtb.Hocky_Id,dtb.Namhoc,dtb.DTBC_He10,dtb.DTBC_He4,dtb.DTBC_Tinchi,dtb.DTBTL_He10,dtb.DTBTL_He4,dtb.DTBTL_Tinchi,dtb.SoMonKhongDat,dtb.SoTinChi_MonKhongDat from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb
+		join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.id=dtb.Sinhvien_Id
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and dtb.Namhoc is null and dtb.Hocky_Id is null
+
+
+		delete from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All where Sinhvien_Id in 
+		(select sv.ID from tb_SUNSIS_HCMUNRE_SV_Sinhvien sv
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id) and Namhoc is null and Hocky_Id is null
+
+
+
+
+
+
+
+
+		insert into @diem_tmp(SinhVien_Id,MonHoc_Id,DiemTongKet,TinChi,DiemHe4)
+		select diem.SinhVien_ID, lmh.MonHoc, max(diem.Diem_TongKet),mh.CourseCredit ,max(diem.Diemquydoihe4)
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Ketqua1='DAT' and nk.ID=@NienKhoa_Id and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID, lmh.MonHoc, mh.CourseCredit
+		insert into @tmp_DTB_All(SinhVien_Id,DTBTL_He10,DTBTL_Tinchi,DTBTL_He4) 
+		select diemtam.SinhVien_Id,sum(diemtam.TinChi*diemtam.DiemTongKet)/sum(diemtam.TinChi),SUM(diemtam.TinChi),sum(diemtam.TinChi*diemtam.DiemHe4)/sum(diemtam.TinChi) from @diem_tmp diemtam
+		group by diemtam.SinhVien_Id
+		
+		
+
+		update @tmp_DTB_All set DTBC_He10=he10,DTBC_He4=he4,DTBC_Tinchi=tc
+		from(select diem.SinhVien_ID as sinhvienId,sum(mh.CourseCredit*diem.Diem_TongKet)/sum(mh.CourseCredit) as he10,sum(mh.CourseCredit*diem.Diemquydoihe4)/sum(mh.CourseCredit) as he4,sum(mh.CourseCredit) as tc
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+			inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.ID=@NienKhoa_Id and diem.Diem_TongKet is not null and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID) as dtb
+		where Sinhvien_Id=dtb.sinhvienId and Hocky_Id is null and Namhoc is null
+		
+	end
+	else if(@NienKhoa_Id is not null and @Namhoc is null and @HocKy_Id is null and @Nganh_Id is not null and @Chuyennganh_Id is null and @LopHoc_Id is null)
+	begin
+		insert into tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All_History (Sinhvien_Id,Hocky_Id,Namhoc,DTBC_He10,DTBC_He4,DTBC_Tinchi,DTBTL_He10,DTBTL_He4,DTBTL_Tinchi,SoMonKhongDat,SoTinChi_MonKhongDat)
+		select dtb.Sinhvien_Id,dtb.Hocky_Id,dtb.Namhoc,dtb.DTBC_He10,dtb.DTBC_He4,dtb.DTBC_Tinchi,dtb.DTBTL_He10,dtb.DTBTL_He4,dtb.DTBTL_Tinchi,dtb.SoMonKhongDat,dtb.SoTinChi_MonKhongDat from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb
+		join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.id=dtb.Sinhvien_Id
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and cn.field=@Nganh_Id and dtb.Namhoc is null and dtb.Hocky_Id is null
+
+
+		delete from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All where Sinhvien_Id in 
+		(select sv.ID from tb_SUNSIS_HCMUNRE_SV_Sinhvien sv
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and cn.field=@Nganh_Id) and Namhoc is null and Hocky_Id is null
+
+
+
+
+		insert into @diem_tmp(SinhVien_Id,MonHoc_Id,DiemTongKet,TinChi,DiemHe4)
+		select diem.SinhVien_ID, lmh.MonHoc, max(diem.Diem_TongKet),mh.CourseCredit ,max(diem.Diemquydoihe4)
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Ketqua1='DAT' and nk.ID=@NienKhoa_Id and cn.field=@Nganh_Id and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID, lmh.MonHoc, mh.CourseCredit
+		insert into @tmp_DTB_All(SinhVien_Id,DTBTL_He10,DTBTL_Tinchi,DTBTL_He4) 
+		select diemtam.SinhVien_Id,sum(diemtam.TinChi*diemtam.DiemTongKet)/sum(diemtam.TinChi),SUM(diemtam.TinChi),sum(diemtam.TinChi*diemtam.DiemHe4)/sum(diemtam.TinChi) from @diem_tmp diemtam
+		group by diemtam.SinhVien_Id
+		
+		
+
+		update @tmp_DTB_All set DTBC_He10=he10,DTBC_He4=he4,DTBC_Tinchi=tc
+		from(select diem.SinhVien_ID as sinhvienId,sum(mh.CourseCredit*diem.Diem_TongKet)/sum(mh.CourseCredit) as he10,sum(mh.CourseCredit*diem.Diemquydoihe4)/sum(mh.CourseCredit) as he4,sum(mh.CourseCredit) as tc
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+			inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.ID=@NienKhoa_Id and cn.field=@Nganh_Id and diem.Diem_TongKet is not null and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID) as dtb
+		where Sinhvien_Id=dtb.sinhvienId and Hocky_Id is null and Namhoc is null
+		
+	end
+
+
+
+
+		else if(@NienKhoa_Id is not null and @Namhoc is null and @HocKy_Id is null and @Nganh_Id is not null and @Chuyennganh_Id is not null and @LopHoc_Id is null)
+	begin
+			insert into tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All_History (Sinhvien_Id,Hocky_Id,Namhoc,DTBC_He10,DTBC_He4,DTBC_Tinchi,DTBTL_He10,DTBTL_He4,DTBTL_Tinchi,SoMonKhongDat,SoTinChi_MonKhongDat)
+		select dtb.Sinhvien_Id,dtb.Hocky_Id,dtb.Namhoc,dtb.DTBC_He10,dtb.DTBC_He4,dtb.DTBC_Tinchi,dtb.DTBTL_He10,dtb.DTBTL_He4,dtb.DTBTL_Tinchi,dtb.SoMonKhongDat,dtb.SoTinChi_MonKhongDat from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb
+		join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.id=dtb.Sinhvien_Id
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and cn.field=@Nganh_Id and cn.ID=@Chuyennganh_Id and dtb.Namhoc is null and dtb.Hocky_Id is null
+
+
+		delete from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All where Sinhvien_Id in 
+		(select sv.ID from tb_SUNSIS_HCMUNRE_SV_Sinhvien sv
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and cn.field=@Nganh_Id and cn.ID=@Chuyennganh_Id) and Namhoc is null and Hocky_Id is null
+
+
+
+
+		--Điểm tích lũy toàn khóa
+		insert into @diem_tmp(SinhVien_Id,MonHoc_Id,DiemTongKet,TinChi,DiemHe4)
+		select diem.SinhVien_ID, lmh.MonHoc, max(diem.Diem_TongKet),mh.CourseCredit ,max(diem.Diemquydoihe4)
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Ketqua1='DAT' and nk.ID=@NienKhoa_Id and cn.field=@Nganh_Id and cn.id=@Chuyennganh_Id and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID, lmh.MonHoc, mh.CourseCredit
+		insert into @tmp_DTB_All(SinhVien_Id,DTBTL_He10,DTBTL_Tinchi,DTBTL_He4) 
+		select diemtam.SinhVien_Id,sum(diemtam.TinChi*diemtam.DiemTongKet)/sum(diemtam.TinChi),SUM(diemtam.TinChi),sum(diemtam.TinChi*diemtam.DiemHe4)/sum(diemtam.TinChi) from @diem_tmp diemtam
+		group by diemtam.SinhVien_Id
+		
+		
+
+		update @tmp_DTB_All set DTBC_He10=he10,DTBC_He4=he4,DTBC_Tinchi=tc
+		from(select diem.SinhVien_ID as sinhvienId,sum(mh.CourseCredit*diem.Diem_TongKet)/sum(mh.CourseCredit) as he10,sum(mh.CourseCredit*diem.Diemquydoihe4)/sum(mh.CourseCredit) as he4,sum(mh.CourseCredit) as tc
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+			inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.ID=@NienKhoa_Id and cn.field=@Nganh_Id and cn.id=@Chuyennganh_Id  and diem.Diem_TongKet is not null and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID) as dtb
+		where Sinhvien_Id=dtb.sinhvienId and Hocky_Id is null and Namhoc is null
+	end
+
+
+	else if(@NienKhoa_Id is not null and @Namhoc is null and @HocKy_Id is null and @Nganh_Id is not null and @Chuyennganh_Id is not null and @LopHoc_Id is not null)
+	begin
+		insert into tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All_History (Sinhvien_Id,Hocky_Id,Namhoc,DTBC_He10,DTBC_He4,DTBC_Tinchi,DTBTL_He10,DTBTL_He4,DTBTL_Tinchi,SoMonKhongDat,SoTinChi_MonKhongDat)
+		select dtb.Sinhvien_Id,dtb.Hocky_Id,dtb.Namhoc,dtb.DTBC_He10,dtb.DTBC_He4,dtb.DTBC_Tinchi,dtb.DTBTL_He10,dtb.DTBTL_He4,dtb.DTBTL_Tinchi,dtb.SoMonKhongDat,dtb.SoTinChi_MonKhongDat from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb
+		join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.id=dtb.Sinhvien_Id
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and cn.field=@Nganh_Id and cn.ID=@Chuyennganh_Id and lh.ID=@LopHoc_Id and dtb.Namhoc is null and dtb.Hocky_Id is null
+
+
+		delete from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All where Sinhvien_Id in 
+		(select sv.ID from tb_SUNSIS_HCMUNRE_SV_Sinhvien sv
+		join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		where nk.Id=@NienKhoa_Id and cn.field=@Nganh_Id and cn.ID=@Chuyennganh_Id and lh.ID=@LopHoc_Id) and Namhoc is null and Hocky_Id is null
+
+			
+		--Điểm tích lũy toàn khóa
+		insert into @diem_tmp(SinhVien_Id,MonHoc_Id,DiemTongKet,TinChi,DiemHe4)
+		select diem.SinhVien_ID, lmh.MonHoc, max(diem.Diem_TongKet),mh.CourseCredit ,max(diem.Diemquydoihe4)
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+		inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Ketqua1='DAT' and nk.ID=@NienKhoa_Id and cn.field=@Nganh_Id and cn.id=@Chuyennganh_Id and lh.id=@LopHoc_Id and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID, lmh.MonHoc, mh.CourseCredit
+		insert into @tmp_DTB_All(SinhVien_Id,DTBTL_He10,DTBTL_Tinchi,DTBTL_He4) 
+		select diemtam.SinhVien_Id,sum(diemtam.TinChi*diemtam.DiemTongKet)/sum(diemtam.TinChi),SUM(diemtam.TinChi),sum(diemtam.TinChi*diemtam.DiemHe4)/sum(diemtam.TinChi) from @diem_tmp diemtam
+		group by diemtam.SinhVien_Id
+		
+		
+
+		update @tmp_DTB_All set DTBC_He10=he10,DTBC_He4=he4,DTBC_Tinchi=tc
+		from(select diem.SinhVien_ID as sinhvienId,sum(mh.CourseCredit*diem.Diem_TongKet)/sum(mh.CourseCredit) as he10,sum(mh.CourseCredit*diem.Diemquydoihe4)/sum(mh.CourseCredit) as he4,sum(mh.CourseCredit) as tc
+		from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh inner join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on lmh.ID=diem.Lop_MonHoc 
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on lmh.MonHoc=mh.ID 
+		inner join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on sv.Id=diem.SinhVien_ID
+			inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+		inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+		inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+		join tb_SUNSIS_HCMUNRE_Quyche_Version qc on qc.id=nk.Quyche_Id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+		join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+		join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+		where diem.Lanhoc=1 and nk.ID=@NienKhoa_Id and cn.field=@Nganh_Id and cn.id=@Chuyennganh_Id and lh.id=@LopHoc_Id  and diem.Diem_TongKet is not null and sv.Trangthai=5
+		and lmh.MonHoc in (select lmh.MonHoc from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh where  lmh.MonHoc not in
+		(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@quyche_Id),';')))
+		group by diem.SinhVien_ID) as dtb
+		where Sinhvien_Id=dtb.sinhvienId and Hocky_Id is null and Namhoc is null
+	end
+
+
+
+
+	insert into tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All(Sinhvien_Id,Hocky_Id,Namhoc,DTBC_He10,DTBC_He4,DTBC_Tinchi,DTBTL_He10,DTBTL_He4,DTBTL_Tinchi,SoMonKhongDat,SoTinChi_MonKhongDat)
+	select Sinhvien_Id,Hocky_Id,Namhoc,round(DTBC_He10,@Lt_DTBC_He10),round(DTBC_He4,@Lt_DTBC_He4),DTBC_Tinchi,round(DTBTL_He10,@Lt_DTBTL_He10),round(DTBTL_He4,@Lt_DTBTL_He4),DTBTL_Tinchi,SoMonKhongDat,SoTinChi_MonKhongDat from @tmp_DTB_All
+end
