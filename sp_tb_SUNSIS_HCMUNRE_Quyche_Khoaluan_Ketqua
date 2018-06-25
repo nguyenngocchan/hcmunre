@@ -1,0 +1,103 @@
+USE [SUNIS_HCMUNRE]
+GO
+/****** Object:  StoredProcedure [dbo].[sp_tb_SUNSIS_HCMUNRE_Quyche_Khoaluan_Ketqua]    Script Date: 25-Jun-18 2:57:15 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER proc [dbo].[sp_tb_SUNSIS_HCMUNRE_Quyche_Khoaluan_Ketqua]
+@nienkhoa_id int,
+@nganh_id int,
+@chuyennganh_id int,
+@lophoc int
+as
+begin
+
+	declare @param nvarchar(255)
+	if(@nienkhoa_id is not null and @nganh_id is not null and @chuyennganh_id is not null and @lophoc is not null)
+	begin
+	select 1
+		set @param=' nk.ID='+cast(@NienKhoa_Id as nvarchar)+'and lh.ID ='+cast(@lophoc as nvarchar)+'and cn.field ='+cast(@nganh_id as nvarchar)+'and cn.ID ='+cast(@chuyennganh_id as nvarchar)+''
+	end 
+	else if(@nienkhoa_id is not null and @nganh_id is not null and @chuyennganh_id is not null and @lophoc is null)
+	begin
+		set @param=' nk.ID='+cast(@NienKhoa_Id as nvarchar)+'and cn.field ='+cast(@nganh_id as nvarchar)+'and cn.ID ='+cast(@chuyennganh_id as nvarchar)+''
+	end 
+	else if(@nienkhoa_id is not null and @nganh_id is not null and @chuyennganh_id is null and @lophoc is null)
+	begin
+		set @param=' nk.ID='+cast(@NienKhoa_Id as nvarchar)+'and cn.field ='+cast(@nganh_id as nvarchar)+''
+	end 
+	else if(@nienkhoa_id is not null and @nganh_id is null and @chuyennganh_id is null and @lophoc is null)
+	begin
+		set @param=' nk.ID='+cast(@NienKhoa_Id as nvarchar)+''
+	end 
+	exec('
+	declare @quyche_id int
+	select	@quyche_id=Quyche_Id from tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa where id='+@nienkhoa_id+'
+
+	declare @DTBTL_He4 float
+
+	select @DTBTL_He4=DTBTL_He4 from tb_SUNSIS_HCMUNRE_Quyche_Khoaluan where Quyche_Id=@quyche_id
+
+	if exists(select * from tb_SUNSIS_HCMUNRE_Quyche_Khoaluan_Ketqua kqkl join tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb on dtb.Sinhvien_Id=kqkl.Sinhvien_Id
+	join  tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on dtb.Sinhvien_Id=sv.ID
+	inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+	inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+	inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+	join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+	join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+	join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+	join tb_SUNSIS_HCMUNRE_QLCTDT_MonhocVS mhvs on mhvs.Versionid=vs.id
+	join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on mh.id=mhvs.Course
+	where '+@param+' and dtb.Namhoc is null and dtb.Hocky_Id is null and kqkl.Ketqua=N''Đạt'')
+		begin
+			insert into tb_SUNSIS_HCMUNRE_Quyche_Khoaluan_Ketqua(Sinhvien_Id,DTBTL_He4,DTBTL_Tinchi,colDateAdd,Ketqua)
+			select dtb.Sinhvien_Id,dtb.DTBTL_He4,dtb.DTBTL_Tinchi,convert(date, getdate()),N''Chưa Đạt''
+			from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb join  tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on dtb.Sinhvien_Id=sv.ID
+			inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+			inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+			inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+			join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+			join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+			join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+			join tb_SUNSIS_HCMUNRE_QLCTDT_MonhocVS mhvs on mhvs.Versionid=vs.id
+			join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on mh.id=mhvs.Course
+			where '+@param+' and dtb.Namhoc is null and dtb.Hocky_Id is null
+			group by dtb.Sinhvien_Id,dtb.DTBTL_He4,dtb.DTBTL_Tinchi
+			having dtb.DTBTL_He4<@DTBTL_He4
+		end
+	else
+		begin
+			insert into tb_SUNSIS_HCMUNRE_Quyche_Khoaluan_Ketqua(Sinhvien_Id,DTBTL_He4,DTBTL_Tinchi,colDateAdd,Ketqua)
+			select dtb.Sinhvien_Id,dtb.DTBTL_He4,dtb.DTBTL_Tinchi,convert(date, getdate()),N''Đạt''
+			from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb join  tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on dtb.Sinhvien_Id=sv.ID
+			inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+			inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+			inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+			join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+			join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+			join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+			join tb_SUNSIS_HCMUNRE_QLCTDT_MonhocVS mhvs on mhvs.Versionid=vs.id
+			join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on mh.id=mhvs.Course
+			where '+@param+' and dtb.Namhoc is null and dtb.Hocky_Id is null
+			group by dtb.Sinhvien_Id,dtb.DTBTL_He4,dtb.DTBTL_Tinchi
+			having dtb.DTBTL_He4>=@DTBTL_He4
+
+			insert into tb_SUNSIS_HCMUNRE_Quyche_Khoaluan_Ketqua(Sinhvien_Id,DTBTL_He4,DTBTL_Tinchi,colDateAdd,Ketqua)
+			select dtb.Sinhvien_Id,dtb.DTBTL_He4,dtb.DTBTL_Tinchi,convert(date, getdate()),N''Chưa Đạt''
+			from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb join  tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on dtb.Sinhvien_Id=sv.ID
+			inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+			inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+			inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+			join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+			join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+			join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+			join tb_SUNSIS_HCMUNRE_QLCTDT_MonhocVS mhvs on mhvs.Versionid=vs.id
+			join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on mh.id=mhvs.Course
+			where '+@param+' and dtb.Namhoc is null and dtb.Hocky_Id is null
+			group by dtb.Sinhvien_Id,dtb.DTBTL_He4,dtb.DTBTL_Tinchi
+			having dtb.DTBTL_He4<@DTBTL_He4
+	end')
+end
+
+
