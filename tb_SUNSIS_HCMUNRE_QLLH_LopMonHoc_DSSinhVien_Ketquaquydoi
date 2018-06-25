@@ -1,0 +1,118 @@
+USE [SUNIS_HCMUNRE]
+GO
+/****** Object:  Trigger [dbo].[tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien_Ketquaquydoi]    Script Date: 25-Jun-18 2:58:02 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER trigger [dbo].[tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien_Ketquaquydoi]
+on [dbo].[tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien]
+after update
+as
+begin
+	declare @slsv int
+	declare @idx int=1
+	select @slsv=count(*) from inserted
+	while(@idx<=@slsv)
+		begin
+			declare @diemtongket float
+			declare @quyche_id int
+			declare @monhoc_id int
+			declare @id int
+			select @quyche_id=quyche_id, @monhoc_id=monhoc_id,@diemtongket=diemtong,@id=id_diem from(select nk.Quyche_Id as quyche_id,i.ID as id_diem,
+			lmh.MonHoc as monhoc_id,i.Diem_TongKet as diemtong,ROW_NUMBER() OVER(order by i.id) as STT from inserted i join tb_SUNSIS_HCMUNRE_SV_Sinhvien sv on i.SinhVien_ID=sv.ID
+			join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+			join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on ctdtnk.id=lh.ayversion
+			join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.id=ctdtnk.ayyear
+			join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh on i.Lop_MonHoc=lmh.ID) as c WHERE c.STT=@idx
+
+			--
+
+
+
+			declare @slcdlt int
+			select @slcdlt= count(*) from tb_SUNSIS_HCMUNRE_Quyche_Lamtron lt join tb_SUNSIS_HCMUNRE_Quyche_Chitietlamtrondiem ctlt on lt.ID=ctlt.Lamtron_id
+			join tb_SUNSIS_HCMUNRE_Danhmuc_CotDiem cd on cd.id=ctlt.Tencotdiem
+			where lt.Quyche_Id=@quyche_id and cd.Tenbang='tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien'
+			declare @inx_lt int=1
+			WHILE(@inx_lt<=@slcdlt)
+				begin
+					declare @tencot_lamtron nvarchar(255)
+					declare @solamtron int
+					select  @tencot_lamtron=tencot_lamtron,@solamtron=solamtron from( select cd.Tencot as tencot_lamtron,ctlt.Solamtron as solamtron,ROW_NUMBER() OVER(order by ctlt.ID) as STTLT  from tb_SUNSIS_HCMUNRE_Quyche_Lamtron lt join tb_SUNSIS_HCMUNRE_Quyche_Chitietlamtrondiem ctlt on lt.ID=ctlt.Lamtron_id
+					join tb_SUNSIS_HCMUNRE_Danhmuc_CotDiem cd on cd.id=ctlt.Tencotdiem
+					where lt.Quyche_Id=@quyche_id and cd.Tenbang='tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien') as a WHERE a.STTLT=@inx_lt
+
+					select @tencot_lamtron,@solamtron
+						EXECUTE('update tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien set '+@tencot_lamtron+'=round('+ @tencot_lamtron+','+@solamtron+') where ID='+@id+'')
+
+					
+						SET @inx_lt=@inx_lt+1
+				end
+
+			--
+
+
+			--update tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien set Diemquydoichu=quydoi.diemchu,Diemquydoixeploai=quydoi.xeploai,Diemquydoihe4=quydoi.diemhe4
+			--from (select ctqd.Diemchu as diemchu,ctqd.Xeploai as xeploai,ctqd.DiemHe4 as diemhe4 from tb_SUNSIS_HCMUNRE_Quyche_ChitietQuydoidiem ctqd join tb_SUNSIS_HCMUNRE_Quyche_Quydoidiem qd on ctqd.Quydoi_Id=qd.id where Quyche_Id=@quyche_id and @diemtongket>=ctqd.GTNN and @diemtongket<=ctqd.GTLN) as quydoi
+			--where id=@id
+			update tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien set Diemquydoichu=quydoi.diemchu
+			from (select ctqd.Diemchu as diemchu from tb_SUNSIS_HCMUNRE_Quyche_ChitietQuydoidiem ctqd join tb_SUNSIS_HCMUNRE_Quyche_Quydoidiem qd on ctqd.Quydoi_Id=qd.id where Quyche_Id=@quyche_id and @diemtongket>=ctqd.GTNN and @diemtongket<=ctqd.GTLN) as quydoi
+			where id=@id
+			--
+
+
+			if exists(select * from fnSplitString((SELECT Danhsach_Chungchi from tb_SUNSIS_HCMUNRE_Quyche_Chungchi cc where Quyche_Id=@Quyche_id),';') where splitdata=@Monhoc_id)
+				begin
+					declare @Diemdat_chungchi float
+					select  @Diemdat_chungchi=diem from tb_SUNSIS_HCMUNRE_Quyche_Chungchi where Quyche_Id=@quyche_id
+					if(@Diemtongket>=@Diemdat_chungchi)
+						begin
+							update tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien set Ketqua1='DAT'where id=@id
+						end 
+					else
+						begin
+							update tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien set Ketqua1='HOCLAI' where id=@id
+						end	
+				end
+			--
+
+
+			else
+				begin
+					declare @slcotdiem int
+					select @slcotdiem= count(*) from tb_SUNSIS_HCMUNRE_Quyche_ChitietDiemdat ctdd join tb_SUNSIS_HCMUNRE_Quyche_Diemdat diemdat on diemdat.id=ctdd.Diemdat_Id where Quyche_Id=@Quyche_id
+					declare @index int=1
+					declare @tencot nvarchar(255)
+					declare @tenbang nvarchar(255)
+					declare @dieukiendiem float
+					declare @ketqua table(Ketqua nvarchar(255))
+					WHILE(@index<=@slcotdiem)
+						BEGIN
+							select @tencot=Tencot,@tenbang=Tenbang,@dieukiendiem=diemdat from(select cd.Tencot as Tencot,cd.Tenbang,ctdd.Diem as diemdat,ROW_NUMBER() OVER(order by ctdd.id) as STT 
+							from tb_SUNSIS_HCMUNRE_Quyche_ChitietDiemdat ctdd join tb_SUNSIS_HCMUNRE_Danhmuc_CotDiem cd on ctdd.Tencotdiem=cd.ID
+							join tb_SUNSIS_HCMUNRE_Quyche_Diemdat diemdat on diemdat.id=ctdd.Diemdat_Id where Quyche_Id=@Quyche_id)as b
+							WHERE b.STT=@index
+							insert into @ketqua execute('if exists(select '+@tencot+' from '+@tenbang+' where ID='+@ID+' and '+@tencot+'>='+@dieukiendiem+')
+										begin
+											select ''DAT''
+										end
+									else
+										begin
+											select ''HOCLAI''
+										end')
+							SET @index=@index+1
+						end
+					if exists(select Ketqua from @ketqua where Ketqua='HOCLAI')
+						begin
+							update tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien set Ketqua1='HOCLAI' where id=@id
+						end
+					else
+						begin
+							update tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien set Ketqua1='DAT'where id=@id
+						end
+					end
+			delete @ketqua
+			SET @idx=@idx+1
+		end
+end
