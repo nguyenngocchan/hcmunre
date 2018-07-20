@@ -1,0 +1,163 @@
+declare @nienkhoa_id int
+declare @nganh_id int
+declare @chuyennganh_id int
+declare @lophoc int
+
+
+set @nienkhoa_id=1106
+set @nganh_id =20
+set @chuyennganh_id =7
+set @lophoc =6204
+
+--lấy quy chế id
+declare @quyche_id int
+select	@quyche_id=Quyche_Id from tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa where id=@nienkhoa_id
+
+--lấy các tham số điều kiện xét tốt nghiệp dựa theo quy chế id
+declare @chungchi nvarchar(max)
+declare @thuctap bit
+declare @doan bit
+declare @DTBTL_He4 float
+select @chungchi=Chungchi,@thuctap=Thuctap,@doan=Doan,@DTBTL_He4=DTBTL_He4
+from tb_SUNSIS_HCMUNRE_Quyche_Totnghiep where Quyche_Id=@quyche_id
+
+
+--lấy ra mảng danh sách sinh viên dựa theo điều kiện
+declare @Sinhvien_tmp table(Sinhvien_Id int,Version_ID int)
+insert into @Sinhvien_tmp(Sinhvien_Id,Version_ID)
+select sv.ID,vs.ID
+from tb_SUNSIS_HCMUNRE_SV_Sinhvien sv
+inner join tb_SUNSIS_HCMUNRE_QLLH_LH lh on lh.id=sv.Adminclassid
+inner join tb_SUNSIS_HCMUNRE_QLCTDT_NK ctdtnk on lh.ayversion=ctdtnk.ID
+inner join tb_SUNSIS_HCMUNRE_Danhmuc_NienKhoa nk on nk.ID=ctdtnk.ayyear
+join tb_SUNSIS_HCMUNRE_QLCTDT_VERSION vs on vs.id=ctdtnk.Version
+join tb_SUNSIS_HCMUNRE_QLCTDT_CTDT ctdt on ctdt.id=vs.Trainid
+join tb_SUNSIS_HCMUNRE_Danhmuc_chuyennganh cn on cn.ID=ctdt.majorfield
+where nk.id=@nienkhoa_id and cn.id=@chuyennganh_id 
+and cn.field=@nganh_id and lh.id=@lophoc
+--and sv.Trangthai=5
+
+--select * from @Sinhvien_tmp
+
+--bảng tạm lưu trữ kết quả
+
+--declare @ketqua_totnghiep table(Sinhvien_Id int,DTBC_He4 float,DTBTL_He4 float,DTBTL_Tinchi int,Ketqua nvarchar(max),ghichu nvarchar(max))
+
+--xét điều kiện điểm trung bình
+declare @DTBTL_tmp table(Sinhvien_Id int,DTBC_He4 float,DTBTL_He4 float,DTBTL_Tinchi int,Ketqua nvarchar(max),ghichu nvarchar(max))
+insert into @DTBTL_tmp(Sinhvien_Id,DTBC_He4,DTBTL_He4,DTBTL_Tinchi,Ketqua,ghichu)
+select svtmp.Sinhvien_Id,dtb.DTBC_He4,dtb.DTBTL_He4,dtb.DTBTL_Tinchi,iif(dtb.DTBTL_He4>=@DTBTL_He4,N'Đạt',N'Chưa Đạt'),iif(dtb.DTBTL_He4>=@DTBTL_He4,null,N'Điểm trung bình tích lũy')
+from @Sinhvien_tmp svtmp
+join tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All dtb on dtb.Sinhvien_Id=svtmp.Sinhvien_Id
+where dtb.Namhoc is null and dtb.Hocky_Id is null
+
+--Xét điều kiện thực tập tốt nghiệp
+declare @thuctap_tmp table(sinhvien_id int,Ketqua nvarchar(max),ghichu nvarchar(max))
+insert into @thuctap_tmp(sinhvien_id,Ketqua,ghichu)
+select thuctap.Sinhvien_Id,thuctap.Ketqua,iif(thuctap.Ketqua=N'Đạt',null,N'Thực tập tốt nghiệp') from tb_SUNSIS_HCMUNRE_Quyche_Thuctap_Ketqua thuctap join @Sinhvien_tmp sv on sv.Sinhvien_Id=thuctap.Sinhvien_Id
+
+-- Xét điều kiện khóa luận tốt nghiệp
+
+declare @khoaluan_tmp table(sinhvien_id int,Ketqua nvarchar(max),ghichu nvarchar(max))
+insert into @khoaluan_tmp(sinhvien_id,Ketqua,ghichu)
+select khoaluan.Sinhvien_Id,khoaluan.Ketqua,iif(khoaluan.Ketqua=N'Đạt',null,N'Khóa luận tốt nghiệp') 
+from tb_SUNSIS_HCMUNRE_Quyche_Khoaluan_Ketqua khoaluan join @Sinhvien_tmp sv on sv.Sinhvien_Id=khoaluan.Sinhvien_Id
+
+--Xet điều kiện tín chỉ
+declare @chungchi_tmp table(Sinhvien_Id int,Ketqua nvarchar(max),ghichu nvarchar(max))
+insert into @chungchi_tmp(Sinhvien_Id,Ketqua)
+select Sinhvien_Id,N'Đạt' from @Sinhvien_tmp
+--select* from @chungchi_tmp
+declare @index int=1
+declare @check_chungchi int
+select @check_chungchi=count(*) from fnSplitString((SELECT @chungchi),';')
+while(@index<=@check_chungchi)
+	begin
+		declare @chungchi_id int
+		declare @chungchi_info nvarchar(max)
+
+		select  @chungchi_id=id,@chungchi_info=(cast(CourseName as nvarchar)+'('+cast(code as nvarchar)+')') from (select id,CourseName,code,ROW_NUMBER() OVER(order by ID) as STT from tb_SUNSIS_HCMUNRE_QLCTDT_MH where id in(select splitdata from fnSplitString((SELECT @chungchi),';'))) as chungchi where chungchi.stt=@index
+		update chungchi set chungchi.ghichu=concat(chungchi.ghichu,@chungchi_info+';'),chungchi.Ketqua=N'Chưa Đạt'
+		from @chungchi_tmp chungchi join @Sinhvien_tmp sv on sv.Sinhvien_Id=chungchi.Sinhvien_Id where sv.sinhvien_id not in
+		(select diem.sinhvien_id from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem
+		join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh on lmh.id=diem.Lop_MonHoc
+		where lmh.MonHoc=@chungchi_id and diem.Ketqua1='DAT') and chungchi.Sinhvien_Id=sv.Sinhvien_Id
+		SET @index=@index+1
+	end
+
+
+--bảng lấy khối kiến thức chương trình đào tạo
+declare @version_mh_tmp table(id int IDENTITY(1,1),khoikienthuc_id int)
+insert into @version_mh_tmp(khoikienthuc_id)
+select distinct(mhvs.Khoikienthuc_id)
+from @Sinhvien_tmp sv 
+join tb_SUNSIS_HCMUNRE_QLCTDT_Khoikienthuc kkt on kkt.Version_Id=sv.Version_ID
+join tb_SUNSIS_HCMUNRE_QLCTDT_MonhocVS mhvs on mhvs.Khoikienthuc_id=kkt.id
+and mhvs.Course not in(select splitdata from fnSplitString((SELECT @chungchi),';'))
+
+--Bảng tạm lưu kết quả chương trình đào tạo
+declare @ctdt_tmp table(Sinhvien_Id int,Ketqua nvarchar(max),ghichu nvarchar(max))
+insert into @ctdt_tmp(Sinhvien_Id,Ketqua)
+select Sinhvien_Id,N'Đạt' from @Sinhvien_tmp
+
+-- So sánh tín chỉ tích lũy hiện tại và tổng tín chỉ
+update @ctdt_tmp set Ketqua=N'Chưa Đạt',ghichu=N'Chưa tích lũy đủ số TC bắt buộc '+'('+cast(tc as nvarchar)+'/'+cast(tong_tc as nvarchar)+'); '
+from(select tong_tinchi.Sinhvien_Id as svid,tong_tinchi.DTBTL_Tinchi as tc,sum(kkt.Sotinchi) as tong_tc from tb_SUNSIS_HCMUNRE_QLD_DiemTrungBinh_All tong_tinchi join @Sinhvien_tmp sv on sv.Sinhvien_Id=tong_tinchi.Sinhvien_Id
+join tb_SUNSIS_HCMUNRE_QLCTDT_Khoikienthuc kkt on sv.Version_ID=kkt.Version_Id
+where tong_tinchi.Hocky_Id is null and tong_tinchi.Namhoc is null
+and kkt.ID in (select kkt.ID
+from tb_SUNSIS_HCMUNRE_QLCTDT_Khoikienthuc kkt join tb_SUNSIS_HCMUNRE_QLCTDT_MonhocVS mhvs on mhvs.Khoikienthuc_id=kkt.id
+and mhvs.Course not in (select splitdata from fnSplitString((SELECT @chungchi),';')))
+group by tong_tinchi.Sinhvien_Id,tong_tinchi.DTBTL_Tinchi
+having tong_tinchi.DTBTL_Tinchi<sum(kkt.Sotinchi)) as sosanh_tongtinchi
+where sosanh_tongtinchi.svid=Sinhvien_Id
+
+-- Kiểm tra từng khối kiến thức
+	declare @idx int=1
+	declare @check_kkt int
+	select @check_kkt=count(*) from @version_mh_tmp
+	while(@idx<=@check_kkt)
+		begin
+		declare @khoikienthuc_id int
+		select  @khoikienthuc_id=kkt from (select id,khoikienthuc_id as kkt,ROW_NUMBER() OVER(order by ID) as STT from @version_mh_tmp) as khoikienthuc where khoikienthuc.stt=@idx		
+		update @ctdt_tmp set Ketqua=N'Chưa Đạt',ghichu=concat(ghichu,'['+cast(ten_kkt as nvarchar)+'('+cast(tinchi_mh as nvarchar)+'/'+cast(stc as nvarchar)+')];')
+		from (select sv.Sinhvien_Id as sv_id,sum(mh.CourseCredit) as tinchi_mh,kkt.Sotinchi as stc,cast(dmkkt.subjectname as nvarchar) as ten_kkt  from @Sinhvien_tmp sv join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on diem.SinhVien_ID=sv.Sinhvien_Id
+		join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh on lmh.id=diem.Lop_MonHoc
+		join tb_SUNSIS_HCMUNRE_QLCTDT_MH mh on mh.id=lmh.MonHoc
+		join tb_SUNSIS_HCMUNRE_QLCTDT_MonhocVS mhvs on mhvs.Course=mh.id
+		join tb_SUNSIS_HCMUNRE_QLCTDT_Khoikienthuc kkt on kkt.id=mhvs.Khoikienthuc_id
+		join tb_SUNSIS_HCMUNRE_Danhmuc_khoikienthuc dmkkt on dmkkt.id=kkt.Ten
+		where mhvs.Khoikienthuc_id=@khoikienthuc_id
+		and diem.Lanhoc=(select max(Lanhoc) from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem1 where diem1.SinhVien_ID=sv.Sinhvien_Id and lmh.ID=diem1.Lop_MonHoc)
+		and diem.Ketqua1='DAT' 
+		group by sv.Sinhvien_Id,kkt.Sotinchi,cast(dmkkt.subjectname as nvarchar)
+		having sum(mh.CourseCredit)<kkt.Sotinchi
+		) as ket_qua_kkt
+		where ket_qua_kkt.sv_id=Sinhvien_Id
+		--Kiểm tra từng môn học
+		declare @index1 int=1
+		declare @check_mh int
+		select @check_mh=count(*)  from tb_SUNSIS_HCMUNRE_QLCTDT_MonhocVS where Khoikienthuc_id=@khoikienthuc_id and Batbuoc=1
+		while(@index<=@check_mh)
+			begin
+				declare @monhoc_id int
+				declare @monhoc_info nvarchar(max)
+				select  @monhoc_id=id,@monhoc_info=(cast(CourseName as nvarchar)+'('+cast(code as nvarchar)+')') from (select id,CourseName,code,ROW_NUMBER() OVER(order by ID) as STT from tb_SUNSIS_HCMUNRE_QLCTDT_MH where id in (SELECT Course from tb_SUNSIS_HCMUNRE_QLCTDT_MonhocVS where Khoikienthuc_id=@khoikienthuc_id and Batbuoc=1)) as monhoc where monhoc.stt=@index
+				update ctdt set ctdt.Ketqua=N'Chưa Đạt',ctdt.ghichu=concat(ctdt.ghichu,@monhoc_info+';')
+				from  @ctdt_tmp ctdt join @Sinhvien_tmp sv on sv.Sinhvien_Id=ctdt.Sinhvien_Id
+				join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem on diem.SinhVien_ID=sv.Sinhvien_Id
+				join tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc lmh on lmh.ID=diem.Lop_MonHoc
+				where diem.Lanhoc=(select max(Lanhoc) from tb_SUNSIS_HCMUNRE_QLLH_LopMonHoc_DSSinhVien diem1 where diem1.SinhVien_ID=sv.Sinhvien_Id and lmh.ID=diem1.Lop_MonHoc) 
+				and lmh.MonHoc=@monhoc_id and diem.Ketqua1='HOCLAI' and ctdt.Sinhvien_Id=sv.Sinhvien_Id
+				SET @index1=@index1+1
+			end
+		set @idx=@idx+1
+		end
+
+
+			
+	select * from @thuctap_tmp
+	select * from @khoaluan_tmp
+	select * from @chungchi_tmp
+	select * from @DTBTL_tmp
+	select * from  @ctdt_tmp
